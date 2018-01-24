@@ -1,4 +1,4 @@
-function find_waldo(addr)
+function waldos = find_waldo(addr, plot)
     %% Fetch Image:
     if nargin < 1
         addr = 'findWaldo.png';
@@ -19,13 +19,13 @@ function find_waldo(addr)
     the_waldo = create_waldo_prototype();
     waldos = Blob.empty;
     for(b = blobs)
-        if is_within_percent(b.il_ratio, 14, the_waldo.il_ratio) ...
+        if is_within_percent(b.il_ratio, 16, the_waldo.il_ratio) ...
         && is_within_percent(b.density, 5, the_waldo.density) ...
         && max(b.size) > 1.5 * max(the_waldo.size)
             waldos = [waldos b]; % Append
             continue;
         end
-        if is_within_percent(b.inertia_lambda(1), 12, the_waldo.inertia_lambda(1)) ...
+        if is_within_percent(b.inertia_lambda(1), 15, the_waldo.inertia_lambda(1)) ...
         && is_within_percent(b.inertia_lambda(2), 6.5, the_waldo.inertia_lambda(2)) ...
         && is_within_percent(b.density, 14.5, the_waldo.density)
             waldos = [waldos b]; % Append
@@ -34,6 +34,7 @@ function find_waldo(addr)
     end % blobs
     
     %% Display Outputs:
+    if nargin> 1 && plot || nargin < 2
 %     w = 2; h = 4;
     figure();
     imshow(src_img);
@@ -60,6 +61,8 @@ function find_waldo(addr)
         w.draw(0);
     end
     title('Indentified Waldos');
+    
+    end % plot?
     
     
 end % #find_waldo

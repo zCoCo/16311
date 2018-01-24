@@ -32,16 +32,13 @@ function blobs = floodfill2blobs(flood)
     % and Lower-Right Corners of the Bounding Box Enclosing the Given
     % Values in the Flood.
     function [ulx,uly, lrx,lry] = bounds(val)
-        L0 = find(flood==val,1); % Linear Index Corresponding to the First Pixel with the Given Value
-        Lf = find(flood==val,1,'last'); % Linear Index Corresponding to the Last Pixel with the Given Value
+        Ls = find(flood==val); % Linear Indices Corresponding to All Pixels with the Given Value
+        [ys, xs] = ind2sub(size(flood), Ls);
         
-        [uly, ulx] = ind2sub(size(flood), L0);
-        [lry, lrx] = ind2sub(size(flood), Lf);
-%         ulx = mod(L0, width);
-%         uly = floor(L0/width);
-%         
-%         lrx = mod(Lf, width);
-%         lry = floor(Lf/width);
+        ulx = min(xs);
+        uly = min(ys);
+        lrx = max(xs);
+        lry = max(ys);
     end % #bounds
 
     %% Select Region

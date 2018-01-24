@@ -29,9 +29,6 @@ function out = flood_fill(img)
     % with the Value, val
     function fill_from(x,y, val)
         if(out(y,x) == 1)
-            disp(x);
-            disp(y);
-            disp('----');
             out(y,x) = val; % Fill
 
             % Infect:

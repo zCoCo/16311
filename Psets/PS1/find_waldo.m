@@ -16,8 +16,23 @@ function find_waldo(addr)
     blobs = floodfill2blobs(flood);
     
     %% Identify Waldo Blobs:
+    the_waldo = create_waldo_prototype();
+    waldos = Blob.empty;
+    for(b = blobs)
+        if is_within_percent(b.il_ratio, 14, the_waldo.il_ratio) ...
+        && is_within_percent(b.density, 5, the_waldo.density) ...
+        && max(b.size) > 1.5 * max(the_waldo.size)
+            waldos = [waldos b]; % Append
+            continue;
+        end
+        if is_within_percent(b.inertia_lambda(1), 12, the_waldo.inertia_lambda(1)) ...
+        && is_within_percent(b.inertia_lambda(2), 4, the_waldo.inertia_lambda(2)) ...
+        && is_within_percent(b.density, 14.5, the_waldo.density)
+            waldos = [waldos b]; % Append
+            continue;
+        end
+    end % blobs
     
-
     %% Display Outputs:
 %     w = 2; h = 4;
     figure();
@@ -39,9 +54,18 @@ function find_waldo(addr)
     end
     title('Recognized Objects');
     
-%     figure();
-%     imshow(src_img);
-%     title('Identified Waldos');
+    figure();
+    imshow(src_img);
+    for(w = waldos)
+        w.draw(0);
+    end
+    title('Indentified Waldos');
     
     
 end % #find_waldo
+
+% Returns whether the given test value, T, is within P percent of the
+% desired value, D
+function w = is_within_percent(T,P,D)
+    w = (100*abs(T-D)/D < P);
+end % #is_within_percent

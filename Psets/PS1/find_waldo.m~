@@ -9,12 +9,17 @@ function find_waldo(addr)
     %% Process Image:
     proc_img = preprocess_image(src_img);
     
-    %% Identify Blobs
+    %% Identify Objects (Flood Fill):
+    flood = flood_fill(proc_img);
+    
+    %% Identify and Create Valid Blobs:
+    blobs = floodfill2blobs(flood);
     
     %% Identify Waldo Blobs:
+    
 
     %% Display Outputs:
-    w = 2; h = 4;
+%     w = 2; h = 4;
     figure();
     imshow(src_img);
     title('Source Image');
@@ -24,16 +29,17 @@ function find_waldo(addr)
     title('Preprocessed Image');
     
     figure();
-    imshow(src_img);
+    imagesc(flood);
     title('Flood-Filled Image');
     
     figure();
-    imshow(src_img);
-    title('Identified Blobs');
+    imagesc(flood);
+    for(b
+    title('Recognized Objects');
     
-    figure();
-    imshow(src_img);
-    title('Identified Waldos');
+%     figure();
+%     imshow(src_img);
+%     title('Identified Waldos');
     
     
 end % #find_waldo

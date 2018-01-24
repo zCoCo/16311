@@ -4,7 +4,7 @@
 
 %%%%
 function out = flood_fill(img)
-    [width, height] = size(img);
+    [height, width] = size(img);
     out = img;
     
     no_seeds = 0; % No Viable Seeds Left
@@ -17,39 +17,50 @@ function out = flood_fill(img)
         if(~seeds_gone) % Seed Found.
             
             obj_idx = obj_idx + 1; % Increment to Next Object Index
-            out(y,x) = obj_idx;
             
-            fill_from(x,y, obj_idx); % Fill
+            fill_from(x,y, obj_idx+1); % Fill
             
         end % ~seeds_gone?
         no_seeds = seeds_gone;
     end % loop ~no_seeds?
 
     %% Fill From
-    % Recursive Fill of Region Connected (4-point) to the Seed Point (x,y)
-    % with the Object Index, idx.
-    function fill_from(x,y, idx)
-        if(img(y,x) == 1)
-            out(y,x) = idx; % Fill
+    % Recursive Fill of Region Connected (8-point) to the Seed Point (x,y)
+    % with the Value, val
+    function fill_from(x,y, val)
+        if(out(y,x) == 1)
+            disp(x);
+            disp(y);
+            disp('----');
+            out(y,x) = val; % Fill
 
             % Infect:
-            fill_from(x+1,y, idx); %Right
-            fill_from(x-1,y, idx); %Left
-            fill_from(x,y-1, idx); %Down
-            fill_from(x,y+1, idx); %Up
+            if(x+1 <= width)
+                fill_from(x+1,y, val); %Right
+                if(y-1>0)
+                    fill_from(x+1,y-1, val); %Upper Right
+                end
+                if(y+1<=height)
+                    fill_from(x+1,y+1, val); %Lower Right
+                end
+            end
+            if(x-1 > 0)
+                fill_from(x-1,y, val); %Left
+                if(y-1>0)
+                    fill_from(x-1,y-1, val); %Upper Left
+                end
+                if(y+1<=height)
+                    fill_from(x-1,y+1, val); %Lower Left
+                end
+            end
+            if(y-1 > 0)
+                fill_from(x,y-1, val); %Down
+            end
+            if(y+1 <= height)
+                fill_from(x,y+1, val); %Up
+            end
         end
     end % #fill_from
-    
-    %% Number Adjacent Pixels:
-    % Count Number of Adjacent Pixels in the Source Image of Value 1
-    % (4-point connectivity) to the given point (x,y).
-    function n = count_adj(x,y)
-        n = ...
-            (img(y-1,x) == 1) + ... %Up
-            (img(y+1,x) == 1) + ... %Down
-            (img(y,x+1) == 1) + ... %Right
-            (img(y,x-1) == 1);      %Left
-    end % #count_adj
         
     %% Find Next Seed:
     % Helper Function to Find the Next Position of the Next Seed 

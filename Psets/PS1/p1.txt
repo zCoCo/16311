@@ -1,0 +1,20 @@
+Connor Colombo, cwcolomb
+
+Orthogonal Matrix (45degree Rotation):
+A =
+0.70711   -0.70711
+0.70711   0.70711
+
+Transpose:
+A' =
+0.70711   0.70711
+-0.70711  0.70711
+
+p1.exe Setup (made modification for 2x2 matrix):
+A = 0.70711 -0.70711 0.70711 0.70711
+T = 0.70711 0.70711 -0.70711 0.70711
+R = A * T
+Result:
+R =
+1.00000 0.00000
+0.00000 1.00000

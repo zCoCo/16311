@@ -1,0 +1,43 @@
+%% Image Blob
+% Basic Container Class for Storing Data on a Blob Detected in an Image
+classdef Blob < handle
+    %% Properties
+    properties(GetAccess = public, SetAccess = private)
+        %% Core Data:
+        data; % Image Data of the Blob
+        
+        size; % Bounding Size of the Blob
+        
+        % Position of the Upper Left-Corner of the Blob in the Source Image
+        pos = struct( ...
+            'x', 0, ...
+            'y', 0 ...
+        );
+        
+        %% Extrapolated Properties:
+        % Position of the Center of the Blob in the Source Image
+        center = struct( ...
+            'x', 0, ...
+            'y', 0 ...
+        );
+    
+        inertia; % Inertia Tensor
+        
+    end % Blob<-properties(public, private)
+    
+    %% ME
+    methods(Access = public)
+        %% Constructor
+        % Constructs an Image Blob from the Matrix of a Rectangular Cut
+        % Around the Blob, M, and the Coordinates of the Upper-Left Corner
+        % in the source image.
+        function obj = Blob(M, ulx, uly)
+            obj.data = M;
+            obj.pos.x = ulx;
+            obj.pos.y = uly;
+            
+            obj.center.x = ulx + size
+        end % Blob Constructor
+    end % Blob<-methods(public)
+end % class Blob
+    

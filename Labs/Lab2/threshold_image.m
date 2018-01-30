@@ -79,7 +79,7 @@ function [output] = threshold_image(input_image, threshold)
     %% Re-Normalize Image:
     gauss = gauss ./ max(max(gauss)); % Normalize Image to Local Maximum Value
     
-    %% Threshold:
+    %% Threshold on the Combined Channels:
     imagesc(gauss);
     figure
     imhist(gauss);

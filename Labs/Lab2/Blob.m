@@ -1,6 +1,7 @@
 % @file Blob.m
 % @brief Basic Container Class for Storing Data and Computing Geometric
 % Information about a Blob of Pixels from a Flood-Filled Image.
+% Necessary for calculate_centroids.
 %
 % @author Connor W. Colombo (cwcolomb)
 %--------------------------------------------------------------------------

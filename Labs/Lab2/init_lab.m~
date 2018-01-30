@@ -17,9 +17,9 @@ global LEVEL_4_ENABLED;
 % you're working with, then rerun init_lab.
 LEVEL_0_ENABLED = true;
 LEVEL_1_ENABLED = true;
-LEVEL_2_ENABLED = true;
-LEVEL_3_ENABLED = true;
-LEVEL_4_ENABLED = true;
+LEVEL_2_ENABLED = tru;
+LEVEL_3_ENABLED = false;
+LEVEL_4_ENABLED = false;
 % END EDIT 
 
 % Set working directory, which the rest of the code needs to be properly

@@ -15,7 +15,7 @@ function [centroids] = calculate_centroids(segmented_image)
     max_pixels = 15000; %Maximum Number of Pixels in a Valid Blob (remove big barriers/walls)
 
     %% Get Data about Flood-Fill:
-    [~, width] = size(segmented_image);
+    [height, width] = size(segmented_image);
     N_obj = max(max(segmented_image)); %Number of objects in the flood (+1)
     
     %% Extract Blobs:
@@ -39,23 +39,36 @@ function [centroids] = calculate_centroids(segmented_image)
     end % n<=N_obj
     
     %% Find Blobs which are Most-Likely Tennis Ball:
-    % Intertia Tensors are quite difficult to compute for large images
+    % Inertia Tensors are quite difficult to compute for large images
     % without some sort of geometric simplifications. So, the since the
     % tennis-balls are centered in the frame and most non-tennis-ball
     % objects have already been filtered out, this will just return the
     % four blobs closest to the center of the image.
-    figure();
-    imagesc(segmented_image);
+    
     % Rank Distances:
     dist = []; % Vector of Blob-to-Center Distances
-    for(b = blobs)
-        dist = [ dist, norm([b.center.x, b.center.y]) ];
-        b.draw();
-    end
+    i = 1;
+    while i<=numel(blobs)
+        b = blobs(i);
+        dist(i) = norm([(b.center.x-width/2), (b.center.y-height/2)]);
+     i = i+1;
+    end % i<numel(blobs)
     
+    % Collect Centroids of Center-Most Four Blobs
+    % If there are less than four, it just appends the first value until a
+    % length of 4 is reached.
+    centroids = [];
     
+    i = 0;
+    while i<4
+        [~,idx] = min(dist);
+        b = blobs(idx);
+        centroids = [centroids; b.center.x, b.center.y];
+        dist(idx) = Inf;
+        
+     i = i+1;
+    end %i<4?
     
-    centroids = [400, 400; 800, 400; 400, 800; 800, 800];
     
 %% Helper Functions
     %% Bounds

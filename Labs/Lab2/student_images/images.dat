@@ -1,15 +1,15 @@
-% Fill in this file
+% student_images.dat
 % Format: filename dist threshold
 % dist should be a whole number in inches.
 % threshold should be a float from 0-1.
 %------------------------------------------------------------
-% large_1.jpg 10 0.1
-% large_2.jpg 20 0.1
-% large_3.jpg 30 0.1
-% large_4.jpg 40 0.1
-% large_5.jpg 50 0.1
-% small_1.jpg 10 0.1
-% small_2.jpg 20 0.1
-% small_3.jpg 30 0.1
-% small_4.jpg 40 0.1
-% small_5.jpg 50 0.1
+large_1.jpg 24 0.74
+large_2.jpg 48 0.74
+large_3.jpg 72 0.68
+large_4.jpg 96 0.56
+large_5.jpg 120 0.56
+small_1.jpg 24 0.76
+small_2.jpg 48 0.76
+small_3.jpg 72 0.72
+small_4.jpg 96 0.68
+small_5.jpg 120 0.38

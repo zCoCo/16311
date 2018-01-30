@@ -80,9 +80,6 @@ function [output] = threshold_image(input_image, threshold)
     gauss = gauss ./ max(max(gauss)); % Normalize Image to Local Maximum Value
     
     %% Threshold on the Combined Channels:
-    imagesc(gauss);
-    figure
-    imhist(gauss);
     post = double(gauss > threshold);% Areas More Tennis-Ball-Colored than Threshold are 1.
 
 output = post;

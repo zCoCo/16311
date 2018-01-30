@@ -12,6 +12,8 @@ if isTA
     focalLength = 920;
 end
 
+% If distance between first two is << 0.5*perimeter, use just first two.
+
 % Your code here.
 dist = 100;
 end

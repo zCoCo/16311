@@ -2,13 +2,13 @@
 % You should only edit the thresholds (the third value) in
 % this file.
 %----------------------------------------------------------
-rotated_large_a.jpg 24 0.1
-rotated_large_b.jpg 0 0.1
-rotated_large_c.jpg 0 0.1
-rotated_large_d.jpg 96 0.1
-rotated_large_e.jpg 0 0.1
-rotated_small_a.jpg 24 0.1
-rotated_small_b.jpg 0 0.1
-rotated_small_c.jpg 0 0.1
-rotated_small_d.jpg 72 0.1
-rotated_small_e.jpg 0 0.1
+rotated_large_a.jpg 24 0.48
+rotated_large_b.jpg 0 0.44
+rotated_large_c.jpg 0 0.82
+rotated_large_d.jpg 96 0.68
+rotated_large_e.jpg 0 0.42
+rotated_small_a.jpg 24 0.42
+rotated_small_b.jpg 0 0.42
+rotated_small_c.jpg 0 0.42
+rotated_small_d.jpg 72 0.71
+rotated_small_e.jpg 0 0.58

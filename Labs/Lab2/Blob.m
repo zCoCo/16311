@@ -1,5 +1,9 @@
-%% Image Blob
-% Basic Container Class for Storing Data on a Blob Detected in an Image
+% @file Blob.m
+% @brief Basic Container Class for Storing Data and Computing Geometric
+% Information about a Blob of Pixels from a Flood-Filled Image.
+%
+% @author Connor W. Colombo (cwcolomb)
+%--------------------------------------------------------------------------
 classdef Blob < handle
     %% PROPERTIES
     properties(GetAccess = public, SetAccess = private)

@@ -2,13 +2,13 @@
 % You should only edit the thresholds (the third value) in
 % this file.
 %----------------------------------------------------------
-large_a.jpg 24 0.1
-large_b.jpg 0 0.1
-large_c.jpg 0 0.1
-large_d.jpg 96 0.1
-large_e.jpg 0 0.1
-small_a.jpg 24 0.1
-small_b.jpg 0 0.1
-small_c.jpg 0 0.1
-small_d.jpg 72 0.1
-small_e.jpg 0 0.1
+large_a.jpg 24 0.51
+large_b.jpg 0 0.45
+large_c.jpg 0 0.36
+large_d.jpg 96 0.74
+large_e.jpg 0 0.74
+small_a.jpg 24 0.38
+small_b.jpg 0 0.42
+small_c.jpg 0 0.64
+small_d.jpg 72 0.34
+small_e.jpg 0 0.54

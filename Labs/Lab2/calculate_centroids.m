@@ -11,7 +11,8 @@
 %--------------------------------------------------------------------------
 function [centroids] = calculate_centroids(segmented_image)
     %% Function Params:
-    min_pixels = 47; %Minumum Number of Pixels in a Valid Blob
+    min_pixels = 47; %Minumum Number of Pixels in a Valid Blob (yet another noise filter)
+    max_pixels = 15000; %Maximum Number of Pixels in a Valid Blob (remove big barriers/walls)
 
     %% Get Data about Flood-Fill:
     [~, width] = size(segmented_image);
@@ -24,7 +25,7 @@ function [centroids] = calculate_centroids(segmented_image)
     while(n<=N_obj)
         N_pixels = sum(sum(segmented_image==n));
 
-        if(N_pixels > min_pixels) % Create Blob
+        if(N_pixels > min_pixels && N_pixels < max_pixels) % Create Blob
             [ulx,uly, lrx,lry] = bounds(n);
             
             M = select_region(ulx,uly, lrx,lry); % Capture Everything within Bounding Box
@@ -37,12 +38,24 @@ function [centroids] = calculate_centroids(segmented_image)
     n = n+1;
     end % n<=N_obj
     
-    %% Score Likelihood of Each Blob being a Tennis Ball:
+    %% Find Blobs which are Most-Likely Tennis Ball:
+    % Intertia Tensors are quite difficult to compute for large images
+    % without some sort of geometric simplifications. So, the since the
+    % tennis-balls are centered in the frame and most non-tennis-ball
+    % objects have already been filtered out, this will just return the
+    % four blobs closest to the center of the image.
     figure();
     imagesc(segmented_image);
+    % Rank Distances:
+    dist = []; % Vector of Blob-to-Center Distances
     for(b = blobs)
+        dist = [ dist, norm([b.center.x, b.center.y]) ];
         b.draw();
     end
+    
+    
+    
+    centroids = [400, 400; 800, 400; 400, 800; 800, 800];
     
 %% Helper Functions
     %% Bounds
@@ -66,6 +79,4 @@ function [centroids] = calculate_centroids(segmented_image)
     function R = select_region(ulx,uly, lrx,lry)
         R = segmented_image(uly:lry, ulx:lrx);
     end % #select_region
-
-centroids = [400, 400; 800, 400; 400, 800; 800, 800];
 end

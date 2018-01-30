@@ -1,0 +1,15 @@
+% Fill in this file
+% Format: filename dist threshold
+% dist should be a whole number in inches.
+% threshold should be a float from 0-1.
+%------------------------------------------------------------
+% large_1.jpg 10 0.1
+% large_2.jpg 20 0.1
+% large_3.jpg 30 0.1
+% large_4.jpg 40 0.1
+% large_5.jpg 50 0.1
+% small_1.jpg 10 0.1
+% small_2.jpg 20 0.1
+% small_3.jpg 30 0.1
+% small_4.jpg 40 0.1
+% small_5.jpg 50 0.1

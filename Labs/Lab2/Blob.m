@@ -26,10 +26,10 @@ classdef Blob < handle
         cloudXs; % X-Coordinates of All Points in the Point-Cloud with Origin at the Blob's Center
         cloudYs; % Y-Coordinates of All Points in the Point-Cloud with Origin at the Blob's Center
         
-        inertia_lambda; % Root of the Eigenvector of the Interia Tensor. General Descriptor of Shape / Distribution of Mass.
-        il_ratio; % Ratio of the X Interia Lambda to Y Inertia Lambda
+        inertia_lambda = [0 0]; % Root of the Eigenvector of the Interia Tensor. General Descriptor of Shape / Distribution of Mass.
+        il_ratio = 1; % Ratio of the X Interia Lambda to Y Inertia Lambda
         
-        density; % Fraction of Bounding Box which is Occupied by Blob Pixels
+        density = 0; % Fraction of Bounding Box which is Occupied by Blob Pixels
         
     end % Blob<-properties(public, private)
     
@@ -51,6 +51,10 @@ classdef Blob < handle
             obj.center.x = ulx + floor(obj.width/2);
             obj.center.y = uly + floor(obj.height/2);
             
+            %{
+            % Calculate Inertia (.: shape) Characteristics of Blob.
+            % (not advisable if large blobs make it through)
+            
             Ls = find(M == 1);
             [obj.cloudYs, obj.cloudXs] = ind2sub(size(M), Ls);
             
@@ -61,6 +65,7 @@ classdef Blob < handle
             obj.inertia_lambda = sqrt(eig(inertia));
             obj.inertia_lambda = obj.inertia_lambda(1:2);
             obj.il_ratio = obj.inertia_lambda(1) / obj.inertia_lambda(2);
+            %}
             
             obj.density = length(find(M==1))/(obj.width * obj.height);
         end % Blob Constructor
@@ -90,6 +95,7 @@ classdef Blob < handle
                     text(cx,cy-5, num2str(obj.inertia_lambda(1)), 'Color', 'white');
                     text(cx,cy, num2str(obj.inertia_lambda(2)), 'Color', 'white');
                     text(cx,cy+5, num2str(obj.il_ratio), 'Color', 'white');
+                    text(cx,cy+10, num2str(obj.density), 'Color', 'white');
                 end
             hold off
         end % #draw

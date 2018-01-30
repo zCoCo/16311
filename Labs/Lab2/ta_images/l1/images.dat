@@ -1,0 +1,14 @@
+% TA Images.dat
+% You should only edit the thresholds (the third value) in
+% this file.
+%----------------------------------------------------------
+large_a.jpg 24 0.1
+large_b.jpg 0 0.1
+large_c.jpg 0 0.1
+large_d.jpg 96 0.1
+large_e.jpg 0 0.1
+small_a.jpg 24 0.1
+small_b.jpg 0 0.1
+small_c.jpg 0 0.1
+small_d.jpg 72 0.1
+small_e.jpg 0 0.1

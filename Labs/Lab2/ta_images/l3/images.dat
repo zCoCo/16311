@@ -1,0 +1,14 @@
+% TA Images.dat
+% You should only edit the thresholds (the third value) in
+% this file.
+%----------------------------------------------------------
+noise_large_a.jpg 24 0.1
+noise_large_b.jpg 0 0.1
+noise_large_c.jpg 0 0.1
+noise_large_d.jpg 96 0.1
+noise_large_e.jpg 0 0.1
+noise_small_a.jpg 24 0.1
+noise_small_b.jpg 0 0.1
+noise_small_c.jpg 0 0.1
+noise_small_d.jpg 72 0.1
+noise_small_e.jpg 0 0.1

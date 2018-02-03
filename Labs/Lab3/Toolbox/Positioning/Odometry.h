@@ -4,6 +4,10 @@
 #include "TPose.h"
 #include "../Util/TSFifo.h"
 
+#include "../Display/DisplayStack.h"
+
+#define PRINT_ODOMETRY_DATA // Comment-Out to Disable
+
 // Defines Standard Variables and Functions Neccessary to Perform Odometry.
 // Actual Odometry Data Implementation (calculating V,om,dt)
 // is Carried Out by the HAL.
@@ -14,6 +18,19 @@ Construct_TSFifo(Hist_Dist, float, 10); // [m] Logs Path-Length Distance Travell
 Construct_TSFifo(Hist_Vel, float, 15); // [m/s]
 Construct_TSFifo(Hist_Omega, float, 15); // [rad/s]
 Construct_TSFifo(Hist_Curv, float, 15); // [1/m]
+
+// Initialize Odometry Data:
+void init_odometry(){
+  TSF_add(Hist_Position, (TPose){0,0,0});
+  TSF_add(Hist_Time, 0);
+  TSF_add(Hist_Vel, 0);
+  TSF_add(Hist_Omega, 0);
+  TSF_add(Hist_Curv, 0);
+
+  #ifdef PRINT_ODOMETRY_DATA
+    draw_grid();
+  #endif
+} // #init_odometry
 
 /****
  * Updates the Odometry with the Given Velocity Profile (V,om) since the Last
@@ -42,6 +59,14 @@ void update_odometry(float V, float om, float dt){
   TSF_add(Hist_Vel, V);
   TSF_add(Hist_Omega, om);
   TSF_add(Hist_Curv, (om/V));
+
+  #ifdef PRINT_ODOMETRY_DATA
+    /*Code that plots the robot's current position and also prints it out as text*/
+    nxtSetPixel(50 + (int)(100.0 * new_x), 32 + (int)(100.0 * new_y));
+    nxtDisplayTextLine(0, "X: %f", new_x);
+    nxtDisplayTextLine(1, "Y: %f", new_y);
+    nxtDisplayTextLine(2, "t: %f", new_th);
+  #endif
 } // #update_odometry
 
 #endif // _ODOMETRY_H

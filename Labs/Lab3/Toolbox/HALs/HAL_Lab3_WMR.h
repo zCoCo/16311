@@ -10,7 +10,10 @@
     Right Motor -> MotorB
 ****/
 
+#include "../Positioning/Odometry.h"
+
 /* ---- PARAMETERS ---- */
+  #define MOTOR_PID_UPDATE_INTERVAL 2
   #define VELOCITY_UPDATE_INTERVAL 4
 
   #define WHEEL_DIAMETER 0.0572 // [m]
@@ -28,23 +31,20 @@
   #define OdometryClock T1
 
 /* ---- CORE: ---- */
-void init(){
+void init_HAL(){
 
   // Tell Motors to Operate Closed-Loop (being able to command a specific number
   // of ticks per second:)
   nMotorPIDSpeedCtrl[LeftMotor] = mtrSpeedReg;
   nMotorPIDSpeedCtrl[RightMotor] = mtrSpeedReg;
+  nPidUpdateInterval = MOTOR_PID_UPDATE_INTERVAL;
 
   // Initialize Continuous Data Streams for Odometry:
-  TSF_add(Hist_Position, (TPose){0,0,0});
-  TSF_add(Hist_Time, 0);
-  TSF_add(Hist_Vel, 0);
-  TSF_add(Hist_Omega, 0);
-  TSF_add(Hist_Curv, 0);
+  init_odometry();
 
 } // #init
 
-void reset(){
+void reset_HAL(){
   // Reset Continuous Data Streams for Odometry:
   TSF_add(Hist_Position, (TPose){0,0,0});
   TSF_add(Hist_Time, 0);

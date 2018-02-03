@@ -13,8 +13,6 @@
     Vector3x1 vec;
   } TPose;
 
-  TPose Robot_Pose; // Robot Pose in the World Frame
-
   /****
    * Returns the Homogeneous Transform that Converts Coordinates from the b Frame
    * to the a Frame of the Given Pose.

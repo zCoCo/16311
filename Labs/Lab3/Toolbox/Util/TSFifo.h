@@ -23,9 +23,15 @@ struct{ \
 } while(0)
 
 #define TSF_first(tsf) ((tsf.numElements>0) ? (tsf.que[0]) : 0)
+
 #define TSF_last(tsf) ((tsf.numElements>0) ? (tsf.que[tsf.numElements-1]) : 0)
+#define TSF_Last(tsf) TSF_last(tsf) //alias
+
 #define TSF_penult(tsf) ((tsf.numElements>1) ? (tsf.que[tsf.numElements-2]) : 0) // Second to Last
+
 #define TSF_delta(tsf) (TSF_last(tsf) - TSF_penult(tsf))
+#define TSF_Delta(tsf) TSF_delta(tsf) //alias
+
 
 #define TSF_isEmpty(tsf) (tsf.numElements == 0)
 

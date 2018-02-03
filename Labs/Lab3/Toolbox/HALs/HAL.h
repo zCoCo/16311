@@ -10,7 +10,7 @@
         #init_HAL()
 
         -Reset (effectively, make robot init again as if power had been toggled):
-        #reset()
+        #reset_HAL()
 
       SENSING:
         -Odometry - Measures Characteristics about the Absolute Distance Travelled.

@@ -24,5 +24,6 @@
 ***********/
 
   #include "TPose.h"
+  #include "Odometry.h"
 
 #endif // _POSITIONING_STACK_H

@@ -1,7 +1,8 @@
 #ifndef _T_POSE_H
 #define _T_POSE_H
 
-#include "../Math/MathStack.h";
+#include "../Math/Matrix.h";
+#include "../Math/Vector.h";
 
   typedef union{
     struct{

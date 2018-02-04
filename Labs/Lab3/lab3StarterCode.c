@@ -143,7 +143,7 @@ task main()
   if (rightMotorSpeed > RIGHT_MAX_SPEED ) rightMotorSpeed = RIGHT_MAX_SPEED; // prevent the motor from going beyond max speed
   if (leftMotorSpeed > LEFT_MAX_SPEED ) leftMotorSpeed = LEFT_MAX_SPEED; // prevent the motor from going beyond max speed
   if (rightMotorSpeed < 0) rightMotorSpeed = 0; // keep the motor speed positive
-  if (leftMotorSpeed < 0) leftMotorSpeed = 0;{ // keep the motor speed positive
+  if (leftMotorSpeed < 0) leftMotorSpeed = 0; // keep the motor speed positive
 
 	motor[motorA] = rightMotorSpeed;
 	motor[motorB] = leftMotorSpeed;
@@ -195,5 +195,3 @@ task main()
 	nNxtButtonTask  = 0;
 	while(nNxtButtonPressed != kExitButton) {}
 }
-=======
->>>>>>> bfb6a40b9aa67e40787fe9dfad8235465e8c743e

@@ -38,8 +38,10 @@ task main()
 		/* Example codes for moving in a striaght line a certain distance,
 		 * you need to change this for MUCH better performance */
      // Implement Real PID on Y-Component (minimize Cross-Track Motion)
-		motor[motorA] = motorPower;
-		motor[motorB] = motorPower;
+		moveAt(0.3,0);
+    wait10Msec(50);
+    moveAt(0,2);
+    wait10Msec(50);
 		distTravelled = sqrt(pow(robot_X - start_X, 2) + pow(robot_Y - start_Y, 2));
 		while (!equal(distTravelled, goalStraight)) {
 			distTravelled = sqrt(pow(robot_X - start_X, 2) + pow(robot_Y - start_Y, 2));

@@ -23,7 +23,7 @@
   // Distance per Encoder Tick:
   #define METERS_PER_TICK (WHEEL_CIRCUMFERENCE / TICKS_PER_REV) // [m/tick]
 
-  #define MAX_REV_PER_SECOND 700 // Make sure this is an attainable value
+  #define MAX_REV_PER_SECOND 2 // Make sure this is an attainable value
 
   #define LeftMotor motorC
   #define RightMotor motorB
@@ -37,6 +37,7 @@ void init_HAL(){
   // of ticks per second:)
   nMotorPIDSpeedCtrl[LeftMotor] = mtrSpeedReg;
   nMotorPIDSpeedCtrl[RightMotor] = mtrSpeedReg;
+  nMaxRegulatedSpeed = TICKS_PER_REV * MAX_REV_PER_SECOND;
   nPidUpdateInterval = MOTOR_PID_UPDATE_INTERVAL;
 
   // Initialize Continuous Data Streams for Odometry:
@@ -57,7 +58,7 @@ void reset_HAL(){
 task odometry(){
   // Preallocate Loop Variables:
   float Ds_left, Ds_right;
-  float Dt;
+  float dt;
   float v_l, v_r;
 
   // Loop:
@@ -98,10 +99,16 @@ task odometry(){
 ****/
 void moveAt(float V, float omega){
   // Compute Forward Kinematics:
-  v_l = V - (WHEEL_TREAD / 2.0f) * omega; // [m/s]
-  v_r = V + (WHEEL_TREAD / 2.0f) * omega;
+  float v_l = V - (WHEEL_TREAD / 2.0f) * omega; // [m/s]
+  float v_r = V + (WHEEL_TREAD / 2.0f) * omega;
+  // Convert to ticks/s:
+  v_l = v_l / METERS_PER_TICK; v_r = v_r / METERS_PER_TICK;
+  // Convert to % of Max Speed:
+  v_l = 100 * (v_l / TICKS_PER_REV / MAX_REV_PER_SECOND);
+  v_r = 100 * (v_r / TICKS_PER_REV / MAX_REV_PER_SECOND);
 
-  // Command Specific Velocity (in m/s):
+  motor[LeftMotor] = v_l;
+  motor[RightMotor] = v_r;
 }
 
 // #limitWheelVelocity(V,om)

@@ -5,8 +5,7 @@
     float v[3];
   } Vector3x1;
 
-  Vector3x1 AddVectors(Vector3x1 &pA, Vector3x1 &pB){
-    Vector3x1 pResult;
+  void AddVectors(Vector3x1 &pA, Vector3x1 &pB, Vector3x1 &pResult){
     int i;
     /* This is error-checking, and wasn't required */
     if(pA == NULL || pB == NULL || pResult == NULL)
@@ -15,12 +14,9 @@
      the vector pointed to by pResult */
     for(i = 0; i < 3; i++)
         pResult.v[i] = pA.v[i] + pB.v[i];
-
-    return pResult;
   }
 
-  Vector3x1 DotVectors(Vector3x1 &pA, Vector3x1 &pB){
-    Vector3x1 pResult;
+  void DotVectors(Vector3x1 &pA, Vector3x1 &pB, Vector3x1 &pResult){
     int i;
     float sum;
     sum = 0;
@@ -31,18 +27,13 @@
     pResult.v[0] = sum; //again, just explicit, no {}memcpy
     pResult.v[1] = 0.0;
     pResult.v[2] = 0.0;
-
-    return pResult;
   }
 
-  Vector3x1 CrossVectors(Vector3x1 &pA, Vector3x1 &pB){
-    Vector3x1 pResult;
+  void CrossVectors(Vector3x1 &pA, Vector3x1 &pB, Vector3x1 &pResult){
     //Just explicit:
     pResult.v[0] = pA.v[1] * pB.v[2] - pA.v[2] * pB.v[1];
     pResult.v[1] = pA.v[2] * pB.v[0] - pA.v[0] * pB.v[2];
     pResult.v[2] = pA.v[0] * pB.v[1] - pA.v[1] * pB.v[0];
-
-    return pResult;
   }
 
 #endif // _VECTOR_H

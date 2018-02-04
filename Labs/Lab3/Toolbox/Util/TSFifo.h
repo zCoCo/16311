@@ -3,11 +3,12 @@
 // Implements a Sliding FiFo Queue for Limited Storage of Continuous Data Streams
 
 #define Construct_TSFifo(name, type, maxSize) \
-struct{ \
+typedef struct{ \
   type que[maxSize]; \
   int numElements; \
   int maxElements; \
-} name = { .numElements = 0, .maxElements = maxSize }
+} name; \
+//TSF_name name; name.numElements = 0; name.maxElements = maxSize;
 
 #define TSF_add(tsf, elem) do{ \
   if(tsf.numElements == tsf.maxElements){ \

@@ -6,16 +6,22 @@
  * Feel free to modify any part of these codes.
  **********************************************/
 
+#include "RobotCIncludes.h"
+
+#include "Toolbox/Display/DisplayStack.h"
+#include "Toolbox/Util/UtilStack.h"
+#include "Toolbox/Positioning/PositioningStack.h"
+#include "Toolbox/HALs/HAL.h"
+
 //Change these during demo
 int inputStraight[2] = {0, 0}; // in mm
 int inputTurn[2] = {0, 0}; // in degrees, negative means clockwise rotation
-int motorPower = 50;
 
 task main()
 {
 
-	int goalStraight = 0;
-	int goalTurn = 0;
+	int goalStraight = 0.6096; // [m]
+	int goalTurn = 0;\
 	float start_X = 0;
 	float start_Y = 0;
 	float distTravelled = 0;

@@ -10,21 +10,19 @@
       float Y; //   - Y Position
       float TH; //  - Heading, Radians (World-Frame)
     };
-    Vector3x1 vec;
+    Vector3x1 v; // Use '.v' for compatibility with Vector3x1 syntax
   } TPose;
 
   /****
    * Returns the Homogeneous Transform that Converts Coordinates from the b Frame
    * to the a Frame of the Given Pose.
   ****/
-  Matrix3x3 bToA(TPose &P){
-    Matrix3x3 mat;
+  void bToA(TPose &P, Matrix3x3 &mat){
 
     mat.m[0][0] = cos(P.TH); mat.m[0][1] = -sin(P.TH); mat.m[0][2] = P.X;
     mat.m[1][0] = sin(P.TH); mat.m[1][1] = cos(P.TH); mat.m[1][2] = P.Y;
-    mat.m[2][0] = 0.0f; mat.m[2][1] = 0.0f; mat.m[2][2] = 1.0f;
+    mat.m[2][0] = 0.0; mat.m[2][1] = 0.0; mat.m[2][2] = 1.0;
 
-    return mat;
   } // #bToA
 
   /****
@@ -48,14 +46,14 @@
    *
    * Add D=[1,0,310deg] to P=[0,0,60deg] -> [cos(60deg),sin(60deg),10deg]
   ***/
-  TPose addTo(TPose &Delta, TPose &P){
-    TPose Pres;
+  void addTo(TPose &Delta, TPose &P, TPose &Pres){
 
-    Matrix3x3 Mb2a = bToA(P);
+    Matrix3x3 Mb2a;
+    bToA(P, Mb2a);
     Vector3x1 Vr;
-    Vr.v = Delta.v; Vr.v[2] = 1.0f;
+    Vr.v = Delta.v; Vr.v[2] = 1.0;
 
-    Pres.v = MultMatVec(Mb2a,Vr);
+    MultMatVec(Mb2a,Vr, Pres.v);
 
     Pres.TH = P.TH + Delta.TH;
     Pres.TH = atan2(sin(Pres.TH), cos(Pres.TH)); // Ensure Proper Wrap-Around

@@ -7,8 +7,7 @@
     float m[3][3];
   } Matrix3x3;
 
-  Matrix3x3 AddMatrices(Matrix3x3 &pA, Matrix3x3 &pB){
-    Matrix3x3 pResult;
+  void AddMatrices(Matrix3x3 &pA, Matrix3x3 &pB, Matrix3x3 &pResult){
     int i, j;
 
     for(i=0; i<3; i++){
@@ -17,11 +16,9 @@
       }
     }
 
-    return pResult;
   }
 
-  Matrix3x3 MultMatrices(Matrix3x3 &pA, Matrix3x3 &pB){
-    Matrix3x3 pResult;
+  void MultMatrices(Matrix3x3 &pA, Matrix3x3 &pB, Matrix3x3 &pResult){
     int ra, cb, i;
     float dotp;
 
@@ -35,23 +32,20 @@
       } // cb<3
     } // ra<3
 
-    return pResult;
   } // #MultMatrices
 
-  Vector3x1 MultMatVec(Matrix3x3 &pM, Vector3x1 &pV){
-    Vector3x1 pResult;
+  void MultMatVec(Matrix3x3 &pM, Vector3x1 &pV, Vector3x1 &pResult){
     int cb, i;
     float dotp;
 
     for(cb=0; cb<3; cb++){ // For each column vector in the matrix of index cb
       dotp = 0;
       for(i=0; i<3; i++){ // get its dot product with the vector, pV.
-        dotp += pV->v[i] * pM->m[i][cb];
+        dotp += pV.v[i] * pM.m[i][cb];
       } // i<3
-      pResult->v[cb] = dotp; // And store the result in index cb.
+      pResult.v[cb] = dotp; // And store the result in index cb.
     } // cb<3
 
-    return pResult;
   } // #MultMatVec
 
   // Matrix Determinant
@@ -61,12 +55,11 @@
            - pM.m[0][2] * ( pM.m[1][0]*pM.m[2][1] - pM.m[1][1]*pM.m[2][0]) );
   } // #DetMat
 
-  Matrix3x3 InverseMat(Matrix3x3 &pM){
-    Matrix3x3 pRes;
+  void InverseMat(Matrix3x3 &pM, Matrix3x3 &pRes){
 
     float det = DetMat(pM);
     if(det){ //!=0
-      invdet = 1/det;
+      float invdet = 1/det;
 
       pRes.m[0][0] = invdet*(pM.m[1][1]*pM.m[2][2] - pM.m[2][1]*pM.m[1][2]);
       pRes.m[0][1] = invdet*(pM.m[0][2]*pM.m[2][1] - pM.m[0][1]*pM.m[2][2]);
@@ -82,7 +75,6 @@
 
     } // det?
 
-    return pRes;
   } // #InverseMat
 
 #endif // _MATRIX_H

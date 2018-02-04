@@ -1,7 +1,7 @@
 #ifndef _UTIL_STACK_H
 #define _UTIL_STACK_H
 
-  #include "SlidingFifo.h"
+  #include "TSFifo.h"
 
   // Misc. Utilities:
 

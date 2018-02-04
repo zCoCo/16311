@@ -1,4 +1,4 @@
-
+#pragma config(Sensor, S3,     lightSensor,         sensorLightActive)
 /**********************************************
  * Lab 3 : Starter code
  * Written by Kaushik Viswanathan,
@@ -41,6 +41,7 @@ task dead_reckoning()
 		nxtDisplayTextLine(0, "X: %f", robot_X);
 		nxtDisplayTextLine(1, "Y: %f", robot_Y);
 		nxtDisplayTextLine(2, "t: %f", robot_TH);
+		nxtDisplayTextLine(2, "S: %f", SensorValue[lightSensor]);
 
 		wait1Msec(velocityUpdateInterval);
 	}
@@ -110,7 +111,6 @@ void draw_grid()
 /*****************************************
  * Main function - Needs changing
  *****************************************/
-#pragma config(Sensor, S3,     lightSensor,         sensorLightActive)
 task main()
 {
 	// Team 15 PID Code
@@ -126,19 +126,21 @@ task main()
 	float lastError = 0;
 
 	// Might have to adjust the middle dark value
-	float error = SensorValue(lightSensor) - 50; //mySensorBar.getPosition() - 0; //getposition value can be negative check this
+	float error = SensorValue[lightSensor] - 32; //mySensorBar.getPosition() - 0; //getposition value can be negative check this
 
 	float motorPower = Kp * error + Kd * (error - lastError);
 
 	lastError = error;
 
   // if statement right here based on curvature to add the motor power or subtract power base on which way turning
-	rightMotorSpeed = RIGHT_BASE_SPEED + motorPower;
-	leftMotorSpeed = LEFT_BASE_SPEED -  motorPower;
-
-	// if statement right here based on curvature to add the motor power or subtract power base on which way turning
-	rightMotorSpeed = RIGHT_BASE_SPEED - motorPower;
-	leftMotorSpeed = LEFT_BASE_SPEED +  motorPower;
+	float K = 1;
+	if(K<0){
+		rightMotorSpeed = RIGHT_BASE_SPEED + motorPower;
+		leftMotorSpeed = LEFT_BASE_SPEED -  motorPower;
+	} else{
+		rightMotorSpeed = RIGHT_BASE_SPEED - motorPower;
+		leftMotorSpeed = LEFT_BASE_SPEED +  motorPower;
+	}
 
   if (rightMotorSpeed > RIGHT_MAX_SPEED ) rightMotorSpeed = RIGHT_MAX_SPEED; // prevent the motor from going beyond max speed
   if (leftMotorSpeed > LEFT_MAX_SPEED ) leftMotorSpeed = LEFT_MAX_SPEED; // prevent the motor from going beyond max speed

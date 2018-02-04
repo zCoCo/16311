@@ -10,7 +10,7 @@
       float Y; //   - Y Position
       float TH; //  - Heading, Radians (World-Frame)
     };
-    Vector3x1 v; // Use '.v' for compatibility with Vector3x1 syntax
+    Vector3x1 vec;
   } TPose;
 
   /****
@@ -51,9 +51,9 @@
     Matrix3x3 Mb2a;
     bToA(P, Mb2a);
     Vector3x1 Vr;
-    Vr.v = Delta.v; Vr.v[2] = 1.0;
+    Vr.v = Delta.vec; Vr.v[2] = 1.0;
 
-    MultMatVec(Mb2a,Vr, Pres.v);
+    MultMatVec(Mb2a,Vr, Pres.vec);
 
     Pres.TH = P.TH + Delta.TH;
     Pres.TH = atan2(sin(Pres.TH), cos(Pres.TH)); // Ensure Proper Wrap-Around

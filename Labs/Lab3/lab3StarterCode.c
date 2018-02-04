@@ -1,3 +1,4 @@
+
 /**********************************************
  * Lab 3 : Starter code
  * Written by Kaushik Viswanathan,
@@ -194,3 +195,5 @@ task main()
 	nNxtButtonTask  = 0;
 	while(nNxtButtonPressed != kExitButton) {}
 }
+=======
+>>>>>>> bfb6a40b9aa67e40787fe9dfad8235465e8c743e

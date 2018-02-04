@@ -5,6 +5,8 @@
 
   // Misc. Utilities:
 
+  #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+
   /*********************************************************
    * Function that judges if two floats are effectively equal
    *********************************************************/

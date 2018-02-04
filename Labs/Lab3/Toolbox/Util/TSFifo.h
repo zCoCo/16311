@@ -1,26 +1,34 @@
 #ifndef _T_SLIDING_FIFO_H
 #define _T_SLIDING_FIFO_H
-// Implements a Sliding FiFo Queue for Limited Storage of Continuous Data Streams
 
+#include "../Util/UtilStack.h"
+
+// Implements a Sliding FiFo Queue for Limited Storage of Continuous Data Streams
 #define Construct_TSFifo(name, type, maxSize) \
 typedef struct{ \
   type que[maxSize]; \
   int numElements; \
   int maxElements; \
-} name; \
-//TSF_name name; name.numElements = 0; name.maxElements = maxSize;
+} name ## _TSF; \
+name ## _TSF name
+
+// Must be called in an executable area (ex. task):
+#define Init_TSFifo(name) do{ \
+  name.numElements = 0; \
+  name.maxElements = ARRAY_SIZE(name.que); \
+} while(0)
 
 #define TSF_add(tsf, elem) do{ \
   if(tsf.numElements == tsf.maxElements){ \
     for(int i=0; i<(tsf.maxElements-1); i++){ \
       tsf.que[i] = tsf.que[i+1]; \
     } \
-    tsf.que[tsf.maxElements-1] = elem; \
+    tsf.que[tsf.maxElements-1] = (elem); \
   } else{ \
-    tsf.que[tsf.numElements] = elem; \
+    tsf.que[tsf.numElements] = (elem); \
     tsf.numElements = tsf.numElements + 1; \
   } \
-  tsf.que[tsf.numElements] \
+  tsf.que[tsf.numElements]; \
 } while(0)
 
 #define TSF_first(tsf) ((tsf.numElements>0) ? (tsf.que[0]) : 0)

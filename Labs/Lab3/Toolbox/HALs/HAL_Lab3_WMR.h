@@ -37,7 +37,7 @@ void init_HAL(){
   // of ticks per second:)
   nMotorPIDSpeedCtrl[LeftMotor] = mtrSpeedReg;
   nMotorPIDSpeedCtrl[RightMotor] = mtrSpeedReg;
-  nMaxRegulatedSpeed = TICKS_PER_REV * MAX_REV_PER_SECOND;
+  nMaxRegulatedSpeedNxt = TICKS_PER_REV * MAX_REV_PER_SECOND;
   nPidUpdateInterval = MOTOR_PID_UPDATE_INTERVAL;
 
   // Initialize Continuous Data Streams for Odometry:
@@ -47,11 +47,7 @@ void init_HAL(){
 
 void reset_HAL(){
   // Reset Continuous Data Streams for Odometry:
-  TSF_add(Hist_Position, (TPose){0,0,0});
-  TSF_add(Hist_Time, 0);
-  TSF_add(Hist_Vel, 0);
-  TSF_add(Hist_Omega, 0);
-  TSF_add(Hist_Curv, 0);
+  /* -- TODO -- */
 } // #reset
 
 /* ---- SENSING ---- */
@@ -60,6 +56,7 @@ task odometry(){
   float Ds_left, Ds_right;
   float dt;
   float v_l, v_r;
+  float V, om;
 
   // Loop:
   while(1){
@@ -71,18 +68,18 @@ task odometry(){
     // Reset (after capture) so Value Represents a Delta (and to help prevent overflows):
     nMotorEncoder[LeftMotor] = 0;
     nMotorEncoder[RightMotor] = 0;
-    ClearTimer(OdometryClock);
+    clearTimer(OdometryClock);
 
     // Convert to Standard Units:
     Ds_left = METERS_PER_TICK * Ds_left;
     Ds_right = METERS_PER_TICK * Ds_right;
-    dt = dt * 1e-3; // ms -> s
+    dt = dt * 0.001; // ms -> s
 
     // Compute Velocity Profile:
     v_l = Ds_left / dt; v_r = Ds_right / dt;
 
     // Compute Inverse Kinematics:
-    V = (v_r + v_l) / 2.0f;
+    V = (v_r + v_l) / 2.0;
     om = (v_r - v_l) / WHEEL_TREAD;
 
     update_odometry(V,om,dt);
@@ -99,13 +96,13 @@ task odometry(){
 ****/
 void moveAt(float V, float omega){
   // Compute Forward Kinematics:
-  float v_l = V - (WHEEL_TREAD / 2.0f) * omega; // [m/s]
-  float v_r = V + (WHEEL_TREAD / 2.0f) * omega;
+  float v_l = V - (WHEEL_TREAD / 2.0) * omega; // [m/s]
+  float v_r = V + (WHEEL_TREAD / 2.0) * omega;
   // Convert to ticks/s:
   v_l = v_l / METERS_PER_TICK; v_r = v_r / METERS_PER_TICK;
   // Convert to % of Max Speed:
-  v_l = 100 * (v_l / TICKS_PER_REV / MAX_REV_PER_SECOND);
-  v_r = 100 * (v_r / TICKS_PER_REV / MAX_REV_PER_SECOND);
+  v_l = 100.0 * (v_l / TICKS_PER_REV / MAX_REV_PER_SECOND);
+  v_r = 100.0 * (v_r / TICKS_PER_REV / MAX_REV_PER_SECOND);
 
   motor[LeftMotor] = v_l;
   motor[RightMotor] = v_r;

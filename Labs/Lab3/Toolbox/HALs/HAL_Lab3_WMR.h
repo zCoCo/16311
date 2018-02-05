@@ -80,8 +80,10 @@ task odometry(){
     Ds_right = METERS_PER_TICK * Ds_right;
     dt = dt * 0.001; // ms -> s
 
-    // Compute Velocity Profile:
-    v_l = Ds_left / dt; v_r = Ds_right / dt;
+    if(dt){
+      // Compute Velocity Profile:
+      v_l = Ds_left / dt; v_r = Ds_right / dt;
+    }
 
     // Compute Inverse Kinematics:
     V = (v_r + v_l) / 2.0;

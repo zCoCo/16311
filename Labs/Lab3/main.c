@@ -45,14 +45,12 @@ task main()
 		 * you need to change this for MUCH better performance */
      // Implement Real PID on Y-Component (minimize Cross-Track Motion)
 		moveAt(0.3,0);
-    wait10Msec(50);
+    wait10Msec(200);
     moveAt(0,2);
-    wait10Msec(50);
-    memcpy(P, );
-    TPose P = TSF_Last(Hist_Position);
-		distTravelled = sqrt(pow(P.X - start_X, 2) + pow(P.Y - start_Y, 2));
+    wait10Msec(200);
+		distTravelled = sqrt(pow(rob_pos.X - start_X, 2) + pow(rob_pos.Y - start_Y, 2));
 		while (!equal(distTravelled, goalStraight, 1)) {
-			distTravelled = sqrt(pow(P.X - start_X, 2) + pow(P.Y - start_Y, 2));
+			distTravelled = sqrt(pow(rob_pos.X - start_X, 2) + pow(rob_pos.Y - start_Y, 2));
 		}
 
 		wait1Msec(100 * 5);

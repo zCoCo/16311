@@ -114,12 +114,12 @@ void draw_grid()
 task main()
 {
 	// Team 15 PID Code
-	float Kp = 1; // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
+	float Kp = 10; // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
 	float Kd = 0; // experiment to determine this, slowly increase the speeds and adjust this value. ( Note: Kp < Kd)
-	float RIGHT_MAX_SPEED = 100; // max speed of the robot
-	float LEFT_MAX_SPEED = 100;  // max speed of the robot
-	float RIGHT_BASE_SPEED = 50; // this is the speed at which the motors should spin when the robot is perfectly on the line
-	float LEFT_BASE_SPEED = 50; // this is the speed at which the motors should spin when the robot is perfectly on the line
+	float RIGHT_MAX_SPEED = 80; // max speed of the robot
+	float LEFT_MAX_SPEED = 80;  // max speed of the robot
+	float RIGHT_BASE_SPEED = 40; // this is the speed at which the motors should spin when the robot is perfectly on the line
+	float LEFT_BASE_SPEED = 40; // this is the speed at which the motors should spin when the robot is perfectly on the line
 	float rightMotorSpeed = 0;
 	float leftMotorSpeed = 0;
 

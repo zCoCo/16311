@@ -40,6 +40,11 @@ void init_HAL(){
   nMaxRegulatedSpeedNxt = TICKS_PER_REV * MAX_REV_PER_SECOND;
   nPidUpdateInterval = MOTOR_PID_UPDATE_INTERVAL;
 
+  // Initialize Sensor Deltas:
+  nMotorEncoder[LeftMotor] = 0;
+  nMotorEncoder[RightMotor] = 0;
+  clearTimer(OdometryClock);
+
   // Initialize Continuous Data Streams for Odometry:
   init_odometry();
 

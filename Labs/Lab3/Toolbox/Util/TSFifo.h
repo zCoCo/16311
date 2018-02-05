@@ -19,21 +19,24 @@ name ## _TSF name
 } while(0)
 
 #define TSF_add(tsf, elem) do{ \
-  if(tsf.numElements == tsf.maxElements){ \
-    for(int i=0; i<(tsf.maxElements-1); i++){ \
-      tsf.que[i] = tsf.que[i+1]; \
+  if(tsf.maxElements != 0){ \
+    if(tsf.numElements == tsf.maxElements){ \
+      for(int i=0; i<(tsf.maxElements-1); i++){ \
+        tsf.que[i] = tsf.que[i+1]; \
+      } \
+      tsf.que[tsf.maxElements-1] = elem; \
+    } else{ \
+      tsf.que[tsf.numElements] = elem; \
+      tsf.numElements = tsf.numElements + 1; \
     } \
-    tsf.que[tsf.maxElements-1] = (elem); \
-  } else{ \
-    tsf.que[tsf.numElements] = (elem); \
-    tsf.numElements = tsf.numElements + 1; \
   } \
-  tsf.que[tsf.numElements]; \
 } while(0)
 
 #define TSF_first(tsf) ((tsf.numElements>0) ? (tsf.que[0]) : 0)
 
-#define TSF_last(tsf) ((tsf.numElements>0) ? (tsf.que[tsf.numElements-1]) : 0)
+// TSF_Last is unsafe if no values have been added (numElem=0). Has to be this
+// way for accessors (.X, .Y) to work.
+#define TSF_last(tsf) (tsf.que[tsf.numElements-1]) // Make SURE you have ADDED A VALUE to the fifo!
 #define TSF_Last(tsf) TSF_last(tsf) //alias
 
 #define TSF_penult(tsf) ((tsf.numElements>1) ? (tsf.que[tsf.numElements-2]) : 0) // Second to Last

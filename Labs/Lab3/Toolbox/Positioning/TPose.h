@@ -13,6 +13,11 @@
     Vector3x1 vec;
   } TPose;
 
+  //Initial TPose, P, with the Given Position (x,y,t)
+  #define Init_TPose(P, x,y,t) do{ \
+    P.X = x; P.Y = y; P.TH = t; \
+  } while(0)
+
   /****
    * Returns the Homogeneous Transform that Converts Coordinates from the b Frame
    * to the a Frame of the Given Pose.

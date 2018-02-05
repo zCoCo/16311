@@ -11,6 +11,7 @@
 #include "Toolbox/Display/DisplayStack.h"
 #include "Toolbox/Util/UtilStack.h"
 #include "Toolbox/Positioning/PositioningStack.h"
+#include "Toolbox/Control/ControlStack.h"
 #include "Toolbox/HALs/HAL.h"
 
 //Change these during demo

@@ -25,6 +25,12 @@
 
   #define MAX_REV_PER_SECOND 2 // Make sure this is an attainable value
 
+  #define MAX_VEL 0.3 // [m/s] - Maximum Linear Velocity
+  #define MAX_ACCEL 0.6 //[m/s/s] - Maximum Linear Acceleration
+
+  #define MAX_OMEGA 5 // [rad/s] - Maximum Angular Velocity
+  #define MAX_ALPHA 2 // [rad/s/s] - Maximum Angular Acceleration
+
   #define LeftMotor motorC
   #define RightMotor motorB
 

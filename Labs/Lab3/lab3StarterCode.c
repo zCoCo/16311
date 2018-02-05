@@ -114,26 +114,28 @@ void draw_grid()
 task main()
 {
 	// Team 15 PID Code
-	float Kp = 1; // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
+	float Kp = 10; // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
 	float Kd = 0; // experiment to determine this, slowly increase the speeds and adjust this value. ( Note: Kp < Kd)
-	float RIGHT_MAX_SPEED = 100; // max speed of the robot
-	float LEFT_MAX_SPEED = 100;  // max speed of the robot
-	float RIGHT_BASE_SPEED = 50; // this is the speed at which the motors should spin when the robot is perfectly on the line
-	float LEFT_BASE_SPEED = 50; // this is the speed at which the motors should spin when the robot is perfectly on the line
+	float RIGHT_MAX_SPEED = 80; // max speed of the robot
+	float LEFT_MAX_SPEED = 80;  // max speed of the robot
+	float RIGHT_BASE_SPEED = 15; // this is the speed at which the motors should spin when the robot is perfectly on the line
+	float LEFT_BASE_SPEED = 15; // this is the speed at which the motors should spin when the robot is perfectly on the line
 	float rightMotorSpeed = 0;
 	float leftMotorSpeed = 0;
+	int turn = 1; // 1 --> Right, -1 --> Left
 
 	float lastError = 0;
 
 	// Might have to adjust the middle dark value
-	float error = SensorValue[lightSensor] - 32; //mySensorBar.getPosition() - 0; //getposition value can be negative check this
-
+	// should be minus black value
+	float error = SensorValue[lightSensor] - 32;
 	float motorPower = Kp * error + Kd * (error - lastError);
 
 	lastError = error;
 
   // if statement right here based on curvature to add the motor power or subtract power base on which way turning
 	float K = 1;
+
 	if(K<0){
 		rightMotorSpeed = RIGHT_BASE_SPEED + motorPower;
 		leftMotorSpeed = LEFT_BASE_SPEED -  motorPower;
@@ -153,10 +155,10 @@ task main()
 	// Team 15 PID CODE
 
 	/* Reset encoders and turn on PID control */
-	nMotorEncoder[motorB] = 0;
-	nMotorEncoder[motorC] = 0;
-	nMotorPIDSpeedCtrl[motorB] = mtrSpeedReg;
-	nMotorPIDSpeedCtrl[motorC] = mtrSpeedReg;
+	//nMotorEncoder[motorB] = 0;
+	//nMotorEncoder[motorC] = 0;
+	//nMotorPIDSpeedCtrl[motorB] = mtrSpeedReg;
+	//nMotorPIDSpeedCtrl[motorC] = mtrSpeedReg;
 	nPidUpdateInterval = PIDUpdateInterval;
 
 	int goalStraight = 0;

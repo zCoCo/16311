@@ -40,6 +40,11 @@ void init_HAL(){
   nMaxRegulatedSpeedNxt = TICKS_PER_REV * MAX_REV_PER_SECOND;
   nPidUpdateInterval = MOTOR_PID_UPDATE_INTERVAL;
 
+  // Initialize Sensor Deltas:
+  nMotorEncoder[LeftMotor] = 0;
+  nMotorEncoder[RightMotor] = 0;
+  clearTimer(OdometryClock);
+
   // Initialize Continuous Data Streams for Odometry:
   init_odometry();
 
@@ -75,8 +80,10 @@ task odometry(){
     Ds_right = METERS_PER_TICK * Ds_right;
     dt = dt * 0.001; // ms -> s
 
-    // Compute Velocity Profile:
-    v_l = Ds_left / dt; v_r = Ds_right / dt;
+    if(dt){
+      // Compute Velocity Profile:
+      v_l = Ds_left / dt; v_r = Ds_right / dt;
+    }
 
     // Compute Inverse Kinematics:
     V = (v_r + v_l) / 2.0;

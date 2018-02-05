@@ -13,9 +13,10 @@ typedef struct{ \
 name ## _TSF name
 
 // Must be called in an executable area (ex. task):
-#define Init_TSFifo(name) do{ \
+// maxSize should be consistent with maxSize given in #Construct_TSFifo
+#define Init_TSFifo(name, maxSize) do{ \
   name.numElements = 0; \
-  name.maxElements = ARRAY_SIZE(name.que); \
+  name.maxElements = maxSize; /*= ARRAY_SIZE(name.que) // Doesn't work with *[] */ \
 } while(0)
 
 #define TSF_add(tsf, elem) do{ \

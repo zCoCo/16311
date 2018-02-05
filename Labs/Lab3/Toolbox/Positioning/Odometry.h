@@ -12,7 +12,7 @@
 // Actual Odometry Data Implementation (calculating V,om,dt)
 // is Carried Out by the HAL.
 
-Construct_TSFifo(Hist_Position, TPose, 15); // [m,m,rad] Logs TPose in World-Frame
+Construct_TSFifo(Hist_Position, TPose *, 15); // [m,m,rad] Logs TPose in World-Frame
 Construct_TSFifo(Hist_Time, long, 15); // [ms] Logs Odometry Update Time Deltas
 Construct_TSFifo(Hist_Dist, float, 10); // [m] Logs Path-Length Distance Travelled
 Construct_TSFifo(Hist_Vel, float, 15); // [m/s]
@@ -23,23 +23,23 @@ Construct_TSFifo(Hist_Curv, float, 15); // [1/m]
 
 // Initialize Odometry Data:
 void init_odometry(){
-  Init_TSFifo(Hist_Position);
+  Init_TSFifo(Hist_Position, 15);
   TPose zero_pose; zero_pose.X = 0; zero_pose.Y = 0; zero_pose.TH = 0;
-  TSF_add(Hist_Position, zero_pose);
+  TSF_add(Hist_Position, &zero_pose);
 
-  Init_TSFifo(Hist_Time);
+  Init_TSFifo(Hist_Time, 15);
   TSF_add(Hist_Time, 0);
 
-  Init_TSFifo(Hist_Dist);
+  Init_TSFifo(Hist_Dist, 10);
   TSF_add(Hist_Dist, 0);
 
-  Init_TSFifo(Hist_Vel);
+  Init_TSFifo(Hist_Vel, 15);
   TSF_add(Hist_Vel, 0);
 
-  Init_TSFifo(Hist_Omega);
+  Init_TSFifo(Hist_Omega, 15);
   TSF_add(Hist_Omega, 0);
 
-  Init_TSFifo(Hist_Curv);
+  Init_TSFifo(Hist_Curv, 15);
   TSF_add(Hist_Curv, 0);
 
   #ifdef PRINT_ODOMETRY_DATA
@@ -61,7 +61,7 @@ void update_timeLog(float dt){
 ****/
 void update_odometry(float V, float om, float dt){
   // Allocate static space for variables since these will likely be used often
-  static TPose new_pose;
+  TPose new_pose; // not static, needs new instance each iterations
   static float V0, om0, s0;
 
   update_timeLog(dt);
@@ -72,7 +72,7 @@ void update_odometry(float V, float om, float dt){
     om0 = TSF_Last(Hist_Omega);
 
     // Grab Data from Last Iteration:
-    new_pose.X = rob_pos.X; new_pose.Y = rob_pos.Y; new_pose.TH = rob_pos.TH;
+    new_pose.X = rob_pos->X; new_pose.Y = rob_pos->Y; new_pose.TH = rob_pos->TH;
 
     // Mid-Point Algorithm:
     new_pose.TH = new_pose.TH + om0 * dt/2.0;
@@ -81,9 +81,9 @@ void update_odometry(float V, float om, float dt){
     new_pose.TH = new_pose.TH + om0 * dt/2.0;
 
     s0 = TSF_Last(Hist_Dist);
-    TSF_add( Hist_Dist, (s0 + V0 * dt) );
+    TSF_add( Hist_Dist, (s0 + abs(V0) * dt) );
 
-    TSF_add(Hist_Position, new_pose);
+    TSF_add(Hist_Position, &new_pose);
   } else{ // Prevent Data-Length Mis-Match:
     TSF_add(Hist_Dist, TSF_Last(Hist_Dist));
     TSF_add(Hist_Position, rob_pos);

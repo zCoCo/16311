@@ -38,8 +38,8 @@ task main()
 		// Write your own codes for turning
 		//
 
-		start_X = TSF_Last(Hist_Position).X;
-		start_Y = TSF_Last(Hist_Position).Y;
+		start_X = TSF_Last(Hist_Position)->X;
+		start_Y = TSF_Last(Hist_Position)->Y;
 
 		/* Example codes for moving in a striaght line a certain distance,
 		 * you need to change this for MUCH better performance */
@@ -48,9 +48,9 @@ task main()
     wait10Msec(200);
     moveAt(0,2);
     wait10Msec(200);
-		distTravelled = sqrt(pow(rob_pos.X - start_X, 2) + pow(rob_pos.Y - start_Y, 2));
+		distTravelled = sqrt(pow(rob_pos->X - start_X, 2) + pow(rob_pos->Y - start_Y, 2));
 		while (!equal(distTravelled, goalStraight, 1)) {
-			distTravelled = sqrt(pow(rob_pos.X - start_X, 2) + pow(rob_pos.Y - start_Y, 2));
+			distTravelled = sqrt(pow(rob_pos->X - start_X, 2) + pow(rob_pos->Y - start_Y, 2));
 		}
 
 		wait1Msec(100 * 5);

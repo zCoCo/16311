@@ -67,7 +67,8 @@ task main()
 
 	while(1){
 		// Might have to adjust the middle dark value
-		error = SensorValue[lightSensor] - 20; //mySensorBar.getPosition() - 0; //getposition value can be negative check this
+
+		error = SensorValue[lightSensor] - 22; //mySensorBar.getPosition() - 0; //getposition value can be negative check this
 
 		motorPower = Kp * error + Kd * (error - lastError);
 

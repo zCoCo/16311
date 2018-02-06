@@ -5,6 +5,11 @@
   // needed.
   /****
     Universally Supported HAL Functionality:
+      PARAMETERS:
+        -MAX_VEL
+        -MAX_ACCEL
+        -MAX_OMEGA
+        -MAX_ALPHA
       CORE:
         -Initialize:
         #init_HAL()

@@ -59,17 +59,16 @@
    *
    * Add D=[1,0,310deg] to P=[0,0,60deg] -> [cos(60deg),sin(60deg),10deg]
   ***/
-  void addTo(TPose &Delta, TPose &P, TPose &Pres){
-
+  void addTo(TPose* Delta, TPose* P, TPose* Pres){
     Matrix3x3 Mb2a;
-    bToA(P, Mb2a);
+    bToA(*P, Mb2a);
     Vector3x1 Vr;
-    Vr.v = Delta.vec; Vr.v[2] = 1.0;
+    Vr.v = Delta->vec; Vr.v[2] = 1.0;
 
-    MultMatVec(Mb2a,Vr, Pres.vec);
+    MultMatVec(Mb2a,Vr, Pres->vec);
 
-    Pres.TH = P.TH + Delta.TH;
-    Pres.TH = atan2(sin(Pres.TH), cos(Pres.TH)); // Ensure Proper Wrap-Around
+    Pres->TH = P->TH + Delta->TH;
+    Pres->TH = atan2(sin(Pres->TH), cos(Pres->TH)); // Ensure Proper Wrap-Around
   } // #addTo
 
 #endif // _T_ROBOT_POSITION_H

@@ -27,7 +27,8 @@
   #define min(a,b) (((a)<(b)) ? (a) : (b))
 
   // Square a Number:
-  #define sq(v) ((v) * (v))
+  //#define sq(v) (((v) * (v)))
+  float sq(float a){ return a*a; }
 
   // Compute the Angular Difference between Two Angles:
   // Ex: Computing the necessary turn angle, t, to go from world-frame

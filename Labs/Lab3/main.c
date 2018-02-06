@@ -16,8 +16,9 @@
 #include "Toolbox/HALs/HAL.h"
 
 //Change these during demo
-int inputStraight[2] = {0, 0}; // in mm
-int inputTurn[2] = {0, 0}; // in degrees, negative means clockwise rotation
+TPose Pstart, Pend;
+float inputStraight[2] = {sqrt(2.0) * 12.0 * INCH, 2 * sqrt(2.0) * 12.0 * INCH}; // in mm
+float inputTurn[2] = {45.0*DEG, -90.0*DEG}; // in degrees, negative means clockwise rotation
 
 task main()
 {
@@ -31,13 +32,22 @@ task main()
   init_HAL();
 	startTask(odometry);
 
-  TPose Pstart, Pend;
-  Init_TPose(Pstart, 0,0,0);
-  Init_TPose(Pend, 18.0*INCH,-10.0*INCH,0);
+  for(int i=0; i<2; i++){
+    // TURN:
+    Set_TPose(Pstart, 0,0,0);
+    Set_TPose(Pend, 0,0,inputTurn[i]);
 
-  LinearTrajectory lt;
-  Init_LinearTrajectory(lt, &Pstart, &Pend, 0.8*MAX_VEL, 0.8*MAX_OMEGA);
-  run_linearTrajectory(&lt);
+    LinearTrajectory ltt;
+    Init_LinearTrajectory(ltt, &Pstart, &Pend, 0.3, 70*DEG);
+    run_linearTrajectory(&ltt);
+
+    // STRAIGHT:
+    Set_TPose(Pend, inputStraight[i],0,0);
+
+    LinearTrajectory lts;
+    Init_LinearTrajectory(lts, &Pstart, &Pend, 0.3, 70*DEG);
+    run_linearTrajectory(&lts);
+  }
 /*
 	for(int i = 0; i < 2; i++)
 	{

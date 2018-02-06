@@ -21,7 +21,7 @@
     lt.V_peak = Vp; \
     lt.om_peak = omp; \
     \
-    lt.s_T = sqrt( sq(e.X - st.X) + sq(e.Y - st.Y) ); \
+    lt.s_T = sqrt( (sq(((e)->X - (st)->X))) + (sq(((e)->Y - (st)->Y))) ); \
   } while(0)
 
   /* Defines a CompoundTrajectory Composed of a Series of LinearTrajectories */

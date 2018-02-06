@@ -33,7 +33,7 @@
   float MAX_OMEGA = (2.0 * MAX_VEL) / WHEEL_TREAD;
   #define MAX_ALPHA 2.0 // [rad/s/s] - Maximum Angular Acceleration
 
-  #define COMMAND_DELAY 0.02 //  -Delay, in sec, a Velocity been Commanded and
+  #define COMMAND_DELAY 0.0 //  -Delay, in sec, a Velocity been Commanded and
                             //     it being Implemented.
   #define COMMAND_READ_DELAY 0.05 //  -Delay, in sec, a Velocity been Commanded and
                             //     it being Implemented and Read Back by Odometry.

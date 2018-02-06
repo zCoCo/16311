@@ -25,13 +25,11 @@
     Vector3x1 u_ffwd; // Feedforward Control Signal
 
     LinearDirectProfileData ldpd;
-    Init_LinearDirectProfile(&ldpd, rlt, MAX_ACCEL, MAX_ALPHA, 0.5);
+    Init_LinearDirectProfile(&ldpd, rlt, MAX_ACCEL, MAX_ALPHA, 0.0);
 
     isFirstRun = 1;
     t = 0;
     dt = 0;
-    HEY_LOOK_AT_ME = ldpd.t_T;
-    wait1Msec(100);
     while((((float)t)/1000.0) < ldpd.t_T){
       if(isFirstRun==1){
         clearTimer(MotionClock); // Do this here b/c performing first step into
@@ -45,8 +43,7 @@
         // Get the velocity the robot should have by the time it will be
         // executed (avoids doing data-log interpolation over time)
         // ~= how fast should the robot be going by the time it gets this command
-        getControl_ffwd_time(&u_ffwd, &ldpd, (t/1000.0 + COMMAND_DELAY));
-
+        getControl_ffwd_time(&u_ffwd, &ldpd, (t/1000.0));
         moveAt(u_ffwd.v[0], u_ffwd.v[1]);
       } // isFirstRun?
 
@@ -83,7 +80,7 @@
     Copy_TPose(P_comm, (*(rlt->start)));
 
     LinearDirectProfileData ldpd;
-    Init_LinearDirectProfile(&ldpd, rlt, MAX_ACCEL, MAX_ALPHA, 0.5);
+    Init_LinearDirectProfile(&ldpd, rlt, MAX_ACCEL, MAX_ALPHA, 0.0);
 
     isFirstRun = 1;
     t = 0;

@@ -24,16 +24,17 @@
   void Init_TrapezoidalProfile(TrapezoidalProfileData* trap,
                                float s, float Vp, float Am){
     trap->dist = s;
+    float sa = abs(s);
     trap->V_peak = Vp;
     trap->A_max = Am;
     // Duration of the constant acceleration, a_max, ramp up/down:
     trap->t_ramp = Vp / Am;
     // Total duration of the trajectory profile:
-    trap->t_T = s/Vp + trap->t_ramp;
+    trap->t_T = sa/Vp + trap->t_ramp;
     // BUT:
-    if(sq(Vp)/Am > s){ // not enough time to reach v_max and come back down
+    if(sq(Vp)/Am > sa){ // not enough time to reach v_max and come back down
                       //  before reaching dist.
-      trap->V_peak = sqrt(Am*s); // Peak attainable velocity
+      trap->V_peak = sqrt(Am*sa); // Peak attainable velocity
       trap->t_ramp = trap->V_peak/Am;
       trap->t_T = 2.0 * (trap->t_ramp);
     }
@@ -46,14 +47,15 @@
     * time at Time from Start t
   ****/
   float control_trap_time(TrapezoidalProfileData* trap, float t){
-    float u = 0.0;
+    float u;
+    u = 0.0;
     // Determine Control Signal from Position in Velocity Trajectory:
     if(t < 0){
       u = 0.0;
     } else if(t <= trap->t_ramp){
       u = (trap->A_max) * t;
     } else if( (trap->t_T - t) <= trap->t_ramp && (trap->t_T - t) > 0){
-      u = (trap->A_max) * (trap->t_ramp - t);
+      u = (trap->A_max) * (trap->t_T - t);
     } else if(trap->t_ramp<t && t<=(trap->t_T - trap->t_ramp)){
       u = trap->V_peak;
     }
@@ -90,9 +92,9 @@
                                 float tb){
     float travel_ang = atan2( (rlt->end->Y - rlt->start->Y),
                               (rlt->end->X - rlt->start->X) );
-    Init_TrapezoidalProfile(&ldpd->init_turn,
-                            adel(travel_ang, rlt->start->TH),
-                            rlt->om_peak, alm);
+    float th = adel(travel_ang, rlt->start->TH);
+    Init_TrapezoidalProfile(&(ldpd->init_turn),
+                            th, rlt->om_peak, alm);
 
     Init_TrapezoidalProfile(&ldpd->drive, rlt->s_T, rlt->V_peak, Am);
 
@@ -127,15 +129,19 @@
   void getControl_ffwd_time(Vector3x1* Vprof,
                             LinearDirectProfileData* ldpd,
                             float t){
-    float V = 0;
-    float om = 0;
+    static float V, om; // Keep Allocati
 
     if(t < t_1_Tf){
+      V = 0.0;
       om = control_trap_time(ldpd->init_turn, t);
     } else if(t > (t_1_Tf + ldpd->t_buff) && t < l_1_Tf){
-      V = control_trap_time(ldpd->drive, (t-ldpd->t_buff-t_1_Tf));
+      V = control_trap_time(ldpd->drive, (t-(ldpd->t_buff)-t_1_Tf));
+      om = 0.0;
     } else if(t > (l_1_Tf + ldpd->t_buff) && t < t_2_Tf){
-      om = control_trap_time(ldpd->fin_turn, (t-ldpd->t_buff-l_1_Tf));
+      V = 0.0;
+      om = control_trap_time(ldpd->fin_turn, (t-(ldpd->t_buff)-l_1_Tf));
+    } else{
+      V = 0.0; om = 0.0;
     }
 
     Vprof->v[0] = V;

@@ -22,7 +22,7 @@
 
 #define SearchTimer T3
 
-#define SEARCH_LIGHT_THRESH 28
+#define SEARCH_LIGHT_THRESH 35
 void search__i_a(){
 	static bool first_call = true;
 	static float last_th = 0.0;
@@ -32,22 +32,34 @@ void search__i_a(){
 		first_call = false;
 		last_th = rob_pos->TH;
 	}
-	if(time1[SearchTimer] > 500){
+	if(time1[SearchTimer] > 350){
+		static int dir = 1;
+		if(rob_pos->Y < -1*FT){
+			dir = -1;
+		} else{
+			dir = 1;
+		}
 		while(SensorValue[lightSensor] > SEARCH_LIGHT_THRESH){
-			if(adel(rob_pos->TH, last_th) < 170*DEG && !flipped){
-				moveAt(0,0.2*MAX_OMEGA);
+			if(adel(rob_pos->TH, last_th) < 120*DEG && !flipped && dir>0
+			|| adel(rob_pos->TH, last_th) > -120*DEG &&!flipped && dir<0){
+				moveAt(0,dir*0.35*MAX_OMEGA);
 			} else {
-				while(adel(rob_pos->TH, last_th) > 0){
-					moveAt(0,-0.2*MAX_OMEGA);
-					wait1Msec(2);
+				while(adel(rob_pos->TH, last_th) > 0 && dir>0
+					 || adel(rob_pos->TH, last_th) < 0 && dir<0){
+					moveAt(0,-dir*0.8*MAX_OMEGA);
+					nxtSetPixel(50 + (int)(135.0 * 0.0), 32 + (int)(100.0 * 0.0));
+					nxtDisplayTextLine(0, "L: %d", SensorValue[lightSensor]);
+					nxtDisplayTextLine(1, "t: %dms", TSF_Last(Hist_Time));
+					wait1Msec(1);
 				}
 				flipped = true;
 			}
 			if(flipped){
-				moveAt(0,-0.2*MAX_OMEGA);
+				moveAt(0,-dir*0.35*MAX_OMEGA);
 			}
 			wait1Msec(2);
 		}
+		flipped = false;
 		moveAt(0,0);
 	}
 }
@@ -58,12 +70,12 @@ void search__i_a(){
 task main()
 {
 	// Team 15 PID Code
-	float Kp = 1; // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
+	float Kp = 1.0; // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
 	float Kd = .2; // experiment to determine this, slowly increase the speeds and adjust this value. ( Note: Kp < Kd)
-	float RIGHT_MAX_SPEED = 60; // max speed of the robot
-	float LEFT_MAX_SPEED = 60;  // max speed of the robot
-	float RIGHT_BASE_SPEED = 30; // this is the speed at which the motors should spin when the robot is perfectly on the line
-	float LEFT_BASE_SPEED = 30; // this is the speed at which the motors should spin when the robot is perfectly on the line
+	float RIGHT_MAX_SPEED = 100; // max speed of the robot
+	float LEFT_MAX_SPEED = 100;  // max speed of the robot
+	float RIGHT_BASE_SPEED = 65; // this is the speed at which the motors should spin when the robot is perfectly on the line
+	float LEFT_BASE_SPEED = 65; // this is the speed at which the motors should spin when the robot is perfectly on the line
 	float rightMotorSpeed = 0;
 	float leftMotorSpeed = 0;
 
@@ -85,7 +97,7 @@ task main()
 	while(1){
 		// Might have to adjust the middle dark value
 
-		error = SensorValue[lightSensor] - 25; //mySensorBar.getPosition() - 0; //getposition value can be negative check this
+		error = SensorValue[lightSensor] - 24; //mySensorBar.getPosition() - 0; //getposition value can be negative check this
 
 		motorPower = Kp * error + Kd * (error - lastError);
 
@@ -126,9 +138,11 @@ task main()
 
 		motor[RightMotor] = rightMotorSpeed;
 		motor[LeftMotor] = leftMotorSpeed;
-		if (SensorValue[lightSensor] < 27){
-		clearTimer(T4);
-		}
+
+	    /*Code that plots the robot's current position and also prints it out as text*/
+	    nxtSetPixel(50 + (int)(100.0 * 0.0), 32 + (int)(100.0 * 0.0));
+	    nxtDisplayTextLine(0, "L: %d", SensorValue[lightSensor]);
+			nxtDisplayTextLine(1, "t: %dms", TSF_Last(Hist_Time));
 	} // Line Following Loop
 
 	nNxtButtonTask  = 0;

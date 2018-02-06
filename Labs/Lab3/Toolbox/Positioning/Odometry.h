@@ -6,7 +6,7 @@
 
 #include "../Display/DisplayStack.h"
 
-#define PRINT_ODOMETRY_DATA // Comment-Out to Disable
+//#define PRINT_ODOMETRY_DATA // Comment-Out to Disable
 
 // Defines Standard Variables and Functions Neccessary to Perform Odometry.
 // Actual Odometry Data Implementation (calculating V,om,dt)

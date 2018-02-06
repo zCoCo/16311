@@ -20,18 +20,35 @@
 //int inputStraight[2] = {0, 0}; // in mm
 //int inputTurn[2] = {0, 0}; // in degrees, negative means clockwise rotation
 
-#define SearchTimer
+#define SearchTimer T3
 
-#define SEARCH_LIGHT_THRESH 20
+#define SEARCH_LIGHT_THRESH 28
 void search__i_a(){
-	if(SensorValue[lightSensor] < SEARCH_LIGHT_THRESH){
+	static bool first_call = true;
+	static float last_th = 0.0;
+	static float flipped = false;
+	if(first_call || SensorValue[lightSensor] < SEARCH_LIGHT_THRESH){
 		clearTimer(SearchTimer);
+		first_call = false;
+		last_th = rob_pos->TH;
 	}
-	if(time1[SearchTimer] > 250){
+	if(time1[SearchTimer] > 500){
 		while(SensorValue[lightSensor] > SEARCH_LIGHT_THRESH){
-			moveAt(0,0.8*MAX_OMEGA);
+			if(adel(rob_pos->TH, last_th) < 170*DEG && !flipped){
+				moveAt(0,0.2*MAX_OMEGA);
+			} else {
+				while(adel(rob_pos->TH, last_th) > 0){
+					moveAt(0,-0.2*MAX_OMEGA);
+					wait1Msec(2);
+				}
+				flipped = true;
+			}
+			if(flipped){
+				moveAt(0,-0.2*MAX_OMEGA);
+			}
 			wait1Msec(2);
 		}
+		moveAt(0,0);
 	}
 }
 
@@ -95,19 +112,22 @@ task main()
 	  if (rightMotorSpeed < 0) rightMotorSpeed = 0; // keep the motor speed positive
 	  if (leftMotorSpeed < 0) leftMotorSpeed = 0; // keep the motor speed positive
 
-		if (SensorValue[lightSensor] > 29 && time1[T2] > 3000) {
+		search__i_a();
+		wait1Msec(2);
+
+		/*if (SensorValue[lightSensor] > 29 && time1[T4] > 3000) {
 			if (K<0){
 			rightMotorSpeed = 90;
 			leftMotorSpeed = 0; }
 			else{
 			rightMotorSpeed = 0;
 			leftMotorSpeed = 90;}
-		}
+		}*/
 
 		motor[RightMotor] = rightMotorSpeed;
 		motor[LeftMotor] = leftMotorSpeed;
 		if (SensorValue[lightSensor] < 27){
-		clearTimer(T2);
+		clearTimer(T4);
 		}
 	} // Line Following Loop
 

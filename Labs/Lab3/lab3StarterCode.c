@@ -17,8 +17,8 @@
 #include "Toolbox/HALs/HAL.h"
 
 //Change these during demo
-int inputStraight[2] = {0, 0}; // in mm
-int inputTurn[2] = {0, 0}; // in degrees, negative means clockwise rotation
+//int inputStraight[2] = {0, 0}; // in mm
+//int inputTurn[2] = {0, 0}; // in degrees, negative means clockwise rotation
 
 /*****************************************
  * Main function - Needs changing
@@ -27,21 +27,21 @@ task main()
 {
 	// Team 15 PID Code
 	float Kp = 1; // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
-	float Kd = 0; // experiment to determine this, slowly increase the speeds and adjust this value. ( Note: Kp < Kd)
-	float RIGHT_MAX_SPEED = 80; // max speed of the robot
-	float LEFT_MAX_SPEED = 80;  // max speed of the robot
-	float RIGHT_BASE_SPEED = 40; // this is the speed at which the motors should spin when the robot is perfectly on the line
-	float LEFT_BASE_SPEED = 40; // this is the speed at which the motors should spin when the robot is perfectly on the line
+	float Kd = .2; // experiment to determine this, slowly increase the speeds and adjust this value. ( Note: Kp < Kd)
+	float RIGHT_MAX_SPEED = 60; // max speed of the robot
+	float LEFT_MAX_SPEED = 60;  // max speed of the robot
+	float RIGHT_BASE_SPEED = 30; // this is the speed at which the motors should spin when the robot is perfectly on the line
+	float LEFT_BASE_SPEED = 30; // this is the speed at which the motors should spin when the robot is perfectly on the line
 	float rightMotorSpeed = 0;
 	float leftMotorSpeed = 0;
 
 	float lastError = 0;
 
-	int goalStraight = 0;
-	int goalTurn = 0;
-	float start_X = 0;
-	float start_Y = 0;
-	float distTravelled = 0;
+	//int goalStraight = 0;
+	//int goalTurn = 0;
+	//float start_X = 0;
+	//float start_Y = 0;
+	//float distTravelled = 0;
 
 	init_HAL();
 	startTask(odometry);
@@ -53,7 +53,7 @@ task main()
 	while(1){
 		// Might have to adjust the middle dark value
 
-		error = SensorValue[lightSensor] - 22; //mySensorBar.getPosition() - 0; //getposition value can be negative check this
+		error = SensorValue[lightSensor] - 27; //mySensorBar.getPosition() - 0; //getposition value can be negative check this
 
 		motorPower = Kp * error + Kd * (error - lastError);
 
@@ -80,8 +80,20 @@ task main()
 	  if (rightMotorSpeed < 0) rightMotorSpeed = 0; // keep the motor speed positive
 	  if (leftMotorSpeed < 0) leftMotorSpeed = 0; // keep the motor speed positive
 
+		if (SensorValue[lightSensor] > 29 && time1[T2] > 3000) {
+			if (K<0){
+			rightMotorSpeed = 90;
+			leftMotorSpeed = 0; }
+			else{
+			rightMotorSpeed = 0;
+			leftMotorSpeed = 90;}
+		}
+
 		motor[RightMotor] = rightMotorSpeed;
 		motor[LeftMotor] = leftMotorSpeed;
+		if (SensorValue[lightSensor] < 27){
+		clearTimer(T2);
+		}
 	} // Line Following Loop
 
 	nNxtButtonTask  = 0;

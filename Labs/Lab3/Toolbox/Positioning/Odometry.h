@@ -12,7 +12,7 @@
 // Actual Odometry Data Implementation (calculating V,om,dt)
 // is Carried Out by the HAL.
 
-Construct_TSFifo(Hist_Position, TPose *, 15); // [m,m,rad] Logs TPose in World-Frame
+Construct_TSFifo(Hist_Position, TPose*, 15); // [m,m,rad] Logs TPose in World-Frame
 Construct_TSFifo(Hist_Time, long, 15); // [ms] Logs Odometry Update Time Deltas
 Construct_TSFifo(Hist_Dist, float, 10); // [m] Logs Path-Length Distance Travelled
 Construct_TSFifo(Hist_Vel, float, 15); // [m/s]
@@ -61,8 +61,9 @@ void update_timeLog(float dt){
 ****/
 void update_odometry(float V, float om, float dt){
   // Allocate static space for variables since these will likely be used often
-  TPose new_pose; // not static, needs new instance each iterations
+  TPose new_pose; // not static, needs new instance each iteration
   static float V0, om0, s0;
+  static TPose* TEST_STRUCT;
 
   update_timeLog(dt);
 
@@ -71,8 +72,13 @@ void update_odometry(float V, float om, float dt){
     V0 = TSF_Last(Hist_Vel);
     om0 = TSF_Last(Hist_Omega);
 
-    // Grab Data from Last Iteration:
-    new_pose.X = rob_pos->X; new_pose.Y = rob_pos->Y; new_pose.TH = rob_pos->TH;
+    if(Hist_Position.numElements <= 1){
+      // Ensure Proper Initialization (zero_pose seems faulty)
+      new_pose.X = 0.0; new_pose.Y = 0.0; new_pose.TH = 0.0;
+    } else{
+      // Grab Data from Last Iteration:
+      new_pose.X = rob_pos->X; new_pose.Y = rob_pos->Y; new_pose.TH = rob_pos->TH;
+    }
 
     // Mid-Point Algorithm:
     new_pose.TH = new_pose.TH + om0 * dt/2.0;
@@ -83,6 +89,7 @@ void update_odometry(float V, float om, float dt){
     s0 = TSF_Last(Hist_Dist);
     TSF_add( Hist_Dist, (s0 + abs(V0) * dt) );
 
+    TEST_STRUCT = &new_pose;
     TSF_add(Hist_Position, &new_pose);
   } else{ // Prevent Data-Length Mis-Match:
     TSF_add(Hist_Dist, TSF_Last(Hist_Dist));

@@ -11,6 +11,7 @@
 #include "Toolbox/Display/DisplayStack.h"
 #include "Toolbox/Util/UtilStack.h"
 #include "Toolbox/Positioning/PositioningStack.h"
+#include "Toolbox/Planning/PlanningStack.h"
 #include "Toolbox/Control/ControlStack.h"
 #include "Toolbox/HALs/HAL.h"
 
@@ -30,21 +31,22 @@ task main()
   init_HAL();
 	startTask(odometry);
 
+  TPose Pstart, Pend;
+  Init_TPose(Pstart, 0,0,0);
+  Init_TPose(Pend, 18.0*INCH,-10.0*INCH,0);
+
+  LinearTrajectory lt;
+  Init_LinearTrajectory(lt, &Pstart, &Pend, 0.8*MAX_VEL, 0.8*MAX_OMEGA);
+  run_linearTrajectory(&lt);
+/*
 	for(int i = 0; i < 2; i++)
 	{
 		goalStraight = inputStraight[i];
 		goalTurn = inputTurn[i];
 
-		//
-		// Write your own codes for turning
-		//
-
 		start_X = TSF_Last(Hist_Position)->X;
 		start_Y = TSF_Last(Hist_Position)->Y;
 
-		/* Example codes for moving in a striaght line a certain distance,
-		 * you need to change this for MUCH better performance */
-     // Implement Real PID on Y-Component (minimize Cross-Track Motion)
 		moveAt(0.3,0);
     wait10Msec(200);
     moveAt(0,2);
@@ -55,9 +57,9 @@ task main()
 		}
 
 		wait1Msec(100 * 5);
-	}
-	motor[motorA] = 0;
-	motor[motorB] = 0;
+	}*/
+	motor[LeftMotor] = 0;
+	motor[RightMotor] = 0;
 	nNxtButtonTask  = 0;
 	while(nNxtButtonPressed != kExitButton) {}
 }

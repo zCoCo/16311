@@ -21,15 +21,22 @@
   #define WHEEL_TREAD 0.1236 // [m], Distance between Left and Right Wheel Tracks
 
   // Distance per Encoder Tick:
-  #define METERS_PER_TICK (WHEEL_CIRCUMFERENCE / TICKS_PER_REV) // [m/tick]
+  float METERS_PER_TICK = (((float) (WHEEL_CIRCUMFERENCE)) / ((float) (TICKS_PER_REV))); // [m/tick]
 
-  #define MAX_REV_PER_SECOND 2 // Make sure this is an attainable value
+  #define MAX_REV_PER_SECOND 2.0 // Make sure this is an attainable value
 
-  #define MAX_VEL 0.3 // [m/s] - Maximum Linear Velocity
+  // [m/s] - Maximum Linear Velocity:
+  float MAX_VEL = (METERS_PER_TICK * TICKS_PER_REV * MAX_REV_PER_SECOND);
   #define MAX_ACCEL 0.6 //[m/s/s] - Maximum Linear Acceleration
 
-  #define MAX_OMEGA 5 // [rad/s] - Maximum Angular Velocity
-  #define MAX_ALPHA 2 // [rad/s/s] - Maximum Angular Acceleration
+  // [rad/s] - Maximum Angular Velocity
+  float MAX_OMEGA = (2.0 * MAX_VEL) / WHEEL_TREAD;
+  #define MAX_ALPHA 2.0 // [rad/s/s] - Maximum Angular Acceleration
+
+  #define COMMAND_DELAY 0.02 //  -Delay, in sec, a Velocity been Commanded and
+                            //     it being Implemented.
+  #define COMMAND_READ_DELAY 0.05 //  -Delay, in sec, a Velocity been Commanded and
+                            //     it being Implemented and Read Back by Odometry.
 
   #define LeftMotor motorC
   #define RightMotor motorB

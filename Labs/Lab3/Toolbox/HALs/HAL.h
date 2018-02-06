@@ -10,6 +10,8 @@
         -MAX_ACCEL
         -MAX_OMEGA
         -MAX_ALPHA
+        -COMMAND_DELAY
+        -COMMAND_READ_DELAY
       CORE:
         -Initialize:
         #init_HAL()
@@ -27,7 +29,7 @@
   ****/
 
   // General NXT Parameters (first, used by HAL):
-  #define TICKS_PER_REV 360
+  #define TICKS_PER_REV 360.0
 
   #include "HAL_Lab3_WMR.h"; //   - Lab 3 Robot Form Factor
 

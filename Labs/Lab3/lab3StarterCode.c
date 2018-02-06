@@ -35,7 +35,7 @@ task main()
 	float rightMotorSpeed = 0;
 	float leftMotorSpeed = 0;
 
-	float lastError = 0;
+	static float lastError = 0;
 
 	//int goalStraight = 0;
 	//int goalTurn = 0;
@@ -47,13 +47,13 @@ task main()
 	startTask(odometry);
 
 	//Pre-Allocate:
-	float error, motorPower;
-	float K, norm_factor;
+	static float error, motorPower;
+	static float K, norm_factor;
 
 	while(1){
 		// Might have to adjust the middle dark value
 
-		error = SensorValue[lightSensor] - 27; //mySensorBar.getPosition() - 0; //getposition value can be negative check this
+		error = SensorValue[lightSensor] - 25; //mySensorBar.getPosition() - 0; //getposition value can be negative check this
 
 		motorPower = Kp * error + Kd * (error - lastError);
 

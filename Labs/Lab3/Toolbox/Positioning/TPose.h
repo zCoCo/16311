@@ -13,9 +13,17 @@
     Vector3x1 vec;
   } TPose;
 
-  //Initial TPose, P, with the Given Position (x,y,t)
-  #define Init_TPose(P, x,y,t) do{ \
-    P.X = x; P.Y = y; P.TH = t; \
+  // Set Contents of TPose to (x,y,t)
+  #define Set_TPose(P, x,y,t) do{ \
+    P.X = (x); P.Y = (y); P.TH = (t); \
+  } while(0)
+
+  // Initialize TPose, P, with the Given Position (x,y,t)
+  #define Init_TPose(P, x,y,t) Set_TPose(P, x,y,t)
+
+  // Copies the Contents of Pa into Pb
+  #define Copy_TPose(Pb, Pa) do{ \
+    Pb.X = Pa.X; Pb.Y = Pa.Y; Pb.TH = Pa.TH; \
   } while(0)
 
   /****

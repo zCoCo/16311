@@ -15,12 +15,12 @@
     float s_T; // Total Translational Distance Covered (computed)
   } LinearTrajectory;
 
-  #define Init_LinearTrajectory(lt, st,e, Vp,omp){ do{ \
+  #define Init_LinearTrajectory(lt, st,e, Vp,omp) do{ \
     lt.start = st; \
     lt.end = e; \
     lt.V_peak = Vp; \
     lt.om_peak = omp; \
-     \
+    \
     lt.s_T = sqrt( sq(e.X - st.X) + sq(e.Y - st.Y) ); \
   } while(0)
 

@@ -20,6 +20,21 @@
 //int inputStraight[2] = {0, 0}; // in mm
 //int inputTurn[2] = {0, 0}; // in degrees, negative means clockwise rotation
 
+#define SearchTimer
+
+#define SEARCH_LIGHT_THRESH 20
+void search__i_a(){
+	if(SensorValue[lightSensor] < SEARCH_LIGHT_THRESH){
+		clearTimer(SearchTimer);
+	}
+	if(time1[SearchTimer] > 250){
+		while(SensorValue[lightSensor] > SEARCH_LIGHT_THRESH){
+			moveAt(0,0.8*MAX_OMEGA);
+			wait1Msec(2);
+		}
+	}
+}
+
 /*****************************************
  * Main function - Needs changing
  *****************************************/

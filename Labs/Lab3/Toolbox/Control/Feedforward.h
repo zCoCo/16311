@@ -54,11 +54,11 @@
       u = (trap->A_max) * t;
     } else if( (trap->t_T - t) <= trap->t_ramp && (trap->t_T - t) > 0){
       u = (trap->A_max) * (trap->t_ramp - t);
-    } else if(t_ramp<t && t<=(trap->t_T - trap->t_ramp)){
+    } else if(trap->t_ramp<t && t<=(trap->t_T - trap->t_ramp)){
       u = trap->V_peak;
     }
     // Account for Reverse Trajectories:
-    if(dist < 0){
+    if(trap->dist < 0){
       u = -u;
     }
 
@@ -73,30 +73,45 @@
     *   -Turning to Acquire the Target Orientation (end.TH)
   ***/
   typedef struct{
-    TrapezoidalProfileData* init_turn;
-    TrapezoidalProfileData* drive;
-    TrapezoidalProfileData* fin_turn;
+    TrapezoidalProfileData init_turn;
+    TrapezoidalProfileData drive;
+    TrapezoidalProfileData fin_turn;
+    float t_buff; //  -Buffer Time between Each Motion
+    float t_T; //     -Total Time for Execution of this trajectory
   } LinearDirectProfileData;
 
   // Initializes the Given LinearDirect Profile based on the Reference
-  // LinearTrajectory to be Executed while not exceeding the Given
-  // Maximum Linear Acceleration, Am, and Angular Acceleration, alm
-  void Init_LinearDirectProfile(LinearTrajectory* rlt, float Am, float alm){
-    TrapezoidalProfileData t_1, l_1, t_2;
-
+  // LinearTrajectory, rlt, to be Executed while Not Exceeding the Given
+  // Maximum Linear Acceleration, Am, and Angular Acceleration, alm, and
+  // Including the Specified Buffer Time, tb, after Each Step.
+  void Init_LinearDirectProfile(LinearDirectProfileData* ldpd,
+                                LinearTrajectory* rlt,
+                                float Am, float alm,
+                                float tb){
     float travel_ang = atan2( (rlt->end->Y - rlt->start->Y),
                               (rlt->end->X - rlt->start->X) );
-    Init_TrapezoidalProfile(&t_1,
+    Init_TrapezoidalProfile(&ldpd->init_turn,
                             adel(travel_ang, rlt->start->TH),
                             rlt->om_peak, alm);
 
-    Init_TrapezoidalProfile(&l_1, rlt->s_T, rlt->V_peak, Am);
+    Init_TrapezoidalProfile(&ldpd->drive, rlt->s_T, rlt->V_peak, Am);
 
-    Init_TrapezoidalProfile(&t_2,
+    Init_TrapezoidalProfile(&ldpd->fin_turn,
                             adel(rlt->end->TH, travel_ang),
                             rlt->om_peak, alm);
+
+    ldpd->t_buff = tb;
+    ldpd->t_T = ldpd->init_turn.t_T
+              + ldpd->drive.t_T
+              + ldpd->fin_turn.t_T
+              + 3.0*tb;
   } // #Init_LinearDirectProfile
-  
+
+  // --- Overloaded Methods ---
+  // Set of Methods to Get the Control Signal (V,om,1) for the Given Time since
+  // Start dt - Overloaded for Each Trajectory Profile Data Type (ex.
+  // LinearDirectProfileData), b/c allows for creating single macro for
+  // controlling any trajectory
   /****
     * Modifies the Given Vector, Vprof, to Contain the Vector Profile (V,om,1)
     * Necessary to Execute the Linear Trajectory, rlt, at Time from Start t with
@@ -105,9 +120,27 @@
     *   -Driving Directly to the Target Position,
     *   -Turning to Acquire the Target Orientation (end.TH)
   ****/
-  void control_linTraj_direct(Vector3x1* Vprof, LinearTrajectory* rlt, float t){
+  // Absolute End Times of Each Move:
+  #define t_1_Tf (ldpd->init_turn.t_T)
+  #define l_1_Tf (t_1_Tf + ldpd->t_buff + ldpd->drive.t_T)
+  #define t_2_Tf (l_1_Tf + ldpd->t_buff + ldpd->fin_turn.t_T)
+  void getControl_ffwd_time(Vector3x1* Vprof,
+                            LinearDirectProfileData* ldpd,
+                            float t){
+    float V = 0;
+    float om = 0;
 
-  } // #follow_trajectory
+    if(t < t_1_Tf){
+      om = control_trap_time(ldpd->init_turn, t);
+    } else if(t > (t_1_Tf + ldpd->t_buff) && t < l_1_Tf){
+      V = control_trap_time(ldpd->drive, (t-ldpd->t_buff-t_1_Tf));
+    } else if(t > (l_1_Tf + ldpd->t_buff) && t < t_2_Tf){
+      om = control_trap_time(ldpd->fin_turn, (t-ldpd->t_buff-l_1_Tf));
+    }
 
+    Vprof->v[0] = V;
+    Vprof->v[1] = om;
+    Vprof->v[2] = 1;
+  } // #getControl_ffwd_time
 
 #endif // _FEEDFORWARD_H

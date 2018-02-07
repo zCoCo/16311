@@ -26,12 +26,14 @@
   #define MAX_REV_PER_SECOND 2.0 // Make sure this is an attainable value
 
   // [m/s] - Maximum Linear Velocity:
+  // Def:L 0.6, 2.0
+  #define MIN_VELOCITY 0.06
   float MAX_VEL = (METERS_PER_TICK * TICKS_PER_REV * MAX_REV_PER_SECOND);
-  #define MAX_ACCEL 0.6 //[m/s/s] - Maximum Linear Acceleration
+  #define MAX_ACCEL 0.4 //[m/s/s] - Maximum Linear Acceleration
 
   // [rad/s] - Maximum Angular Velocity
   float MAX_OMEGA = (2.0 * MAX_VEL) / WHEEL_TREAD;
-  #define MAX_ALPHA 2.0 // [rad/s/s] - Maximum Angular Acceleration
+  #define MAX_ALPHA 3.5 // [rad/s/s] - Maximum Angular Acceleration
 
   #define COMMAND_DELAY 0.0 //  -Delay, in sec, a Velocity been Commanded and
                             //     it being Implemented.

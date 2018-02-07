@@ -34,7 +34,7 @@ void search__i_a(){
 	}
 	if(time1[SearchTimer] > 350){
 		static int dir = 1;
-		if(rob_pos->Y < -1*FT){
+		if(rand(10) < 5){ // Randomly change search direction
 			dir = -1;
 		} else{
 			dir = 1;

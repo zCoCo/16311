@@ -115,15 +115,6 @@ task main()
 		search__i_a();
 		wait1Msec(2);
 
-		/*if (SensorValue[lightSensor] > 29 && time1[T4] > 3000) {
-			if (K<0){
-			rightMotorSpeed = 90;
-			leftMotorSpeed = 0; }
-			else{
-			rightMotorSpeed = 0;
-			leftMotorSpeed = 90;}
-		}*/
-
 		motor[RightMotor] = rightMotorSpeed;
 		motor[LeftMotor] = leftMotorSpeed;
 		if (SensorValue[lightSensor] < 27){

@@ -6,6 +6,7 @@
   #define INCH 0.0254 /* ex. 1*INCH = 0.0254 */
   #define FT 0.3048 /* ex. 1*FT = 0.3048 */
 
+  #include "MathStack.h"
   #include "Vector.h"
   #include "Matrix.h"
 

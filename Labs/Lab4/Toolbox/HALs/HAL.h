@@ -6,7 +6,7 @@
   /****
     Universally Supported HAL Functionality:
       PARAMETERS:
-        -MAX_VEL
+        -MAX_VELOCITY
         -MAX_ACCEL
         -MAX_OMEGA
         -MAX_ALPHA
@@ -31,7 +31,7 @@
   // General NXT Parameters (first, used by HAL):
   #define TICKS_PER_REV 360.0
 
-  #include "HAL_Lab3_WMR.h"; //   - Lab 3 Robot Form Factor
+  //#include "HAL_Lab3_WMR.h"; //   - Lab 3 Robot Form Factor
   #include "HAL_Lab4_Tower.h"; // - Lab 4 Robot Form Factor
 
 #endif // _HAL_H

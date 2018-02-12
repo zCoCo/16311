@@ -1,7 +1,22 @@
 #ifndef _T_SLIDING_FIFO_H
 #define _T_SLIDING_FIFO_H
+// Implements a Sliding FiFo Queue for Limited Storage of Continuous Data Streams
+// Essentially, this defines a generic standard for storing Fifo Data in a
+// Sliding Queue as well as a series of helpful functions which can manipulate
+// and manage that data.
 
 #include "../Util/UtilStack.h"
+
+// Constructs a Template for a Type which can be Used to Reference Multple
+// TSFifos of the Same Size Containing the Same Core Type of Data.
+// Type must be given an alias which will be used to reference it in the future.
+// Mainly used for passing pointers around.
+#define Type_TSFifo(alias, type, maxSize) \
+typedef struct{ \
+  type que[maxSize]; \
+  int numElements; \
+  int maxElements; \
+} alias
 
 // Implements a Sliding FiFo Queue for Limited Storage of Continuous Data Streams
 #define Construct_TSFifo(name, type, maxSize) \
@@ -45,7 +60,7 @@ name ## _TSF name
       for(int i=0; i<(tsfp->maxElements-1); i++){ \
         tsfp->que[i] = tsfp->que[i+1]; \
       } \
-      tsfp->que[tsf->maxElements-1] = elem; \
+      tsfp->que[tsfp->maxElements-1] = elem; \
     } else{ \
       tsfp->que[tsfp->numElements] = elem; \
       tsfp->numElements = tsfp->numElements + 1; \
@@ -71,6 +86,9 @@ name ## _TSF name
 #define TSF_Delta(tsf) TSF_delta(tsf) //alias
 #define TSFP_Delta(tsfp) TSFP_delta(tsfp)
 
+// Mark All Current Entries as Ready for Overwrite:
+#define TSF_clear(tsf) tsf.numElements = 0
+#define TSFP_clear(tsfp) tsfp->numElements = 0
 
 #define TSF_isEmpty(tsf) (tsf.numElements == 0)
 #define TSFP_isEmpty(tsfp) (tsfp->numElements == 0)

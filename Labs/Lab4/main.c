@@ -18,8 +18,9 @@
 
 #define MainClock T1
 
-float Kp = (-130.0 / 50.0);
-#define Kd (-Kp/10.0)
+#define SET_POINT (1.5 * 121.5); // Lower -> Rearward
+float Kp = (-130.0 / 35.0);
+float Kd = (1.5 * 130.0 / 75.0);
 #define Ki 0
 
 float KpX = 0;//(40.0 / 0.50); // Command 10% Power if 50cm off target
@@ -55,9 +56,10 @@ PIDController pidcX; // Control Data for PID of X-Position
 PIDStream Hist_XError; // Data Log of X-Position PID Error (special sub-type of TSFifo)
 
 // -- Control Values --
-float u_sens = 0.0;
-float u_pos = 0.0;
-float u_comm = 0.0;
+int u_sens = 0;
+int u_pos = 0;
+int u_comm = 0;
+int u_comm_last = 0;
 
 // Initialize All Data Sets and Controllers.
 void init_data(){
@@ -139,8 +141,12 @@ task balance(){
 // Command Robot:
     u_comm = (u_sens + u_pos);
     u_comm = (abs(u_comm) > 100) ? ((u_comm/abs(u_comm)) * 100) : u_comm;
+    if(abs(u_comm-u_comm_last) > 30){ // Put a Hard-Cap on Thrashing
+      u_comm = u_comm + ((u_comm-u_comm_last) / abs(u_comm-u_comm_last)) * 30;
+    }
     motor[LeftMotor] = u_comm;
     motor[RightMotor] = u_comm;
+    u_comm_last = u_comm;
 
    wait1Msec(2); // CPU Relief
  } // loop
@@ -152,22 +158,22 @@ task main(){
   init_HAL();
   init_data();
   //startTask(disp);
-  startTask(odometry); odometry_on = true;
+  //startTask(odometry); odometry_on = true;
 	startTask(balance);
 
 // Determine Set-Point:
   wait1Msec(1000); // Wait 1sec after Start for Robot to be Steadied.
 
   // Determine Baseline Average for 1 sec:
-  clearTimer(MainClock);
-  unsigned long count = 0;
-  target_diff = 0.0;
-  while(time1[MainClock] < 1000){
-    target_diff += sensor_diff; // Sum Up
-    count++;
-    wait1Msec(1); // CPU Relief
-  }
-  target_diff = target_diff / ((float)count); // Divide to get Average
+  // clearTimer(MainClock);
+  // unsigned long count = 0;
+  // target_diff = 0.0;
+  // while(time1[MainClock] < 1000){
+  //   target_diff += sensor_diff; // Sum Up
+  //   count++;
+  //   wait1Msec(1); // CPU Relief
+  // }
+  target_diff = SET_POINT;//target_diff / ((float)count); // Divide to get Average -- Lower is Rearward
 
   balance_on = true; // With Baseline determined, Start Balancing Act
 

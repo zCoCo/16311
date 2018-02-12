@@ -14,7 +14,7 @@
 
 /* ---- PARAMETERS ---- */
   #define MOTOR_PID_UPDATE_INTERVAL 2
-  #define VELOCITY_UPDATE_INTERVAL 4
+  #define VELOCITY_UPDATE_INTERVAL 2
 
   #define WHEEL_DIAMETER 0.0816 // [m]
   #define WHEEL_CIRCUMFERENCE 0.2564 // [m]
@@ -77,43 +77,45 @@ void reset_HAL(){
 
 /* ---- SENSING ---- */
 task odometry(){
-  nSchedulePriority = 200; // High Priority.
-  // Preallocate Loop Variables:
-  float Ds_left, Ds_right;
-  float dt;
-  float v_l, v_r;
-  float V, om;
+    nSchedulePriority = 200; // High Priority.
+    // Preallocate Loop Variables:
+    long t_last_update_odo = 0;
+    float Ds_left, Ds_right;
+    float dt;
+    float v_l, v_r;
+    float V, om;
 
-  // Loop:
-  while(1){
-    // Capture Encoder Values Immediately:
-    Ds_left = nMotorEncoder[LeftMotor];
-    Ds_right = nMotorEncoder[RightMotor];
-    dt = time1[OdometryClock]; // Ensure this is at time of capture.
+    // Loop:
+    while(1){
+      if((time1[OdometryClock] - t_last_update_odo) > VELOCITY_UPDATE_INTERVAL){
+        // // Capture Encoder Values Immediately:
+        Ds_left = nMotorEncoder[LeftMotor];
+        Ds_right = nMotorEncoder[RightMotor];
+        dt = time1[OdometryClock]; // Ensure this is at time of capture.
 
-    // Reset (after capture) so Value Represents a Delta (and to help prevent overflows):
-    nMotorEncoder[LeftMotor] = 0;
-    nMotorEncoder[RightMotor] = 0;
-    clearTimer(OdometryClock);
+        // Reset (after capture) so Value Represents a Delta (and to help prevent overflows):
+        nMotorEncoder[LeftMotor] = 0;
+        nMotorEncoder[RightMotor] = 0;
+        clearTimer(OdometryClock);
 
-    // Convert to Standard Units:
-    Ds_left = METERS_PER_TICK * Ds_left;
-    Ds_right = METERS_PER_TICK * Ds_right;
-    dt = dt * 0.001; // ms -> s
+        // Convert to Standard Units:
+        Ds_left = METERS_PER_TICK * Ds_left;
+        Ds_right = METERS_PER_TICK * Ds_right;
+        dt = dt * 0.001; // ms -> s
 
-    if(dt){
-      // Compute Velocity Profile:
-      v_l = Ds_left / dt; v_r = Ds_right / dt;
-    }
+        if(dt){
+          // Compute Velocity Profile:
+          v_l = Ds_left / dt; v_r = Ds_right / dt;
+        }
 
-    // Compute Inverse Kinematics:
-    V = (v_r + v_l) / 2.0;
-    om = (v_r - v_l) / WHEEL_TREAD;
+        // Compute Inverse Kinematics:
+        V = (v_r + v_l) / 2.0;
+        om = (v_r - v_l) / WHEEL_TREAD;
 
-    update_odometry(V,om,dt);
-
-    wait1Msec(VELOCITY_UPDATE_INTERVAL);
-  } // loop
+        update_odometry(V,om,dt);
+        t_last_update_odo = time1[OdometryClock];
+      } // t>VELOCITY_UPDATE_INTERVAL
+    } // loop
 } // #odometry
 
 

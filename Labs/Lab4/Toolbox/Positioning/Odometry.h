@@ -10,20 +10,28 @@
 // Actual Odometry Data Implementation (calculating V,om,dt)
 // is Carried Out by the HAL.
 
-Construct_TSFifo(Hist_Position, TPose*, 15); // [m,m,rad] Logs TPose in World-Frame
+Construct_TSFifo(Hist_Pos_X, float, 15); // [m,m,rad] Logs TPose in World-Frame
+Construct_TSFifo(Hist_Pos_Y, float, 15); // [m,m,rad] Logs TPose in World-Frame
+Construct_TSFifo(Hist_Pos_TH, float, 15); // [m,m,rad] Logs TPose in World-Frame
 Construct_TSFifo(Hist_Time, long, 2); // [ms] Logs Odometry Update Time Deltas
 Construct_TSFifo(Hist_Dist, float, 2); // [m] Logs Path-Length Distance Travelled
 Construct_TSFifo(Hist_Vel, float, 2); // [m/s]
 Construct_TSFifo(Hist_Omega, float, 2); // [rad/s]
 Construct_TSFifo(Hist_Curv, float, 2); // [1/m]
 
-#define rob_pos Hist_Position.que[Hist_Position.numElements-1]
+#define rob_pos_X TSF_Last(Hist_Pos_X)
+#define rob_pos_Y TSF_Last(Hist_Pos_Y)
+#define rob_pos_TH TSF_Last(Hist_Pos_TH)
+//Hist_Position.que[Hist_Position.numElements-1]
 
 // Initialize Odometry Data:
 void init_odometry(){
-  Init_TSFifo(Hist_Position, 15);
-  TPose zero_pose; zero_pose.X = 0; zero_pose.Y = 0; zero_pose.TH = 0;
-  TSF_add(Hist_Position, &zero_pose);
+  Init_TSFifo(Hist_Pos_X, 15);
+  TSF_add(Hist_Pos_X, 0);
+  Init_TSFifo(Hist_Pos_Y, 15);
+  TSF_add(Hist_Pos_Y, 0);
+  Init_TSFifo(Hist_Pos_TH, 15);
+  TSF_add(Hist_Pos_TH, 0);
 
   Init_TSFifo(Hist_Time, 2);
   TSF_add(Hist_Time, 0);
@@ -65,12 +73,12 @@ void update_odometry(float V, float om, float dt){
     V0 = TSF_Last(Hist_Vel);
     om0 = TSF_Last(Hist_Omega);
 
-    if(Hist_Position.numElements <= 1){
+    if(Hist_Pos_X.numElements <= 1){
       // Ensure Proper Initialization (zero_pose seems faulty)
       new_pose.X = 0.0; new_pose.Y = 0.0; new_pose.TH = 0.0;
     } else{
       // Grab Data from Last Iteration:
-      new_pose.X = rob_pos->X; new_pose.Y = rob_pos->Y; new_pose.TH = rob_pos->TH;
+      new_pose.X = rob_pos_X; new_pose.Y = rob_pos_Y; new_pose.TH = rob_pos_TH;
     }
 
     // Mid-Point Algorithm:
@@ -82,16 +90,20 @@ void update_odometry(float V, float om, float dt){
     // s0 = TSF_Last(Hist_Dist);
     // TSF_add( Hist_Dist, (s0 + abs(V0) * dt) );
 
-    TSF_add(Hist_Position, &new_pose);
+    TSF_add(Hist_Pos_X, new_pose.X);
+    TSF_add(Hist_Pos_Y, new_pose.Y);
+    TSF_add(Hist_Pos_TH, new_pose.TH);
   } else{ // Prevent Data-Length Mis-Match:
     TSF_add(Hist_Dist, TSF_Last(Hist_Dist));
-    TSF_add(Hist_Position, rob_pos);
+    TSF_add(Hist_Pos_X, rob_pos_X);
+    TSF_add(Hist_Pos_Y, rob_pos_Y);
+    TSF_add(Hist_Pos_TH, rob_pos_TH);
   }
 
   // Update Velocity Profile:
   TSF_add(Hist_Vel, V);
   TSF_add(Hist_Omega, om);
-  // TSF_add(Hist_Curv, (V==0 ? 0 : (om/V)));
+  TSF_add(Hist_Curv, (V==0 ? 0 : (om/V)));
 } // #update_odometry
 
 #endif // _ODOMETRY_H

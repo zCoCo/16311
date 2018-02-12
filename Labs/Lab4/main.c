@@ -18,7 +18,7 @@
 
 #define MainClock T1
 
-#define SET_POINT (1.5 * 121.5); // Lower -> Rearward
+#define SET_POINT (1.5 * 121.5) // Lower -> Rearward
 float Kp = (-130.0 / 35.0);
 float Kd = (1.5 * 130.0 / 75.0);
 #define Ki 0
@@ -101,54 +101,58 @@ task disp(){
 task balance(){
   nSchedulePriority = 200; // High Priority.
 
+  long t_last_call_bal = 0;
+
   while(1){
-// Log Sensor Data:
-  TSF_add(Hist_SensorFront, (SensorRaw[lightSensorFront]));
-  TSF_add(Hist_SensorRear, (SensorRaw[lightSensorRear]));
+  if((time1[MainClock] - t_last_call_bal) > 2){
+  // Log Sensor Data:
+    TSF_add(Hist_SensorFront, (SensorRaw[lightSensorFront]));
+    TSF_add(Hist_SensorRear, (SensorRaw[lightSensorRear]));
 
-// // Smooth Inputs:
-//     // Perform Pseudo Exponential Moving Average to Smooth Inputs:
-//     smooth_front = 0.0;
-//     if(Hist_SensorFront.numElements == Hist_SensorFront.maxElements){
-//     // Wait for Data Log to Fill Up
-//       for(int i=0; i<Hist_SensorFront.numElements; i++){
-//         smooth_front += Hist_SensorFront.que[i] / (Hist_SensorFront.numElements-i) / smoothing_norm;
-//       }
-//     }
-//
-//     smooth_rear = 0.0;
-//     #ifdef USE_REAR_SENSOR
-//     if(Hist_SensorRear.numElements == Hist_SensorRear.maxElements){
-//     // Wait for Data Log to Fill Up
-//       for(int i=0; i<Hist_SensorRear.numElements; i++){
-//         smooth_rear += Hist_SensorRear.que[i] / (Hist_SensorFront.numElements-i) / smoothing_norm;
-//       }
-//     }
-//     #endif // USE_REAR_SENSOR
+  // // Smooth Inputs:
+  //     // Perform Pseudo Exponential Moving Average to Smooth Inputs:
+  //     smooth_front = 0.0;
+  //     if(Hist_SensorFront.numElements == Hist_SensorFront.maxElements){
+  //     // Wait for Data Log to Fill Up
+  //       for(int i=0; i<Hist_SensorFront.numElements; i++){
+  //         smooth_front += Hist_SensorFront.que[i] / (Hist_SensorFront.numElements-i) / smoothing_norm;
+  //       }
+  //     }
+  //
+  //     smooth_rear = 0.0;
+  //     #ifdef USE_REAR_SENSOR
+  //     if(Hist_SensorRear.numElements == Hist_SensorRear.maxElements){
+  //     // Wait for Data Log to Fill Up
+  //       for(int i=0; i<Hist_SensorRear.numElements; i++){
+  //         smooth_rear += Hist_SensorRear.que[i] / (Hist_SensorFront.numElements-i) / smoothing_norm;
+  //       }
+  //     }
+  //     #endif // USE_REAR_SENSOR
 
-    sensor_diff = SensorRaw[lightSensorFront] - SensorRaw[lightSensorRear];//smooth_front - smooth_rear;
+      sensor_diff = SensorRaw[lightSensorFront] - SensorRaw[lightSensorRear];//smooth_front - smooth_rear;
 
-// Update Sensor PID:
-    if(balance_on){
-      u_sens = ((int)getControl(&pidc)); // Get Control Signal from Sensor PID
-    }
-// Update Motion PID:
-    if(balance_on && odometry_on){
-      curr_X = rob_pos->X; // Update Current X-Position used in Control Loop
-      u_pos = ((int)getControl(&pidcX));
-    }
+  // Update Sensor PID:
+      if(balance_on){
+        u_sens = ((int)getControl(&pidc)); // Get Control Signal from Sensor PID
+      }
+  // Update Motion PID:
+      if(balance_on && odometry_on){
+        curr_X = rob_pos_X; // Update Current X-Position used in Control Loop
+        u_pos = ((int)getControl(&pidcX));
+      }
 
-// Command Robot:
-    u_comm = (u_sens + u_pos);
-    u_comm = (abs(u_comm) > 100) ? ((u_comm/abs(u_comm)) * 100) : u_comm;
-    if(abs(u_comm-u_comm_last) > 30){ // Put a Hard-Cap on Thrashing
-      u_comm = u_comm + ((u_comm-u_comm_last) / abs(u_comm-u_comm_last)) * 30;
-    }
-    motor[LeftMotor] = u_comm;
-    motor[RightMotor] = u_comm;
-    u_comm_last = u_comm;
+  // Command Robot:
+      u_comm = (u_sens + u_pos);
+      u_comm = (abs(u_comm) > 100) ? ((u_comm/abs(u_comm)) * 100) : u_comm;
+      if(abs(u_comm-u_comm_last) > 30){ // Put a Hard-Cap on Thrashing
+        u_comm = u_comm + ((u_comm-u_comm_last) / abs(u_comm-u_comm_last)) * 30;
+      }
+      motor[LeftMotor] = u_comm;
+      motor[RightMotor] = u_comm;
+      u_comm_last = u_comm;
 
-   wait1Msec(2); // CPU Relief
+      t_last_call_bal = time1[MainClock];
+    } // t_last_call_bal?
  } // loop
 } // #balance
 
@@ -158,7 +162,7 @@ task main(){
   init_HAL();
   init_data();
   //startTask(disp);
-  //startTask(odometry); odometry_on = true;
+  startTask(odometry); odometry_on = true;
 	startTask(balance);
 
 // Determine Set-Point:

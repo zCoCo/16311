@@ -19,7 +19,7 @@
 #define MainClock T1
 
 float Kp = (-130.0 / 50.0);
-#define Kd 0
+#define Kd (-Kp/10.0)
 #define Ki 0
 
 float KpX = 0;//(40.0 / 0.50); // Command 10% Power if 50cm off target
@@ -139,9 +139,10 @@ task balance(){
 // Command Robot:
     u_comm = (u_sens + u_pos);
     u_comm = (abs(u_comm) > 100) ? ((u_comm/abs(u_comm)) * 100) : u_comm;
-    motor[LeftMotor] = motor[RightMotor] = u_comm;
+    motor[LeftMotor] = u_comm;
+    motor[RightMotor] = u_comm;
 
-   wait1Msec(1); // CPU Relief
+   wait1Msec(2); // CPU Relief
  } // loop
 } // #balance
 

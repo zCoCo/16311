@@ -115,6 +115,7 @@ task odometry(){
         update_odometry(V,om,dt);
         t_last_update_odo = time1[OdometryClock];
       } // t>VELOCITY_UPDATE_INTERVAL
+      wait1Msec(VELOCITY_UPDATE_INTERVAL);
     } // loop
 } // #odometry
 

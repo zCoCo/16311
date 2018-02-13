@@ -41,7 +41,7 @@ name ## _TSF name
 // Adds an Element, elem, to the Given Sliding Fifo, tsf
 #define TSF_add(tsf, elem) do{ \
   if(tsf.maxElements != 0){ \
-    if(tsf.numElements == tsf.maxElements){ \
+    if(tsf.numElements >= tsf.maxElements){ \
       for(int i=0; i<(tsf.maxElements-1); i++){ \
         tsf.que[i] = tsf.que[i+1]; \
       } \
@@ -56,9 +56,9 @@ name ## _TSF name
 // Adds an Element, elem, to the Sliding Fifo Pointed to by tsfp
 #define TSFP_add(tsfp, elem) do{ \
   if(tsfp->maxElements != 0){ \
-    if(tsfp->numElements == tsfp->maxElements){ \
+    if(tsfp->numElements >= tsfp->maxElements){ \
       for(int i=0; i<(tsfp->maxElements-1); i++){ \
-        tsfp->que[i] = tsfp->que[i+1]; \
+        tsfp->que[i] = tsfp->que[i+1];\
       } \
       tsfp->que[tsfp->maxElements-1] = elem; \
     } else{ \
@@ -92,5 +92,24 @@ name ## _TSF name
 
 #define TSF_isEmpty(tsf) (tsf.numElements == 0)
 #define TSFP_isEmpty(tsfp) (tsfp->numElements == 0)
+
+// Sums the Contents of the Given TSFifo and Puts the result in the value
+// pointed to by pRes.
+#define TSF_SUM(tsf, pRes) do{ \
+  float sum = 0.0; \
+  for(int i=0; i<tsf.numElements; i++){ \
+    sum += tsf.que[i]; \
+  } \
+  *(pRes) = sum; \
+} while(0)
+// Sums the Contents of the TSFifo pointed to by tsfp and puts the result
+//  in the value pointed to by pRes.
+#define TSFP_SUM(tsfp, pRes) do{ \
+  float sum = 0.0; \
+  for(int i=0; i<tsfp->numElements; i++){ \
+    sum += tsfp->que[i]; \
+  } \
+  *(pRes) = sum; \
+} while(0)
 
 #endif // _T_SLIDING_FIFO_H

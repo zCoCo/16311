@@ -26,6 +26,8 @@ classdef Rect_Obj
         %Returns 1 if the give coordinate is contained within
         function bool = isIn(obj, x,y)
             bool = 0;
+            %Use the formula describe by this link
+            %https://math.stackexchange.com/questions/190111/how-to-check-if-a-point-is-inside-a-rectangle
             % Side lengths
             a1 = sqrt( (obj.X1-obj.X2)^2 + (obj.Y1-obj.Y2)^2);
             a2 = sqrt( (obj.X2-obj.X3)^2 + (obj.Y2-obj.Y3)^2);

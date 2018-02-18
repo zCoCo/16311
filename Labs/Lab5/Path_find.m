@@ -1,21 +1,22 @@
 % Wavefronts
 
 % Resolution (grid cells per inch)
-res = 3;
+res = 4; %Pick 4 Because quarter inches are easier
+
 % Initialize Matrix Representing the Grid of the World:
 width = 84; %inches
 height = 48;
 mat = zeros(height * res, width * res);
 
-%Obstacles Coordinates:
-P1x = [1];
-P1y = [31.5];
-P2x = [5.25];
-P2y = [36];
-P3x = [22.5];
-P3y = [19.5];
-P4x = [18.25];
-P4y = [15.25];
+%Obstacles Coordinates from left to right objects and coords CCW:
+P1x = [1,22.75];
+P1y = [31.5,30.25];
+P2x = [5.25,26.25];
+P2y = [36,34.5];
+P3x = [22.5,30.5];
+P3y = [19.5,30.5];
+P4x = [18.25,26.25];
+P4y = [15.25,26.25];
 
 
 

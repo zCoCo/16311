@@ -26,18 +26,17 @@ obstacles; % Vector of Rect_Obj representing obstacles
 % Loop through all P0s, P1s and Create a Rect_Obj entry in Obstacle vector for each
 rows = length(P1x);
 % magic number for amount of objects
-objectList = [object1,object2,object3,object4,object5,object6];
-
+Ob
 for row = 1:rows
-    objectList(row) = Rect_obj;
-    objectList(row).X1 =  P1x(row);
-    objectList(row).Y1 =  P1y(row);
-    objectList(row).X2 =  P2x(row);
-    objectList(row).Y2 = P2y(row);
-    objectList(row).X3 = P3x(row);
-    objectList(row).Y3 = P3y(row);
-    objectList(row).X4 = P4x(row);
-    objectList(row).Y4 = P4y(row);
+    Object
+    P1x(row)
+    P1y(row)
+    P2x(row)
+    P2y(row)
+    P3x(row)
+    P3y(row)
+    P4x(row)
+    P4y(row)
     
 end
 

@@ -48,6 +48,7 @@ classdef Rect_Obj
             A2 = sqrt (u2*(u2-a2)*(u2-b2)*(u2-b3));
             A3 = sqrt (u3*(u3-a3)*(u3-b3)*(u3-b4));
             A4 = sqrt (u4*(u4-a4)*(u4-b4)*(u4-b1));
+            % Sum of the area of the rectangles
             areaRect = A1 + A2 + A3 + A4;
             if(areaRect < A) %or however this is done
                 bool = 1;

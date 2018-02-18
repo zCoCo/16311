@@ -26,6 +26,11 @@
     Pb.X = Pa.X; Pb.Y = Pa.Y; Pb.TH = Pa.TH; \
   } while(0)
 
+  // Copies the TPose Contents Pointed to by PPa into Pb
+  #define Copy_PTPose(Pb, PPa) do{ \
+    Pb.X = PPa->X; Pb.Y = PPa->Y; Pb.TH = PPa->TH; \
+  } while(0)
+
   /****
    * Returns the Homogeneous Transform that Converts Coordinates from the b Frame
    * to the a Frame of the Given Pose.

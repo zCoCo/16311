@@ -1,6 +1,7 @@
 #ifndef _TRAJECTORY_H
 #define _TRAJECTORY_H
 
+  #include "../Positioning/TPose.h"
   #include "../Math/MathStack.h"
 
   /* Defines a Linear Trajectory from a Given Starting Pose to a Given Terminal

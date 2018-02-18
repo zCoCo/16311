@@ -19,7 +19,6 @@
   // Command the Robot to Follow the Given Trajectory (using only feedforward
   // control)
   void run_linearTrajectory(LinearTrajectory* rlt){
-    static float HEY_LOOK_AT_ME;
     char isFirstRun; // [bool] Whether this is the First Execution
     long t, dt; // in [ms]
     Vector3x1 u_ffwd; // Feedforward Control Signal
@@ -58,11 +57,14 @@
     char isFirstRun; // [bool] Whether this is the First Execution
     long t, dt; // in [ms]
 
+    // Ensure there's enough data stored for interpolation:
+    float loop_delay = (float)(2000.0*COMMAND_READ_DELAY/rlt_fbk_buffer_length);
+
     //Sliding Fifo Storage for Continuous Data Stream of Command Data for
     //Interpolation.
-    Construct_TSFifo(Hist_CommTime, long, rlt_fbk_buffer_length); // [ms]
+    Construct_TSFifo(Hist_CommTime, float, rlt_fbk_buffer_length); // [ms]
     Init_TSFifo(Hist_CommTime, rlt_fbk_buffer_length);
-    TSF_add(Hist_CommTime, 0);
+    TSF_add(Hist_CommTime, 0.0);
 
     Construct_TSFifo(Hist_CommVel, float, rlt_fbk_buffer_length); // [m/s]
     Init_TSFifo(Hist_CommVel, rlt_fbk_buffer_length);
@@ -77,7 +79,7 @@
 
     TPose P_comm;   // Commanded Position in the World-Frame (where the Robot
                     // should be).
-    Copy_TPose(P_comm, (*(rlt->start)));
+    Copy_PTPose(P_comm, rlt->start);
 
     LinearDirectProfileData ldpd;
     Init_LinearDirectProfile(&ldpd, rlt, MAX_ACCEL, MAX_ALPHA, 0.0);
@@ -96,17 +98,17 @@
         t += dt;
 
         // Get the velocity the robot should be going now:
-        getControl_ffwd_time(&u_ffwd, &ldpd, t/1000.0);
+        getControl_ffwd_time(&u_ffwd, &ldpd, (t/1000.0));
         TSF_add(Hist_CommVel, u_ffwd.v[0]);
         TSF_add(Hist_CommOmega, u_ffwd.v[1]);
         TSF_add(Hist_CommTime, t);
 
-        // Update Commanded Position (where the robot should the Odometry See
-        // the Robot to be RIGHT NOW based ONLY ON the feedforward control of
+        // Update Commanded Position (Where the Robot Odometry should See the
+        // Robot's Location RIGHT NOW based ONLY ON the feedforward control of
         // THE REFERENCE TRAJECTORY):
         float Vr, omr; // Linear and Angular Velocity at times
-        interpolate_endref(Hist_CommTime.que, Hist_CommVel.que, (t-COMMAND_READ_DELAY*1000.0), &Vr);
-        interpolate_endref(Hist_CommTime.que, Hist_CommOmega.que, (t-COMMAND_READ_DELAY*1000.0), &omr);
+        Vr = interpolate_endref(Hist_CommTime.que, Hist_CommVel.que, (t-COMMAND_READ_DELAY*1000.0));
+        omr = interpolate_endref(Hist_CommTime.que, Hist_CommOmega.que, (t-COMMAND_READ_DELAY*1000.0));
         // Mid-Point Algorithm:
         P_comm.TH = P_comm.TH + omr * dt/2.0;
         P_comm.X = P_comm.X + Vr * cos(P_comm.TH) * dt;
@@ -123,7 +125,7 @@
       } // isFirstRun?
 
     // CPU Relief & Ensure there's enough data stored for interpolation
-    wait1Msec((float)(2000.0*COMMAND_READ_DELAY/rlt_fbk_buffer_length));
+    wait1Msec(loop_delay);
     } // loop
   } // #run_linearTrajectory
 

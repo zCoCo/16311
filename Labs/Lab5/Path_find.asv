@@ -4,19 +4,19 @@
 res = 4; %Pick 4 Because quarter inches are easier
 
 % Initialize Matrix Representing the Grid of the World:
-width = 84; %inches
-height = 48;
+width  =  84; %inches
+height =  48;
 mat = zeros(height * res, width * res);
 
 %Obstacles Coordinates from left to right objects and coords CCW from top
-P1x = [1   ,  22.75 ,  47.5 ,  55.25,  68,    72];
-P1y = [31.5,  30.25 ,  35.25,  18.75,  26,    42.5];
-P2x = [5.25,  26.25 ,  51.5 ,  56.5,   72.75, 76.25];
-P2y = [36  ,  34.5  ,  30.75,  14.75,  23.50, 38.25];
-P3x = [22.5,  30.5  ,  34,     52.5,   69,    72];
-P3y = [19.5,  30.5  ,  14.75,  10.5,   17.75,  34];
-P4x = [18.25, 26.25 ,  29.75,   48,    64.25];
-P4y = [15.25, 26.25 ,  19.25,   14.25, 21.5];
+P1x = [01.00,  22.75,  47.50,  55.25,  68.00,  72.00];
+P1y = [31.50,  30.25,  35.25,  18.75,  26.00,  42.50];
+P2x = [05.25,  26.25,  51.50,  56.50,  72.75,  76.25];
+P2y = [36.00,  34.50,  30.75,  14.75,  23.50,  38.25];
+P3x = [22.50,  30.50,  34.00,  52.50,  69.00,  72.00];
+P3y = [19.50,  30.50,  14.75,  10.50,  17.75,  34.00];
+P4x = [18.25,  26.25,  29.75,  48.00,  64.25,  84.00];
+P4y = [15.25,  26.25,  19.25,  14.25,  21.50,  38.25];
 
 
 
@@ -31,6 +31,7 @@ objectList = [object1,object2,object3,object4,object5,object6];
 
 for row = 1:rows
     objectList(row) = Rect_obj;
+    
     objectList(row).X1 =  P1x(row);
     objectList(row).Y1 =  P1y(row);
     objectList(row).X2 =  P2x(row);
@@ -45,16 +46,19 @@ end
 % Initialize World Matrix
 [wrows,wcols] = size(mat);
 
-% Loop Through Matrix and Test Each Coordinate (use res to convert i,j to
-% inches) against each entry in obstacle. If any of them return 1, set
-% pixel to 1.
-
 for row = 1:wrows
     for col = 1:wcols
+        if
+        end
         
         
     end
 end
+
+% Loop Through Matrix and Test Each Coordinate (use res to convert i,j to
+% inches) against each entry in obstacle. If any of them return 1, set
+% pixel to 1.
+
 
 % Identify target in Matrix (with a 2, I think)
 

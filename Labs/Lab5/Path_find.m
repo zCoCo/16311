@@ -4,8 +4,8 @@
 res = 4; %Pick 4 Because quarter inches are easier
 
 % Initialize Matrix Representing the Grid of the World:
-width = 84; %inches
-height = 48;
+width  =  84; %inches
+height =  48;
 mat = zeros(height * res, width * res);
 
 %Obstacles Coordinates from left to right objects and coords CCW from top
@@ -31,6 +31,7 @@ objectList = [object1,object2,object3,object4,object5,object6];
 
 for row = 1:rows
     objectList(row) = Rect_obj;
+    
     objectList(row).X1 =  P1x(row);
     objectList(row).Y1 =  P1y(row);
     objectList(row).X2 =  P2x(row);
@@ -43,18 +44,22 @@ for row = 1:rows
 end
 
 % Initialize World Matrix
+%Creating the map of the world
 [wrows,wcols] = size(mat);
+
+for row = 1:wrows
+    for col = 1:wcols
+        if 
+        end
+        
+        
+    end
+end
 
 % Loop Through Matrix and Test Each Coordinate (use res to convert i,j to
 % inches) against each entry in obstacle. If any of them return 1, set
 % pixel to 1.
 
-for row = 1:wrows
-    for col = 1:wcols
-        
-        
-    end
-end
 
 % Identify target in Matrix (with a 2, I think)
 

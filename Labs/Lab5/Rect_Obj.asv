@@ -11,7 +11,7 @@ classdef Rect_Obj
         Y4;
     end
     methods
-        function obj = Rect_Obj(X1, Y1, X2, Y2, X3, Y3,X4,Y4)
+        function obj = Rect_Obj(X0, Y0, X1, Y1, X2, Y2, X3, Y3)
             % initialize properties;
             obj.X1 = X1; %etc
             obj.Y1 = Y1;

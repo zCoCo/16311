@@ -13,7 +13,6 @@ P1s = [22.5, 19.5; ];
 obstacles; % Vector of Rect_Obj representing obstacles
 
 %% PROCEDURE:
-f
 % Loop through all P0s, P1s and Create a Rect_Obj entry in Obstacle vector for each
 
 % Initialize World Matrix

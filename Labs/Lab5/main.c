@@ -14,8 +14,8 @@
 #define INIT_POSE_TH 0.0 * DEG
 
 #define NUM_WAYPOINTS 1
-float WayPoint_Xs [NUM_WAYPOINTS] = {12.0 * INCH};
-float WayPoint_Ys [NUM_WAYPOINTS] = {0.0 * INCH};
+float WayPoint_Xs [NUM_WAYPOINTS] = {0.0 * INCH};
+float WayPoint_Ys [NUM_WAYPOINTS] = {12.0 * INCH};
 
 float target_X = INIT_POSE_X;
 float target_Y = INIT_POSE_Y;
@@ -45,6 +45,7 @@ task disp(){
 } // #disp
 
 TPose Pstart, Pend; // Start and End Poses for Each Trajectory
+LinearTrajectory ltt; // Trajectory to be run
 
 task main(){
 // Initialize:
@@ -54,16 +55,15 @@ task main(){
 
   int i = 0;
   while(i < NUM_WAYPOINTS){
-    target_X = WayPoint_Xs[i];
-    target_Y = WayPoint_Ys[i];
-    target_TH = 0.0;
+    target_X = 0.0;//WayPoint_Xs[i];
+    target_Y = 0.0;//WayPoint_Ys[i];
+    target_TH = 90.0 * DEG;
 
     Set_TPose(Pstart, rob_pos_X, rob_pos_Y, rob_pos_TH);
     Set_TPose(Pend, target_X, target_Y, target_TH);
 
-    LinearTrajectory ltt;
     Init_LinearTrajectory(ltt, &Pstart, &Pend, 0.9*MAX_VEL, 0.3*MAX_OMEGA); // Slow Turns
-    run_linearTrajectory(&ltt);
+    run_linearTrajectory_fbk(&ltt);
 
     wait1Msec(100); // Wait 100ms between trajectories
     i += 1;

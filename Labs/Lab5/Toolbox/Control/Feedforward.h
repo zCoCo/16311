@@ -129,7 +129,17 @@
   void getControl_ffwd_time(Vector3x1* Vprof,
                             LinearDirectProfileData* ldpd,
                             float t){
-    static float V, om; // Keep Allocati
+    static float V, om; // Keep Allocated
+
+    // static float t_1_t0, t_1_tf, l_1_t0, l_1_tf, t_2_t0, t_2_tf;
+    // t_1_t0 = 0.0;
+    // t_1_tf = t_1_Tf;
+    //
+    // l_1_t0 = (t_1_Tf + ldpd->t_buff);
+    // l_1_tf = l_1_Tf;
+    //
+    // t_2_t0 = (l_1_Tf + ldpd->t_buff);
+    // t_2_tf = t_2_Tf;
 
     if(t < t_1_Tf){
       V = 0.0;

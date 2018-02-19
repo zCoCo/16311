@@ -20,46 +20,38 @@ P4y = [15.25,  26.25,  19.25,  14.25,  21.50,  38.25];
 
 
 
-obstacles; % Vector of Rect_Obj representing obstacles
+%obstacles; % Vector of Rect_Obj representing obstacles
 
 %% PROCEDURE:
 
 % Loop through all P0s, P1s and Create a Rect_Obj entry in Obstacle vector for each
 rows = length(P1x);
-% magic number for amount of objects
-objectList = [object1,object2,object3,object4,object5,object6];
+objectList = Rect_Obj(0,0,0,0,0,0,0,0);
 
 for row = 1:rows
-    objectList(row) = Rect_obj;
-    
-    objectList(row).X1 =  P1x(row);
-    objectList(row).Y1 =  P1y(row);
-    objectList(row).X2 =  P2x(row);
-    objectList(row).Y2 =  P2y(row);
-    objectList(row).X3 =  P3x(row);
-    objectList(row).Y3 =  P3y(row);
-    objectList(row).X4 =  P4x(row);
-    objectList(row).Y4 =  P4y(row);
+    objectList(row) = Rect_Obj(P1x(row),P1y(row),P2x(row),P2y(row),P3x(row),P3y(row),P4x(row),P4y(row));
     
 end
 
 % Initialize World Matrix
 %Creating the map of the world
-[wrows,wcols] = size(mat);
-
-for row = 1:wrows
-    for col = 1:wcols
-        if 
-        end
-        
-        
-    end
-end
-
 % Loop Through Matrix and Test Each Coordinate (use res to convert i,j to
 % inches) against each entry in obstacle. If any of them return 1, set
 % pixel to 1.
+[wrows,wcols] = size(mat);
 
+for wrow = 1:wrows
+    for wcol = 1:wcols
+        x =  wcol/4;
+        y =  wrow/4;
+        for row = 1:rows
+            % Check my positioning 
+            if mat(wrow,wcol) ~= 1
+                mat(wrow,wcol) = isIn(objectList(row),x,y);
+            end
+        end
+    end
+end
 
 % Identify target in Matrix (with a 2, I think)
 
@@ -68,8 +60,10 @@ end
 
 % Search through Filled-Matrix to find path, create waypoints. Store result
 % in:
-waypoint_xs;
-waypoint_ys; % vectors
+imagesc(mat)
+set(gca, 'YDir', 'Reverse')
+waypoint_xs = 0;
+waypoint_ys = 0; % vectors
 
 
 % xzc .

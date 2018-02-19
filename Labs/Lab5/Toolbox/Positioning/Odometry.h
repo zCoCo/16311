@@ -6,32 +6,38 @@
 
 //#define PRINT_ODOMETRY_DATA // Comment-Out to Disable
 
+// Define Initial Pose of Robot in World-Frame (if not defined elsewhere)
+#ifndef INIT_POSE_X
+  #define INIT_POSE_X 0.0
+  #define INIT_POSE_Y 0.0
+  #define INIT_POSE_TH 0.0
+#endif // INIT_POSE_X
+
 // Defines Standard Variables and Functions Neccessary to Perform Odometry.
 // Actual Odometry Data Implementation (calculating V,om,dt)
 // is Carried Out by the HAL.
 
-Construct_TSFifo(Hist_Pos_X, float, 15); // [m,m,rad] Logs TPose in World-Frame
-Construct_TSFifo(Hist_Pos_Y, float, 15); // [m,m,rad] Logs TPose in World-Frame
-Construct_TSFifo(Hist_Pos_TH, float, 15); // [m,m,rad] Logs TPose in World-Frame
-Construct_TSFifo(Hist_Time, long, 5); // [ms] Logs Odometry Update Time Deltas
-Construct_TSFifo(Hist_Dist, float, 5); // [m] Logs Path-Length Distance Travelled
-Construct_TSFifo(Hist_Vel, float, 5); // [m/s]
-Construct_TSFifo(Hist_Omega, float, 7); // [rad/s]
-Construct_TSFifo(Hist_Curv, float, 5); // [1/m]
+Construct_TSFifo(Hist_Pos_X, float, 10); // [m,m,rad] Logs TPose in World-Frame
+Construct_TSFifo(Hist_Pos_Y, float, 10); // [m,m,rad] Logs TPose in World-Frame
+Construct_TSFifo(Hist_Pos_TH, float, 10); // [m,m,rad] Logs TPose in World-Frame
+Construct_TSFifo(Hist_Time, long, 4); // [ms] Logs Odometry Update Time Deltas
+Construct_TSFifo(Hist_Dist, float, 4); // [m] Logs Path-Length Distance Travelled
+Construct_TSFifo(Hist_Vel, float, 4); // [m/s]
+Construct_TSFifo(Hist_Omega, float, 4); // [rad/s]
+Construct_TSFifo(Hist_Curv, float, 4); // [1/m]
 
 #define rob_pos_X (TSF_Last(Hist_Pos_X))
 #define rob_pos_Y (TSF_Last(Hist_Pos_Y))
 #define rob_pos_TH (TSF_Last(Hist_Pos_TH))
-//Hist_Position.que[Hist_Position.numElements-1]
 
 // Initialize Odometry Data:
 void init_odometry(){
-  Init_TSFifo(Hist_Pos_X, 15);
-  TSF_add(Hist_Pos_X, 0);
-  Init_TSFifo(Hist_Pos_Y, 15);
-  TSF_add(Hist_Pos_Y, 0);
-  Init_TSFifo(Hist_Pos_TH, 15);
-  TSF_add(Hist_Pos_TH, 0);
+  Init_TSFifo(Hist_Pos_X, 10);
+  TSF_add(Hist_Pos_X, INIT_POSE_X);
+  Init_TSFifo(Hist_Pos_Y, 10);
+  TSF_add(Hist_Pos_Y, INIT_POSE_Y);
+  Init_TSFifo(Hist_Pos_TH, 10);
+  TSF_add(Hist_Pos_TH, INIT_POSE_TH);
 
   Init_TSFifo(Hist_Time, 4);
   TSF_add(Hist_Time, 0);
@@ -42,7 +48,7 @@ void init_odometry(){
   Init_TSFifo(Hist_Vel, 4);
   TSF_add(Hist_Vel, 0);
 
-  Init_TSFifo(Hist_Omega, 7);
+  Init_TSFifo(Hist_Omega, 4);
   TSF_add(Hist_Omega, 0);
 
   Init_TSFifo(Hist_Curv, 4);
@@ -63,15 +69,15 @@ void update_timeLog(float dt){
 ****/
 void update_odometry(float V, float om, float dt){
   // Allocate static space for variables since these will likely be used often
-  static float new_pose_X = 0.0;
-  static float new_pose_Y = 0.0;
-  static float new_pose_TH = 0.0;
+  static float new_pose_X = INIT_POSE_X;
+  static float new_pose_Y = INIT_POSE_Y;
+  static float new_pose_TH = INIT_POSE_TH;
   static float V0, om0, s0;
 
   update_timeLog(dt);
 
   // Compute Position Change (uses the LAST iteration's data):
-  if((1000.0*dt) > 0.0){ // *1000 fixes an issue this was having
+  if((1000.0*dt) > 0.0){ // *1000 fixes an issue this was having, for some reason @RobotC
     V0 = TSF_Last(Hist_Vel);
     om0 = TSF_Last(Hist_Omega);
 

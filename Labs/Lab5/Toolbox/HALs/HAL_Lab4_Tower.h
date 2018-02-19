@@ -1,5 +1,5 @@
-#ifndef _HAL_LAB3_WMR_H
-#define _HAL_LAB3_WMR_H
+#ifndef _HAL_LAB4_TOWER_H
+#define _HAL_LAB4_TOWER_H
 
 /****
   Config Description:
@@ -120,4 +120,4 @@ task odometry(){
 } // #odometry
 
 
-#endif // _HAL_LAB3_WMR_H
+#endif // _HAL_LAB4_TOWER_H

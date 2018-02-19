@@ -1,11 +1,8 @@
 #ifndef _MATH_STACK_H
 #define _MATH_STACK_H
 
-// CONSTANTS/CONVERSIONS:
-  #define DEG 0.017453 /* ex. 180*DEG = 3.14159 */
-  #define INCH 0.0254 /* ex. 1*INCH = 0.0254 */
-  #define FT 0.3048 /* ex. 1*FT = 0.3048 */
-
+  #include "Units.h"
+  
   #include "MathStack.h"
   #include "Vector.h"
   #include "Matrix.h"

@@ -6,7 +6,8 @@
   /****
     Universally Supported HAL Functionality:
       PARAMETERS:
-        -MAX_VELOCITY
+        -MIN_VELOCITY
+        -MAX_VEL
         -MAX_ACCEL
         -MAX_OMEGA
         -MAX_ALPHA
@@ -32,6 +33,7 @@
   #define TICKS_PER_REV 360.0
 
   //#include "HAL_Lab3_WMR.h"; //   - Lab 3 Robot Form Factor
-  #include "HAL_Lab4_Tower.h"; // - Lab 4 Robot Form Factor
+  //#include "HAL_Lab4_Tower.h"; // - Lab 4 Robot Form Factor
+  #include "HAL_Lab5_WMR.h"; //   - Lab 5 Robot Form Factor
 
 #endif // _HAL_H

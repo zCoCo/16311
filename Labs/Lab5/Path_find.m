@@ -1,13 +1,12 @@
 % Wavefronts
 
 % Resolution (grid cells per inch)
-res = 4; %Pick 4 Because quarter inches are easier
+res = 1; %Pick 4 Because quarter inches are easier
 
 % Initialize Matrix Representing the Grid of the World:
 width  =  84; %inches
 height =  48;
 mat = zeros(height * res, width * res);
-
 %Obstacles Coordinates from left to right objects and coords CCW from top
 P1x = [01.00,  22.75,  47.50,  52.25,  68.00,  72.00];
 P1y = [31.50,  30.25,  35.25,  18.75,  26.00,  42.50];
@@ -47,6 +46,7 @@ for wrow = 1:wrows
         y =  wrow/res;
         for row = 1:rows
             % Check my positioning 
+            % Doesn't double fill a point
             if mat(wrow,wcol) ~= 1
                 mat(wrow,wcol) = isIn(objectList(row),x,y);
             end
@@ -57,56 +57,79 @@ end
 
 % Identify target in Matrix (with a 2, I think)
 %Set target coordinates
-targetx = 84 * res;
-targety = 48 * res;
+targetx = 83 * res;
+targety = 47 * res;
  
- mat(targetx,targety) = 2;
- 
+mat(targety,targetx) = 2;
+
+curr_x = targetx;
+curr_y = targety;
 % Perform Wavefront Variant of Flood-Fill on Matrix (as given in slides)
 % 8-point connectivity?
 
-%{
-while mat(1,1) ~= 0
+%%{
+while mat(3,3) == 0
     
-    curr_x = targetx;
-    curr_y = targety;
-    
-        % 8-point connectivity
-        
-        if mat(curr_x, curr_y + 1) == 0 && curr_y + 1 < wcols %North
-            mat(curr_x, curr_y + 1) = mat(curr_x,curr_y) + 1;
-        end 
-        if mat(curr_x + 1, curr_y) == 0 && curr_x + 1 < wrows %East
-            mat(curr_x + 1, curr_y) = mat(curr_x,curr_y) + 1;
+    %NORTH
+    if curr_y + 1 < wrows
+        if mat(curr_y+1,curr_x) == 0
+            mat(curr_y+1,curr_x) = mat(curr_y,curr_x) + 1;
         end
-        if mat(curr_x, curr_y - 1) == 0 && curr_y - 1 > wcols %South
-            mat(curr_x, curr_y - 1) = mat(curr_x,curr_y) + 1;
-        end 
-        if mat(curr_x - 1, curr_y) == 0 && curr_x - 1 > wrows %West
-            mat(curr_x - 1, curr_y) = mat(curr_x,curr_y) + 1;
+    end
+    %North East
+    if curr_y + 1 < wrows && curr_x + 1 < wcols
+        if mat(curr_y+1,curr_x+1) == 0
+            mat(curr_y+1,curr_x+1) = mat(curr_y,curr_x) + 1;
         end
-        if mat(curr_x +1, curr_y + 1) == 0 && curr_y + 1 < wcols && curr_x + 1 < wrows %North-East
-            mat(curr_x + 1, curr_y + 1) = mat(curr_x,curr_y) + 1;
+    end
+    %EAST
+    if curr_x + 1 < wcols
+        if mat(curr_y,curr_x+1) == 0
+            mat(curr_y,curr_x+1) = mat(curr_y,curr_x) + 1;
         end
-        if mat(curr_x + 1, curr_y - 1) == 0 && curr_y - 1 > wcols && curr_x + 1 < wrows%South-East
-            mat(curr_x + 1, curr_y - 1) = mat(curr_x,curr_y) + 1;
+    end
+    % SOUTHEAST
+    if curr_y - 1 > 0 && curr_x + 1 < wcols
+        if mat(curr_y-1,curr_x+1) == 0
+            mat(curr_y-1,curr_x+1) = mat(curr_y,curr_x) + 1;
         end
-        if mat(curr_x - 1, curr_y - 1) == 0 && curr_y - 1 > wcols && curr_x - 1 > wrows%South-West
-            mat(curr_x - 1, curr_y - 1) = mat(curr_x,curr_y) + 1;
+    end
+    %SOUTH
+    if curr_y - 1 > 0
+        if mat(curr_y-1,curr_x) == 0
+            mat(curr_y-1,curr_x) = mat(curr_y,curr_x) + 1;
         end
-        if mat(curr_x - 1, curr_y + 1) == 0 && curr_y + 1 < wcols && curr_x - 1 > wrows%North-West
-            mat(curr_x - 1, curr_y + 1) = mat(curr_x,curr_y) + 1;
+    end
+    %SOUTHWEST
+    if curr_y - 1 > 0 && curr_x - 1 > 0
+        if mat(curr_y-1,curr_x-1) == 0
+            mat(curr_y-1,curr_x-1) = mat(curr_y,curr_x) + 1;
         end
-
-    mat(1,1) = 3;
+    end
+    %WEST
+    if curr_x - 1 > 0
+        if mat(curr_y,curr_x-1) == 0
+            mat(curr_y,curr_x-1) = mat(curr_y,curr_x) + 1;
+        end
+    end
+    %NORTHWEST
+    if curr_y + 1 < wrows && curr_x - 1 > 0
+        if mat(curr_y+1,curr_x-1) == 0
+            mat(curr_y+1,curr_x-1) = mat(curr_y,curr_x) + 1;
+        end
+    end
+    disp(mat(3,3))
+    mat(3,3) = 8;
+    disp(mat(3,3))
     
 end
-%}
+%%}
 
 % Search through Filled-Matrix to find path, create waypoints. Store result
 % in:
 imagesc(mat)
 set(gca, 'YDir', 'Reverse')
+
 waypoint_xs = [];
 waypoint_ys = []; % vectors
 

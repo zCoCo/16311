@@ -1,7 +1,7 @@
 % Wavefronts
 
 % Resolution (grid cells per inch)
-res = 1; %Pick 4 Because quarter inches are easier
+res = 4; %Pick 4 Because quarter inches are easier
 
 % Initialize Matrix Representing the Grid of the World:
 width  =  84; %inches
@@ -64,11 +64,44 @@ mat(targety,targetx) = 2;
 
 curr_x = targetx;
 curr_y = targety;
+
+start_x = 3 * res;
+start_y = 3 * res;
 % Perform Wavefront Variant of Flood-Fill on Matrix (as given in slides)
 % 8-point connectivity?
 
-%%{
-while mat(3,3) == 0
+%{
+ initialize:
+    graph := {nodes}, {edges}
+    The graph is array of zeros and ones
+    fringe := {root}
+    The fringe is the list, initially empty, of all nodes queued for expanding or examining.
+    visited := empty
+    The visited list is the list, initially empty, of all nodes already visited, which prevents the search from going in circles.
+
+%}
+graph = mat;
+fringe = [target_y, target_x;];
+visited = [];
+
+while fringe ~= []
+       [fringe_rows,fring_cols] = size(fringe);
+       node_y = fringe(1,1);
+       node_x = fringe(1,2);
+       if node_y == start_y && node_x == start_x
+          break
+       end
+       children = [;];
+       %do whatever you need to do to node here
+       
+       %children := find children of node in graph
+       %add children not in visited to back of fringe
+       %add node to visited
+       %remove node from fringe
+end
+
+%{
+while mat(start_y,start_x) == 0
     
     %NORTH
     if curr_y + 1 < wrows
@@ -118,12 +151,12 @@ while mat(3,3) == 0
             mat(curr_y+1,curr_x-1) = mat(curr_y,curr_x) + 1;
         end
     end
-    disp(mat(3,3))
-    mat(3,3) = 8;
-    disp(mat(3,3))
+    disp(mat(start_y,start_x))
+    mat(start_y,start_x) = 8;
+    disp(mat(start_y,start_x))
     
 end
-%%}
+%}
 
 % Search through Filled-Matrix to find path, create waypoints. Store result
 % in:

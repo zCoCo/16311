@@ -61,16 +61,49 @@ targetx = 83 * res;
 targety = 47 * res;
  
 mat(targety,targetx) = 2;
- 
+
+curr_x = targetx;
+curr_y = targety;
+
+start_x = 3 * res;
+start_y = 3 * res;
 % Perform Wavefront Variant of Flood-Fill on Matrix (as given in slides)
 % 8-point connectivity?
 
-%%{
-while mat(3,3) == 0
+%{
+ initialize:
+    graph := {nodes}, {edges}
+    The graph is array of zeros and ones
+    fringe := {root}
+    The fringe is the list, initially empty, of all nodes queued for expanding or examining.
+    visited := empty
+    The visited list is the list, initially empty, of all nodes already visited, which prevents the search from going in circles.
+
+%}
+graph = mat;
+fringe = [target_y,target_x];
+visited = [];
+
+while fringe ~= []
+       node_y = fringe(0);
+       node_x = fringe(1);
+       if node_y == start_y && node_x == start_x
+          break
+       end
+       do whatever you need to do to node here
+       children := find children of node in graph
+       add children not in visited to back of fringe
+       add node to visited
+       remove node from fringe
+        end %while
+    return failure
     
-    %Coords are fliipped in array
-    curr_x = targetx;
-    curr_y = targety;
+    end
+    
+end
+
+%{
+while mat(start_y,start_x) == 0
     
     %NORTH
     if curr_y + 1 < wrows
@@ -91,7 +124,7 @@ while mat(3,3) == 0
         end
     end
     % SOUTHEAST
-    if curr_y - 1 < 0 && curr_x + 1 < wcols
+    if curr_y - 1 > 0 && curr_x + 1 < wcols
         if mat(curr_y-1,curr_x+1) == 0
             mat(curr_y-1,curr_x+1) = mat(curr_y,curr_x) + 1;
         end
@@ -103,7 +136,7 @@ while mat(3,3) == 0
         end
     end
     %SOUTHWEST
-    if curr_y - 1 < 0 && curr_x - 1 < 0
+    if curr_y - 1 > 0 && curr_x - 1 > 0
         if mat(curr_y-1,curr_x-1) == 0
             mat(curr_y-1,curr_x-1) = mat(curr_y,curr_x) + 1;
         end
@@ -115,17 +148,17 @@ while mat(3,3) == 0
         end
     end
     %NORTHWEST
-    if curr_y + 1 < wrows && curr_x - 1 < wcols
-        if mat(curr_y+1,curr_x+1) == 0
-            mat(curr_y+1,curr_x+1) = mat(curr_y,curr_x) + 1;
+    if curr_y + 1 < wrows && curr_x - 1 > 0
+        if mat(curr_y+1,curr_x-1) == 0
+            mat(curr_y+1,curr_x-1) = mat(curr_y,curr_x) + 1;
         end
     end
-    disp(mat(3,3))
-    mat(3,3) = 3;
-    disp(mat(3,3))
+    disp(mat(start_y,start_x))
+    mat(start_y,start_x) = 8;
+    disp(mat(start_y,start_x))
     
 end
-%%}
+%}
 
 % Search through Filled-Matrix to find path, create waypoints. Store result
 % in:

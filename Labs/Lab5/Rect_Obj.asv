@@ -62,7 +62,7 @@ classdef Rect_Obj
             areaRect = A1 + A2 + A3 + A4;
             %fprintf('areaRect')
             %disp(areaRect)
-            buffer = 4;
+            buffer = 10;
             if(areaRect < obj.A + buffer && areaRect > obj.A - buffer) %or however this is done
                 bool = 1;
             end

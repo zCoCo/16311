@@ -14,7 +14,7 @@
   #define MotionClock T2
 
   // Feedback Convergence Time Constant
-  #define K_TAU 0.70
+  #define K_TAU 2
 
   // Command the Robot to Follow the Given Trajectory (using only feedforward
   // control)

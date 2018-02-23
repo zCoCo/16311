@@ -7,69 +7,164 @@ res = 4; %Pick 4 Because quarter inches are easier
 width  =  84; %inches
 height =  48;
 mat = zeros(height * res, width * res);
-
 %Obstacles Coordinates from left to right objects and coords CCW from top
-P1x = [01.00,  22.75,  47.50,  55.25,  68.00,  72.00];
+P1x = [01.00,  22.75,  47.50,  52.25,  68.00,  72.00];
 P1y = [31.50,  30.25,  35.25,  18.75,  26.00,  42.50];
 P2x = [05.25,  26.25,  51.50,  56.50,  72.75,  76.25];
 P2y = [36.00,  34.50,  30.75,  14.75,  23.50,  38.25];
 P3x = [22.50,  30.50,  34.00,  52.50,  69.00,  72.00];
 P3y = [19.50,  30.50,  14.75,  10.50,  17.75,  34.00];
-P4x = [18.25,  26.25,  29.75,  48.00,  64.25,  84.00];
+P4x = [18.25,  26.25,  29.75,  48.00,  64.25,  67.50];
 P4y = [15.25,  26.25,  19.25,  14.25,  21.50,  38.25];
 
 
 
-obstacles; % Vector of Rect_Obj representing obstacles
+%obstacles; % Vector of Rect_Obj representing obstacles
 
 %% PROCEDURE:
 
 % Loop through all P0s, P1s and Create a Rect_Obj entry in Obstacle vector for each
 rows = length(P1x);
-% magic number for amount of objects
-objectList = [object1,object2,object3,object4,object5,object6];
+objectList = Rect_Obj(0,0,0,0,0,0,0,0);
 
 for row = 1:rows
-    objectList(row) = Rect_obj;
-    
-    objectList(row).X1 =  P1x(row);
-    objectList(row).Y1 =  P1y(row);
-    objectList(row).X2 =  P2x(row);
-    objectList(row).Y2 =  P2y(row);
-    objectList(row).X3 =  P3x(row);
-    objectList(row).Y3 =  P3y(row);
-    objectList(row).X4 =  P4x(row);
-    objectList(row).Y4 =  P4y(row);
+    objectList(row) = Rect_Obj(P1x(row),P1y(row),P2x(row),P2y(row),P3x(row),P3y(row),P4x(row),P4y(row));
     
 end
 
 % Initialize World Matrix
 %Creating the map of the world
-[wrows,wcols] = size(mat);
-
-for row = 1:wrows
-    for col = 1:wcols
-        if 
-        end
-        
-        
-    end
-end
-
 % Loop Through Matrix and Test Each Coordinate (use res to convert i,j to
 % inches) against each entry in obstacle. If any of them return 1, set
 % pixel to 1.
+[wrows,wcols] = size(mat);
+
+
+for wrow = 1:wrows
+    for wcol = 1:wcols
+        x =  wcol/res;
+        y =  wrow/res;
+        for row = 1:rows
+            % Check my positioning 
+            % Doesn't double fill a point
+            if mat(wrow,wcol) ~= 1
+                mat(wrow,wcol) = isIn(objectList(row),x,y);
+            end
+        end
+    end
+end
 
 
 % Identify target in Matrix (with a 2, I think)
+%Set target coordinates
+targetx = 83 * res;
+targety = 47 * res;
+ 
+mat(targety,targetx) = 2;
 
+curr_x = targetx;
+curr_y = targety;
+
+start_x = 3 * res;
+start_y = 3 * res;
 % Perform Wavefront Variant of Flood-Fill on Matrix (as given in slides)
 % 8-point connectivity?
 
+%{
+ initialize:
+    graph := {nodes}, {edges}
+    The graph is array of zeros and ones
+    fringe := {root}
+    The fringe is the list, initially empty, of all nodes queued for expanding or examining.
+    visited := empty
+    The visited list is the list, initially empty, of all nodes already visited, which prevents the search from going in circles.
+
+%}
+graph = mat;
+fringe = [target_y, target_x;];
+visited = [];
+
+while fringe ~= []
+       [fringe_rows,fring_cols] = size(fringe);
+       node_y = fringe(1,1);
+       node_x = fringe(1,2);
+       if node_y == start_y && node_x == start_x
+          break
+       end
+       children = [;];
+       %do whatever you need to do to node here
+       
+       %children := find children of node in graph
+       %add children not in visited to back of fringe
+       %add node to visited
+       %remove node from fringe
+end
+
+%{
+while mat(start_y,start_x) == 0
+    
+    %NORTH
+    if curr_y + 1 < wrows
+        if mat(curr_y+1,curr_x) == 0
+            mat(curr_y+1,curr_x) = mat(curr_y,curr_x) + 1;
+        end
+    end
+    %North East
+    if curr_y + 1 < wrows && curr_x + 1 < wcols
+        if mat(curr_y+1,curr_x+1) == 0
+            mat(curr_y+1,curr_x+1) = mat(curr_y,curr_x) + 1;
+        end
+    end
+    %EAST
+    if curr_x + 1 < wcols
+        if mat(curr_y,curr_x+1) == 0
+            mat(curr_y,curr_x+1) = mat(curr_y,curr_x) + 1;
+        end
+    end
+    % SOUTHEAST
+    if curr_y - 1 > 0 && curr_x + 1 < wcols
+        if mat(curr_y-1,curr_x+1) == 0
+            mat(curr_y-1,curr_x+1) = mat(curr_y,curr_x) + 1;
+        end
+    end
+    %SOUTH
+    if curr_y - 1 > 0
+        if mat(curr_y-1,curr_x) == 0
+            mat(curr_y-1,curr_x) = mat(curr_y,curr_x) + 1;
+        end
+    end
+    %SOUTHWEST
+    if curr_y - 1 > 0 && curr_x - 1 > 0
+        if mat(curr_y-1,curr_x-1) == 0
+            mat(curr_y-1,curr_x-1) = mat(curr_y,curr_x) + 1;
+        end
+    end
+    %WEST
+    if curr_x - 1 > 0
+        if mat(curr_y,curr_x-1) == 0
+            mat(curr_y,curr_x-1) = mat(curr_y,curr_x) + 1;
+        end
+    end
+    %NORTHWEST
+    if curr_y + 1 < wrows && curr_x - 1 > 0
+        if mat(curr_y+1,curr_x-1) == 0
+            mat(curr_y+1,curr_x-1) = mat(curr_y,curr_x) + 1;
+        end
+    end
+    disp(mat(start_y,start_x))
+    mat(start_y,start_x) = 8;
+    disp(mat(start_y,start_x))
+    
+end
+%}
+
 % Search through Filled-Matrix to find path, create waypoints. Store result
 % in:
-waypoint_xs;
-waypoint_ys; % vectors
+imagesc(mat)
+set(gca, 'YDir', 'Reverse')
+
+waypoint_xs = [];
+waypoint_ys = []; % vectors
 
 
 % xzc .

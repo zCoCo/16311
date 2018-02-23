@@ -12,7 +12,6 @@ cur_dir = 0;
 next_dir = 0;
 
 while mat(search_y,search_x) ~= 2 && mat(search_y,search_x) ~= 3
-    curr_num = mat(search_y,search_x);
         fprintf('search_points')
         disp([search_x,search_y])
         north = search_y + 1
@@ -25,8 +24,8 @@ while mat(search_y,search_x) ~= 2 && mat(search_y,search_x) ~= 3
             if mat(search_y+1,search_x) == mat(search_y,search_x) - 1
                 search_x = search_x ;
                 search_y = search_y + 1;
-                waypoint_xs = [waypoint_xs, search_x];
-                waypoint_ys = [waypoint_ys, search_y]; 
+                waypoint_xs = [waypoint_xs; search_x];
+                waypoint_ys = [waypoint_ys; search_y]; 
                 continue
             end
         end
@@ -35,8 +34,8 @@ while mat(search_y,search_x) ~= 2 && mat(search_y,search_x) ~= 3
             if mat(search_y+1,search_x+1) == mat(search_y,search_x) - 1
                 search_x = search_x + 1;
                 search_y = search_y + 1;
-                waypoint_xs = [waypoint_xs, search_x];
-                waypoint_ys = [waypoint_ys, search_y]; 
+                waypoint_xs = [waypoint_xs; search_x];
+                waypoint_ys = [waypoint_ys; search_y]; 
                 continue
             end
         end
@@ -45,8 +44,8 @@ while mat(search_y,search_x) ~= 2 && mat(search_y,search_x) ~= 3
             if mat(search_y,search_x+1) == mat(search_y,search_x) - 1
                 search_x = search_x + 1;
                 search_y = search_y;
-                waypoint_xs = [waypoint_xs, search_x];
-                waypoint_ys = [waypoint_ys, search_y]; 
+                waypoint_xs = [waypoint_xs; search_x];
+                waypoint_ys = [waypoint_ys; search_y]; 
                 continue
             end
         end
@@ -55,8 +54,8 @@ while mat(search_y,search_x) ~= 2 && mat(search_y,search_x) ~= 3
             if mat(search_y-1,search_x+1) == mat(search_y,search_x) - 1
                 search_x = search_x + 1 ;
                 search_y = search_y - 1;
-                waypoint_xs = [waypoint_xs, search_x];
-                waypoint_ys = [waypoint_ys, search_y]; 
+                waypoint_xs = [waypoint_xs; search_x];
+                waypoint_ys = [waypoint_ys; search_y]; 
                 continue
             end
         end
@@ -65,8 +64,8 @@ while mat(search_y,search_x) ~= 2 && mat(search_y,search_x) ~= 3
             if mat(search_y-1,search_x) == mat(search_y,search_x) - 1
                 search_x = search_x ;
                 search_y = search_y - 1;
-                waypoint_xs = [waypoint_xs, search_x];
-                waypoint_ys = [waypoint_ys, search_y]; 
+                waypoint_xs = [waypoint_xs; search_x];
+                waypoint_ys = [waypoint_ys; search_y]; 
                 continue
             end
         end
@@ -75,8 +74,8 @@ while mat(search_y,search_x) ~= 2 && mat(search_y,search_x) ~= 3
             if mat(search_y-1,search_x-1) == mat(search_y,search_x) - 1
                 search_x = search_x - 1;
                 search_y = search_y - 1;
-                waypoint_xs = [waypoint_xs, search_x];
-                waypoint_ys = [waypoint_ys, search_y]; 
+                waypoint_xs = [waypoint_xs; search_x];
+                waypoint_ys = [waypoint_ys; search_y]; 
                 continue
             end
         end
@@ -85,8 +84,8 @@ while mat(search_y,search_x) ~= 2 && mat(search_y,search_x) ~= 3
             if mat(search_y,search_x-1) == mat(search_y,search_x) - 1
                 search_x = search_x - 1;
                 search_y = search_y;
-                waypoint_xs = [waypoint_xs, search_x];
-                waypoint_ys = [waypoint_ys, search_y]; 
+                waypoint_xs = [waypoint_xs; search_x];
+                waypoint_ys = [waypoint_ys; search_y]; 
                 continue
             end
         end
@@ -95,8 +94,8 @@ while mat(search_y,search_x) ~= 2 && mat(search_y,search_x) ~= 3
             if mat(search_y+1,search_x-1) == mat(search_y,search_x) - 1
                 search_x = search_x - 1 ;
                 search_y = search_y + 1;
-                waypoint_xs = [waypoint_xs, search_x];
-                waypoint_ys = [waypoint_ys, search_y]; 
+                waypoint_xs = [waypoint_xs; search_x];
+                waypoint_ys = [waypoint_ys; search_y]; 
                 continue
             end
         end     

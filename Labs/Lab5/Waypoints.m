@@ -8,10 +8,18 @@ search_y = start_y;
 waypoint_xs = [start_x];
 waypoint_ys = [start_y]; % vectors
 
+cur_dir = 0;
+next_dir = 0;
+
 while mat(search_y,search_x) ~= 2 && mat(search_y,search_x) ~= 3
     curr_num = mat(search_y,search_x);
         fprintf('search_points')
         disp([search_x,search_y])
+        north = search_y + 1
+        east = search_x +1
+        south = search_y - 1
+        west = search_x-1
+        
        %NORTH
         if search_y + 1 <= wrows
             if mat(search_y+1,search_x) == mat(search_y,search_x) - 1

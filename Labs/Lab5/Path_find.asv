@@ -1,6 +1,6 @@
 function Path_find(tX, tY)
 % Keepout Radius:
-keepout = 7 / 2.54; % inches
+keepout = 7.1 / 2.54; % inches
 
 % Resolution (grid cells per inch)
 res = 2; %Pick 4 Because quarter inches are easier
@@ -8,7 +8,6 @@ res = 2; %Pick 4 Because quarter inches are easier
 % Initialize Matrix Representing the Grid of the World:
 width  =  84; %inches
 height =  48;
-mat = zeros(height * res, width * res);
 %Obstacles Coordinates from left to right objects and coords CCW from top
 P1x = [01.00,  22.75,  47.50,  52.25,  68.00,  72.00];
 P1y = [31.50,  30.25,  35.25,  18.75,  26.00,  42.50];
@@ -31,11 +30,13 @@ for row = 1:rows
     objectList(row) = Rect_Obj(P1x(row),P1y(row),P2x(row),P2y(row),P3x(row),P3y(row),P4x(row),P4y(row));    
 end
 
+function mat = generate_mat(keepout)
 % Initialize World Matrix
 %Creating the map of the world
 % Loop Through Matrix and Test Each Coordinate (use res to convert i,j to
 % inches) against each entry in obstacle. If any of them return 1, set
 % pixel to 1.
+mat = zeros(height * res, width * res);
 [wrows,wcols] = size(mat);
 
 for wrow = 1:wrows
@@ -57,8 +58,6 @@ mat(:,1) = 1;
 mat(1,:) = 1;
 mat(:,wcols) = 1;
 mat(wrows,:) = 1;
-
-worldmap = mat;
 
 %% Add Keepout Buffer around All Obstacles:
 buff = ceil(keepout*res)+0.5; % Ensure Twice the value is Odd (width of mask)
@@ -86,6 +85,10 @@ end
 %Recover Matrix:
 mat = padmat(pad+1:end-pad, pad+1:end-pad);
 
+end
+
+mat = generate_mat(keepout);
+[wrows,wcols] = size(mat);
 
 %% Create Wavefronts:
 
@@ -252,28 +255,96 @@ imagesc(mat)
 [waypoint_xs, waypoint_ys] = Waypoints(mat, 10,10);
 disp(size(waypoint_xs))
 
-worldmap = mat + 3*worldmap;
-imagesc(worldmap);
+%worldmap = mat + 3*worldmap;
+%imagesc(worldmap);
 hold on
     plot(waypoint_xs, waypoint_ys, 'r')
 hold off
 
-waypoint_xs = waypoint_xs / res;
+pause
+
+slim_mat = generate_mat(0.9*keepout);
+    % Whether the line from A to B intersects a value of v in the map.
+    function res = intersects_value(xa,ya, xb,yb, v)
+        res = 0;
+        step = 0.5;
+        if(xb ~= xa)
+            slope = (yb-ya) / (xb-xa);
+            dist = norm([(xb-xa), (yb-ya)]);
+            dx = sqrt( step^2 / (1 + slope^2) );
+            dy = slope * dx;
+            % Ensure Proper Signs:
+            dx = abs(dx) * sign(xb-xa);
+            dy = abs(dy) * sign(yb-ya);
+
+            xt = xa; yt = ya; % Test points
+
+            nsteps = floor(dist / step);
+            for i=1:nsteps
+               xt = xt + dx;
+               yt = yt + dy;
+
+               vt = slim_mat(floor(yt), floor(xt));
+               res = res | (vt == v);
+            end
+        elseif(yb ~= ya)
+            slope = (xb-xa) / (yb-ya);
+            dist = norm([(xb-xa), (yb-ya)]);
+            dy = sqrt( step^2 / (1 + slope^2) );
+            dx = slope * dy;
+            % Ensure Proper Signs:
+            dx = abs(dx) * sign(xb-xa);
+            dy = abs(dy) * sign(yb-ya);
+
+            xt = xa; yt = ya; % Test points
+
+            nsteps = floor(dist / step);
+            for i=1:nsteps
+               xt = xt + dx;
+               yt = yt + dy;
+
+               vt = slim_mat(floor(yt), floor(xt));
+               res = res | (vt == v);
+            end
+        else
+            res = 0; % Their the same point, toss one.
+        end
+    end % #intersects_value
+
+    shortpath_xs = waypoint_xs(1);
+    shortpath_ys = waypoint_ys(1);
+    idx = 1;
+    np = numel(waypoint_xs); % Number of Points
+    while(idx < np)
+        next_x = waypoint_xs(idx);
+        next_y = waypoint_ys(idx);
+        if intersects_value(shortpath_xs(end), shortpath_ys(end), waypoint_xs(idx+1), waypoint_ys(idx+1), 1)
+            shortpath_xs = [shortpath_xs next_x];
+            shortpath_ys = [shortpath_ys next_y];
+        end
+        idx = idx+1;
+    end
+        
+hold on
+    plot(shortpath_xs, shortpath_ys, 'k')
+hold off
+
+shortpath_xs = shortpath_xs / res;
 waypoint_ys = waypoint_ys / res;
 export_waypoints_to_C();
 
     function export_waypoints_to_C()
-        fprintf('#define NUM_WAYPOINTS %d\n', length(waypoint_xs));
-        str_xs = sprintf('%3.5f * INCH,', waypoint_xs(1));
+        fprintf('#define NUM_WAYPOINTS %d\n', length(shortpath_xs));
+        str_xs = sprintf('%3.5f * INCH,', shortpath_xs(1));
         str_ys = sprintf('%3.5f * INCH,', waypoint_ys(1));
-        fprintf('float WayPoint_Xs [NUM_WAYPOINTS] = {\n');
-        for i = 1:numel(waypoint_xs)
-            disp('%d * INCH,\n', str_xs, waypoint_xs(i));
-        end
-        fprintf('}\n');
-        fprintf('float WayPoint_Ys [NUM_WAYPOINTS] = {\n');
+        fprintf('float WayPoint_xs [NUM_WAYPOINTS] = {\n');
         for i = 1:numel(waypoint_ys)
-            disp('%d * INCH,\n', str_ys, waypoint_ys(i));
+            fprintf('%f * INCH,\n', waypoint_ys(i));
+        end
+        fprintf('}\n')
+        fprintf('float WayPoint_Ys [NUM_WAYPOINTS] = {\n');
+        for i = 1:numel(shortpath_xs)
+            fprintf('%f * INCH,\n', -shortpath_xs(i));
         end
         fprintf('}');
     end

@@ -74,17 +74,13 @@ matref = mat;
 for wrow = 1:wrows
     for wcol = 1:wcols
         if(matref(wrow,wcol) == 1)
+            
             minX = bound(wcol - buff, 1, wcols);
+            maxX = bound(wcol + buff, 1, wcols);
             minY = bound(wrow - buff, 1, wrows);
-            idxs = (1:(2 * buff)); % identify max bounds for masking region
-            for i = idxs
-                for j = idxs
-                    dist = sqrt( (i-buff)^2 + (j-buff)^2 );
-                    if dist <= buff
-                        matref(minY + i, minX + j) = 1;
-                    end
-                end
-            end
+            maxY = bound(wrow + buff, 1, wrows);
+            sub = 
+            mat(minY:maxY, minX:maxX) = 1;
         end
     end
 end

@@ -9,8 +9,8 @@
 
 // Define Initial Pose of Robot in World-Frame (must be before Odometry include):
 #include "Toolbox/Math/Units.h"
-#define INIT_POSE_X 5.0 * INCH
-#define INIT_POSE_Y -5.0 * INCH
+#define INIT_POSE_X 6.0 * INCH
+#define INIT_POSE_Y -66.0 * INCH
 #define INIT_POSE_TH 0.0 * DEG
 
 // CALIBRATION POINTS:
@@ -18,20 +18,30 @@
 // float WayPoint_Xs [NUM_WAYPOINTS] = {0.0 * INCH, 12.0 * INCH, 24.0*INCH};
 // float WayPoint_Ys [NUM_WAYPOINTS] = {12.0 * INCH, 12.0 * INCH, 24.0*INCH};
 
-#define NUM_WAYPOINTS 5
+#define NUM_WAYPOINTS 10
 float WayPoint_Xs [NUM_WAYPOINTS] = {
-5.000000 * INCH,
-11.000000 * INCH,
-11.000000 * INCH,
-29.000000 * INCH,
-38.500000 * INCH
+6.000000 * INCH,
+20.000000 * INCH,
+28.000000 * INCH,
+39.000000 * INCH,
+39.000000 * INCH,
+38.000000 * INCH,
+30.000000 * INCH,
+39.000000 * INCH,
+39.000000 * INCH,
+41.000000 * INCH
 }
 float WayPoint_Ys [NUM_WAYPOINTS] = {
--5.000000 * INCH,
--21.500000 * INCH,
--35.500000 * INCH,
--55.000000 * INCH,
--58.500000 * INCH
+-66.000000 * INCH,
+-60.000000 * INCH,
+-60.000000 * INCH,
+-49.000000 * INCH,
+-47.000000 * INCH,
+-45.000000 * INCH,
+-37.000000 * INCH,
+-28.000000 * INCH,
+-25.000000 * INCH,
+-19.000000 * INCH
 }
 
 float target_X = INIT_POSE_X;

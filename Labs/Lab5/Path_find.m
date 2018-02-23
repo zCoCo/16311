@@ -1,10 +1,10 @@
 function Path_find(tX, tY)
 % Keepout Radius:
 % 7.1 is normal but close, 8.7 is tight straddle
-keepout = 8.7/ 2.54; % inches
+keepout = 7/ 2.54; % inches
 
 % Resolution (grid cells per inch)
-res = 2; %Pick 4 Because quarter inches are easier
+res = 1; %Pick 4 Because quarter inches are easier
 
 % Initialize Matrix Representing the Grid of the World:
 width  =  84; %inches
@@ -100,8 +100,8 @@ targety = tY * res;
  
 mat(targety,targetx) = 2;
 
-start_x = 12 * res;
-start_y = 42 * res;
+start_x = 66* res;
+start_y = 6 * res;
 
 figure
 imagesc(mat)
@@ -253,7 +253,7 @@ imagesc(mat)
 %set(gca, 'YDir', 'Reverse')
 %set(gca, 'XDir', 'Reverse')
 
-[waypoint_xs, waypoint_ys] = Waypoints(mat, 10,10);
+[waypoint_xs, waypoint_ys] = Waypoints(mat, 66,6);
 disp(size(waypoint_xs))
 
 %worldmap = mat + 3*worldmap;

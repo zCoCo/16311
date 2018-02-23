@@ -1,9 +1,9 @@
 function Path_find(tX, tY)
 % Keepout Radius:
-keepout = 6 / 2.54; % inches
+keepout = 7 / 2.54; % inches
 
 % Resolution (grid cells per inch)
-res = 1; %Pick 4 Because quarter inches are easier
+res = 2; %Pick 4 Because quarter inches are easier
 
 % Initialize Matrix Representing the Grid of the World:
 width  =  84; %inches
@@ -58,6 +58,8 @@ mat(1,:) = 1;
 mat(:,wcols) = 1;
 mat(wrows,:) = 1;
 
+worldmap = mat;
+
 %% Add Keepout Buffer around All Obstacles:
 buff = ceil(keepout*res)+0.5; % Ensure Twice the value is Odd (width of mask)
 %Create Circular Keepout Mask:
@@ -69,20 +71,15 @@ pad = ceil(buff + 1);
 padmat = zeros(wrows+2*pad, wcols+2*pad);
 padmat(pad+1:end-pad, pad+1:end-pad) = mat;
 %Move Mask over Obstacles:
-for wrow = ((pad+1):wrows)
-    for wcol = ((pad+1):wcols)
-        if(mat(wrow,wcol) == 1)
-            submask = mask;
-            minX = wcol - buff + 0.5
-            maxX = wcol + buff - 0.5
-            minY = wrow - buff + 0.5
-            maxY = wrow + buff - 0.5
+for wrow = ((pad+1):(wrows+pad))
+    for wcol = ((pad+1):(wcols+pad))
+        if(mat(wrow-pad,wcol-pad) == 1)
+            minX = wcol - buff + 0.5;
+            maxX = wcol + buff - 0.5;
+            minY = wrow - buff + 0.5;
+            maxY = wrow + buff - 0.5;
             
-            
-            dispbuff = buff
-            size(submask)
-            size(padmat(minY:maxY, minX:maxX))
-            mat(minY:maxY-1, minX:maxX-1) = submask;
+            padmat(minY:maxY, minX:maxX) = padmat(minY:maxY, minX:maxX) | mask;
         end
     end
 end
@@ -253,10 +250,33 @@ imagesc(mat)
 %set(gca, 'XDir', 'Reverse')
 
 [waypoint_xs, waypoint_ys] = Waypoints(mat, 10,10);
+disp(size(waypoint_xs))
 
+worldmap = mat + 3*worldmap;
+imagesc(worldmap);
 hold on
-    plot(waypoint_xs, waypoint_ys)
+    plot(waypoint_xs, waypoint_ys, 'r')
 hold off
+
+waypoint_xs = waypoint_xs / res;
+waypoint_ys = waypoint_ys / res;
+export_waypoints_to_C();
+
+    function export_waypoints_to_C()
+        fprintf('#define NUM_WAYPOINTS %d\n', length(waypoint_xs));
+        str_xs = sprintf('%3.5f * INCH,', waypoint_xs(1));
+        str_ys = sprintf('%3.5f * INCH,', waypoint_ys(1));
+        fprintf('float WayPoint_Xs [NUM_WAYPOINTS] = {\n');
+        for i = 1:numel(waypoint_xs)
+            disp('%d * INCH,\n', str_xs, waypoint_xs(i));
+        end
+        fprintf('}\n');
+        fprintf('float WayPoint_Ys [NUM_WAYPOINTS] = {\n');
+        for i = 1:numel(waypoint_ys)
+            disp('%d * INCH,\n', str_ys, waypoint_ys(i));
+        end
+        fprintf('}');
+    end
 
 % xzc .
 end

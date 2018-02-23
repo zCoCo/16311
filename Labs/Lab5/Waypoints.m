@@ -16,10 +16,6 @@ cur_dir = 0;
 next_dir = 0;
 
 while mat(search_y,search_x) ~= 2 && mat(search_y,search_x) ~= 3
-        %fprintf('search_points')
-        %disp([search_x,search_y])
-        %fprintf('curr_dir')
-        %(cur_dir)
         north_dir = 1;
         northeast_dir = 2;
         east_dir = 3;

@@ -3,8 +3,8 @@
 
   #include "../Math/Vector.h"
   #include "../Positioning/TPose.h"
-  #include "../Positioning/Odometry.h"
-  #include "../HALs/HAL.h"
+  #include "../Positioning/Odometry.h" // Needs Hist_Vel
+  #include "../HALs/HAL.h" // Needs MIN_VEL
 
   typedef struct{
     float corrective_time; // - Time Constant for Feedback Convergence

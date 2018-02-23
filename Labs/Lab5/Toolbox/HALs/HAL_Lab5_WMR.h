@@ -33,11 +33,11 @@
 
   // [rad/s] - Maximum Angular Velocity
   float MAX_OMEGA = (2.0 * MAX_VEL) / WHEEL_TREAD;
-  #define MAX_ALPHA 3.5 // [rad/s/s] - Maximum Angular Acceleration
+  #define MAX_ALPHA 6.0 // [rad/s/s] - Maximum Angular Acceleration
 
   #define COMMAND_DELAY 0.0 //  -Delay, in sec, a Velocity been Commanded and
                             //     it being Implemented.
-  #define COMMAND_READ_DELAY 0.05 //  -Delay, in sec, a Velocity been Commanded and
+  #define COMMAND_READ_DELAY 0.035 //  -Delay, in sec, a Velocity been Commanded and
                             //     it being Implemented and Read Back by Odometry.
 
   #define LeftMotor motorC
@@ -113,31 +113,6 @@ task odometry(){
 /* ---- MOTION ---- */
 
 /****
- * Scales the Given Robot Velocity Profile (in a 3x1 Vector of form [vl,vr,1])
- * to Ensure that the Robot's Maximum Wheel Velocity is not Exceeded.
- * Modifies the Given Velocity Profile.
-****/
-void limitWheelVelocity(Vector3x1* VProf){
-  // Compute Forward Kinematics:
-  float v_l = VProf->v[0];
-  float v_r = VProf->v[1];
-
-  // Scale Velocities Proportionally:
-  if(v_l > MAX_VEL){
-    v_r = v_r * (MAX_VEL / v_l);
-    v_l = MAX_VEL;
-  }
-  if(v_r > MAX_VEL){ // Perform both Scale Checks in SERIES (no if, else)
-    v_l = v_l * (MAX_VEL / v_r);
-    v_r = MAX_VEL;
-  }
-
-  // Update Profile:
-  VProf->v[0] = v_l;
-  VProf->v[0] = v_r;
-} // #limitWheelVelocity
-
-/****
  * moveAt(V,omega)
  * Moves the Robot's center with the given path-velocity and rotational velocity
 ****/
@@ -147,12 +122,15 @@ void moveAt(float V, float omega){
   float v_r = V + (WHEEL_TREAD / 2.0) * omega;
 
   // Ensure Max. Wheel Velocity is not Exceeded:
-  Vector3x1 VProf;
-  VProf.v[0] = v_l;
-  VProf.v[1] = v_r;
-  limitWheelVelocity(&VProf);
-  v_l = VProf.v[0];
-  v_r = VProf.v[1];
+  // Scale Velocities Proportionally:
+  if(v_l > MAX_VEL){
+    v_r = v_r * (MAX_VEL / v_l);
+    v_l = MAX_VEL;
+  }
+  if(v_r > MAX_VEL){ // Perform both Scale Checks in SERIES (no if, else)
+    v_l = v_l * (MAX_VEL / v_r);
+    v_r = MAX_VEL;
+  }
 
   // Convert to ticks/s:
   v_l = v_l / METERS_PER_TICK; v_r = v_r / METERS_PER_TICK;

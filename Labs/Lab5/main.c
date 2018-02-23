@@ -13,9 +13,9 @@
 #define INIT_POSE_Y 0.0 * INCH
 #define INIT_POSE_TH 0.0 * DEG
 
-#define NUM_WAYPOINTS 1
-float WayPoint_Xs [NUM_WAYPOINTS] = {0.0 * INCH};
-float WayPoint_Ys [NUM_WAYPOINTS] = {12.0 * INCH};
+#define NUM_WAYPOINTS 3
+float WayPoint_Xs [NUM_WAYPOINTS] = {0.0 * INCH, 12.0 * INCH, 24.0*INCH};
+float WayPoint_Ys [NUM_WAYPOINTS] = {12.0 * INCH, 12.0 * INCH, 24.0*INCH};
 
 float target_X = INIT_POSE_X;
 float target_Y = INIT_POSE_Y;
@@ -55,9 +55,9 @@ task main(){
 
   int i = 0;
   while(i < NUM_WAYPOINTS){
-    target_X = 0.0;//WayPoint_Xs[i];
-    target_Y = 0.0;//WayPoint_Ys[i];
-    target_TH = 90.0 * DEG;
+    target_X = WayPoint_Xs[i];
+    target_Y = WayPoint_Ys[i];
+    target_TH = 0.0;
 
     Set_TPose(Pstart, rob_pos_X, rob_pos_Y, rob_pos_TH);
     Set_TPose(Pend, target_X, target_Y, target_TH);

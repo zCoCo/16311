@@ -4,6 +4,9 @@
   #include "../Math/MathStack.h"
   #include "../Planning/Trajectory.h"
 
+  // Buffer to Add to Turns
+  static float ANGLE_BUFFER = 1.1;
+
   // Data Necessary for Successfully Executing a Trapezoidal Velocity Profile
   // for Either Linear or Angular Motion in which the Robot Covers a Distance,
   // dist, while Ramping Up to the Peak Velocity (if possible), V_peak,
@@ -93,14 +96,18 @@
     float travel_ang = atan2( (rlt->end->Y - rlt->start->Y),
                               (rlt->end->X - rlt->start->X) );
     float th = adel(travel_ang, rlt->start->TH);
+    th = th * ANGLE_BUFFER;
+    th = atan2(sin(th), cos(th));
     Init_TrapezoidalProfile(&(ldpd->init_turn),
                             th, rlt->om_peak, alm);
 
     Init_TrapezoidalProfile(&ldpd->drive, rlt->s_T, rlt->V_peak, Am);
 
+    float thr = ((float) adel(rlt->end->TH, travel_ang));
+    thr = thr * ANGLE_BUFFER;
+    thr = atan2(sin(thr), cos(thr));
     Init_TrapezoidalProfile(&ldpd->fin_turn,
-                            adel(rlt->end->TH, travel_ang),
-                            rlt->om_peak, alm);
+                            thr, rlt->om_peak, alm);
 
     ldpd->t_buff = tb;
     ldpd->t_T = ldpd->init_turn.t_T

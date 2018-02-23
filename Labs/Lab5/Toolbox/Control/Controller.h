@@ -14,7 +14,7 @@
   #define MotionClock T2
 
   // Feedback Convergence Time Constant
-  #define K_TAU 0.50
+  #define K_TAU 0.70
 
   // Command the Robot to Follow the Given Trajectory (using only feedforward
   // control)
@@ -55,7 +55,7 @@
   #define rlt_fbk_buffer_length 25 /* Number of Entries to Log for Interpolation */
   void run_linearTrajectory_fbk(LinearTrajectory* rlt){
     char isFirstRun; // [bool] Whether this is the First Execution
-    long t, dt; // in [ms]
+    float t, dt; // in [ms]
 
     // Ensure there's enough data stored for interpolation:
     float loop_delay = (float)(2000.0*COMMAND_READ_DELAY/rlt_fbk_buffer_length);
@@ -125,11 +125,17 @@
         COMM_Y = COMM_Y + Vr * sin(COMM_TH) * dt;
         COMM_TH = COMM_TH + omr * dt/2.0;
 
-        Set_TPose(P_comm, COMM_X, COMM_Y, COMM_TH);
+        // // Turn off Angle Feed-back for Pure Turns:
+        // static bool IS_PURE_TURN;
+        // if(Vr == 0.0 && omr != 0.0){ // Is Pure Turn
+        //   IS_PURE_TURN = true;
+        //
+        //   COMM_TH = rob_pos_TH;
+        // } else{
+        //   IS_PURE_TURN = false;
+        // }
 
-        // COMM_X = P_comm.X;
-        // COMM_Y = P_comm.Y;
-        // COMM_TH = P_comm.TH;
+        Set_TPose(P_comm, COMM_X, COMM_Y, COMM_TH);
 
         // Get the Necessary Control Signal to Keep the Robot on Track by Comparing
         // Where Odometry Sees the Robot Now and Where we Should See it Now.

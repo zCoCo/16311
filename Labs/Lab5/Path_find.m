@@ -3,7 +3,7 @@ function Path_find(tX, tY)
 keepout = 7 / 2.54; % inches
 
 % Resolution (grid cells per inch)
-res = 1; %Pick 4 Because quarter inches are easier
+res = 2; %Pick 4 Because quarter inches are easier
 
 % Initialize Matrix Representing the Grid of the World:
 width  =  84; %inches
@@ -57,6 +57,8 @@ mat(:,1) = 1;
 mat(1,:) = 1;
 mat(:,wcols) = 1;
 mat(wrows,:) = 1;
+
+worldmap = mat;
 
 %% Add Keepout Buffer around All Obstacles:
 buff = ceil(keepout*res)+0.5; % Ensure Twice the value is Odd (width of mask)
@@ -248,10 +250,33 @@ imagesc(mat)
 %set(gca, 'XDir', 'Reverse')
 
 [waypoint_xs, waypoint_ys] = Waypoints(mat, 10,10);
+disp(size(waypoint_xs))
 
+worldmap = mat + 3*worldmap;
+imagesc(worldmap);
 hold on
     plot(waypoint_xs, waypoint_ys, 'r')
 hold off
+
+waypoint_xs = waypoint_xs / res;
+waypoint_ys = waypoint_ys / res;
+export_waypoints_to_C();
+
+    function export_waypoints_to_C()
+        fprintf('#define NUM_WAYPOINTS %d\n', length(waypoint_xs));
+        str_xs = sprintf('%3.5f * INCH,', waypoint_xs(1));
+        str_ys = sprintf('%3.5f * INCH,', waypoint_ys(1));
+        fprintf('float WayPoint_Xs [NUM_WAYPOINTS] = {\n');
+        for i = 1:numel(waypoint_xs)
+            fprintf('%f * INCH,\n', waypoint_xs(i));
+        end
+        fprintf('}\n');
+        fprintf('float WayPoint_Ys [NUM_WAYPOINTS] = {\n');
+        for i = 1:numel(waypoint_ys)
+            fprintf('%f * INCH,\n', waypoint_ys(i));
+        end
+        fprintf('}');
+    end
 
 % xzc .
 end

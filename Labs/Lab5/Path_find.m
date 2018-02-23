@@ -267,13 +267,13 @@ export_waypoints_to_C();
         str_xs = sprintf('%3.5f * INCH,', waypoint_xs(1));
         str_ys = sprintf('%3.5f * INCH,', waypoint_ys(1));
         fprintf('float WayPoint_Xs [NUM_WAYPOINTS] = {\n');
-        for i = 1:numel(waypoint_xs)
-            fprintf('%f * INCH,\n', waypoint_xs(i));
+        for i = 1:numel(waypoint_ys)
+            fprintf('%f * INCH,\n', waypoint_ys(i));
         end
         fprintf('}\n');
         fprintf('float WayPoint_Ys [NUM_WAYPOINTS] = {\n');
-        for i = 1:numel(waypoint_ys)
-            fprintf('%f * INCH,\n', waypoint_ys(i));
+        for i = 1:numel(waypoint_xs)
+            fprintf('%f * INCH,\n', -waypoint_xs(i));
         end
         fprintf('}');
     end

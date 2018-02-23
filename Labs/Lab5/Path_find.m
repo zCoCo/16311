@@ -3,7 +3,7 @@ function Path_find(tX, tY)
 keepout = 6 / 2.54; % inches
 
 % Resolution (grid cells per inch)
-res = 4; %Pick 4 Because quarter inches are easier
+res = 1; %Pick 4 Because quarter inches are easier
 
 % Initialize Matrix Representing the Grid of the World:
 width  =  84; %inches
@@ -152,9 +152,11 @@ imagesc(mat)
 %set(gca, 'YDir', 'Reverse')
 %set(gca, 'XDir', 'Reverse')
 
-waypoint_xs = [];
-waypoint_ys = []; % vectors
+[waypoint_xs, waypoint_ys] = Waypoints(mat, 10,10);
 
+hold on
+    plot(waypoint_xs, waypoint_ys)
+hold off
 
 % xzc .
 end

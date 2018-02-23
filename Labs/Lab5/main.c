@@ -14,25 +14,25 @@
 #define INIT_POSE_TH 0.0 * DEG
 
 // CALIBRATION POINTS:
-#define NUM_WAYPOINTS 3
-float WayPoint_Xs [NUM_WAYPOINTS] = {0.0 * INCH, 12.0 * INCH, 24.0*INCH};
-float WayPoint_Ys [NUM_WAYPOINTS] = {12.0 * INCH, 12.0 * INCH, 24.0*INCH};
+// #define NUM_WAYPOINTS 3
+// float WayPoint_Xs [NUM_WAYPOINTS] = {0.0 * INCH, 12.0 * INCH, 24.0*INCH};
+// float WayPoint_Ys [NUM_WAYPOINTS] = {12.0 * INCH, 12.0 * INCH, 24.0*INCH};
 
-// #define NUM_WAYPOINTS 5
-// float WayPoint_Xs [NUM_WAYPOINTS] = {
-// 5.000000 * INCH,
-// 11.000000 * INCH,
-// 11.000000 * INCH,
-// 29.000000 * INCH,
-// 38.500000 * INCH
-// }
-// float WayPoint_Ys [NUM_WAYPOINTS] = {
-// -5.000000 * INCH,
-// -21.500000 * INCH,
-// -35.500000 * INCH,
-// -55.000000 * INCH,
-// -58.500000 * INCH
-// }
+#define NUM_WAYPOINTS 5
+float WayPoint_Xs [NUM_WAYPOINTS] = {
+5.000000 * INCH,
+11.000000 * INCH,
+11.000000 * INCH,
+29.000000 * INCH,
+38.500000 * INCH
+}
+float WayPoint_Ys [NUM_WAYPOINTS] = {
+-5.000000 * INCH,
+-21.500000 * INCH,
+-35.500000 * INCH,
+-55.000000 * INCH,
+-58.500000 * INCH
+}
 
 float target_X = INIT_POSE_X;
 float target_Y = INIT_POSE_Y;

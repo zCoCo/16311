@@ -1,6 +1,7 @@
 function Path_find(tX, tY)
 % Keepout Radius:
-keepout = 7.1 / 2.54; % inches
+% 7.1 is normal but close, 8.7 is tight straddle
+keepout = 8.7/ 2.54; % inches
 
 % Resolution (grid cells per inch)
 res = 2; %Pick 4 Because quarter inches are easier

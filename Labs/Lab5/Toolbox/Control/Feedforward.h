@@ -1,6 +1,8 @@
 #ifndef _FEEDFORWARD_H
 #define _FEEDFORWARD_H
 
+#define IGNORE_ANGLES
+
   #include "../Math/MathStack.h"
   #include "../Planning/Trajectory.h"
 
@@ -106,6 +108,10 @@
     float thr = ((float) adel(rlt->end->TH, travel_ang));
     thr = thr * ANGLE_BUFFER;
     thr = atan2(sin(thr), cos(thr));
+    #ifdef IGNORE_ANGLES
+      thr = 0;
+      rlt->end->TH = travel_ang;
+    #endif
     Init_TrapezoidalProfile(&ldpd->fin_turn,
                             thr, rlt->om_peak, alm);
 

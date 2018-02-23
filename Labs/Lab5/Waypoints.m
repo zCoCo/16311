@@ -92,7 +92,4 @@ while mat(search_y,search_x) ~= 2 && mat(search_y,search_x) ~= 3
             end
         end     
 end
-
-disp(waypoint_xs)
-disp(waypoint_ys)
 end

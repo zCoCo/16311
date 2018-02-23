@@ -1,7 +1,9 @@
 % Wavefronts
 
+clear all
+close all
 % Resolution (grid cells per inch)
-res = 4; %Pick 4 Because quarter inches are easier
+res = 1; %Pick 4 Because quarter inches are easier
 
 % Initialize Matrix Representing the Grid of the World:
 width  =  84; %inches
@@ -54,7 +56,6 @@ for wrow = 1:wrows
     end
 end
 
-
 % Identify target in Matrix (with a 2, I think)
 %Set target coordinates
 targetx = 83 * res;
@@ -65,8 +66,8 @@ mat(targety,targetx) = 2;
 curr_x = targetx;
 curr_y = targety;
 
-start_x = 3 * res;
-start_y = 3 * res;
+start_x = 12 * res;
+start_y = 42 * res;
 % Perform Wavefront Variant of Flood-Fill on Matrix (as given in slides)
 % 8-point connectivity?
 
@@ -81,87 +82,124 @@ start_y = 3 * res;
 
 %}
 graph = mat;
-fringe = [target_y, target_x;];
-visited = [];
+fringe = [targety, targetx;];
+visited = [targety, targetx;];
 
-while fringe ~= []
+figure
+imagesc(mat)
+
+while isempty(fringe) ~= 1
        [fringe_rows,fring_cols] = size(fringe);
        node_y = fringe(1,1);
        node_x = fringe(1,2);
+       curr_y = node_y;
+       curr_x = node_x;
+       children = [];
+       
+       node_array = [node_y,node_x];
        if node_y == start_y && node_x == start_x
           break
        end
        children = [;];
        %do whatever you need to do to node here
-       
        %children := find children of node in graph
+       %NORTH
+        if curr_y + 1 < wrows
+            if mat(curr_y+1,curr_x) == 0
+                mat(curr_y+1,curr_x) = mat(curr_y,curr_x) + 1;
+                children = [children; [curr_y+1,curr_x]];
+            end
+        end
+        %North East
+        if curr_y + 1 < wrows && curr_x + 1 < wcols
+            if mat(curr_y+1,curr_x+1) == 0
+                mat(curr_y+1,curr_x+1) = mat(curr_y,curr_x) + 1;
+                children = [children; [curr_y+1,curr_x+1]];
+            end
+        end
+        %EAST
+        if curr_x + 1 < wcols
+            if mat(curr_y,curr_x+1) == 0
+                mat(curr_y,curr_x+1) = mat(curr_y,curr_x) + 1;
+                children = [children; [curr_y,curr_x+1]];
+            end
+        end
+        % SOUTHEAST
+        if curr_y - 1 > 0 && curr_x + 1 < wcols
+            if mat(curr_y-1,curr_x+1) == 0
+                mat(curr_y-1,curr_x+1) = mat(curr_y,curr_x) + 1;
+                children = [children; [curr_y-1,curr_x+1]];
+            end
+        end
+        %SOUTH
+        if curr_y - 1 > 0
+            if mat(curr_y-1,curr_x) == 0
+                mat(curr_y-1,curr_x) = mat(curr_y,curr_x) + 1;
+                children = [children; [curr_y-1,curr_x]];
+            end
+        end
+        %SOUTHWEST
+        if curr_y - 1 > 0 && curr_x - 1 > 0
+            if mat(curr_y-1,curr_x-1) == 0
+                mat(curr_y-1,curr_x-1) = mat(curr_y,curr_x) + 1;
+                children = [children; [curr_y-1,curr_x-1]];
+            end
+        end
+        %WEST
+        if curr_x - 1 > 0
+            if mat(curr_y,curr_x-1) == 0
+                mat(curr_y,curr_x-1) = mat(curr_y,curr_x) + 1;
+                children = [children; [curr_y,curr_x-1]];
+            end
+        end
+        %NORTHWEST
+        if curr_y + 1 < wrows && curr_x - 1 > 0
+            if mat(curr_y+1,curr_x-1) == 0
+                mat(curr_y+1,curr_x-1) = mat(curr_y,curr_x) + 1;
+                children = [children; [curr_y+1,curr_x-1]];
+            end
+        end
+       %{
+       fprintf('children')
+       disp(children)
+       fprintf('visited')
+       disp(visited)
+       fprintf('fringe')
+       disp(fringe)
+       [childrenrows,childrencols] = size(children);
+       [fringerows,fringecols] = size(fringe);
+       fprintf('size children')
+       disp([childrenrows,childrencols])
+       fprintf('size fringe')
+       disp([fringerows,fringecols])
+       %}
        %add children not in visited to back of fringe
+       if isempty(children) ~= 1
+            children = setdiff(children, visited, 'rows');
+       end
+       %{
+       fprintf('after diff children')
+       disp(children)
+       %}
+       fringe = [fringe; children];
+       %fprintf('fringe after cacatentation')
+       %disp(fringe)
+       
        %add node to visited
+       if node_x ~= targetx && node_y ~= targety
+            visited = [visited; node_array];
+       end
        %remove node from fringe
+       rowone = fringe(1,:);
+       fringe = setdiff(fringe,rowone,'rows');
 end
-
-%{
-while mat(start_y,start_x) == 0
-    
-    %NORTH
-    if curr_y + 1 < wrows
-        if mat(curr_y+1,curr_x) == 0
-            mat(curr_y+1,curr_x) = mat(curr_y,curr_x) + 1;
-        end
-    end
-    %North East
-    if curr_y + 1 < wrows && curr_x + 1 < wcols
-        if mat(curr_y+1,curr_x+1) == 0
-            mat(curr_y+1,curr_x+1) = mat(curr_y,curr_x) + 1;
-        end
-    end
-    %EAST
-    if curr_x + 1 < wcols
-        if mat(curr_y,curr_x+1) == 0
-            mat(curr_y,curr_x+1) = mat(curr_y,curr_x) + 1;
-        end
-    end
-    % SOUTHEAST
-    if curr_y - 1 > 0 && curr_x + 1 < wcols
-        if mat(curr_y-1,curr_x+1) == 0
-            mat(curr_y-1,curr_x+1) = mat(curr_y,curr_x) + 1;
-        end
-    end
-    %SOUTH
-    if curr_y - 1 > 0
-        if mat(curr_y-1,curr_x) == 0
-            mat(curr_y-1,curr_x) = mat(curr_y,curr_x) + 1;
-        end
-    end
-    %SOUTHWEST
-    if curr_y - 1 > 0 && curr_x - 1 > 0
-        if mat(curr_y-1,curr_x-1) == 0
-            mat(curr_y-1,curr_x-1) = mat(curr_y,curr_x) + 1;
-        end
-    end
-    %WEST
-    if curr_x - 1 > 0
-        if mat(curr_y,curr_x-1) == 0
-            mat(curr_y,curr_x-1) = mat(curr_y,curr_x) + 1;
-        end
-    end
-    %NORTHWEST
-    if curr_y + 1 < wrows && curr_x - 1 > 0
-        if mat(curr_y+1,curr_x-1) == 0
-            mat(curr_y+1,curr_x-1) = mat(curr_y,curr_x) + 1;
-        end
-    end
-    disp(mat(start_y,start_x))
-    mat(start_y,start_x) = 8;
-    disp(mat(start_y,start_x))
-    
-end
-%}
 
 % Search through Filled-Matrix to find path, create waypoints. Store result
 % in:
+figure
 imagesc(mat)
-set(gca, 'YDir', 'Reverse')
+%set(gca, 'YDir', 'Reverse')
+%set(gca, 'XDir', 'Reverse')
 
 waypoint_xs = [];
 waypoint_ys = []; % vectors

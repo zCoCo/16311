@@ -9,8 +9,8 @@
 
 // Define Initial Pose of Robot in World-Frame (must be before Odometry include):
 #include "Toolbox/Math/Units.h"
-#define INIT_POSE_X 0.0 * INCH
-#define INIT_POSE_Y 0.0 * INCH
+#define INIT_POSE_X 5.0 * INCH
+#define INIT_POSE_Y 5.0 * INCH
 #define INIT_POSE_TH 0.0 * DEG
 
 

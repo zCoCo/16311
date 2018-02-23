@@ -1,12 +1,4 @@
-start_x = 1;
-start_y = 1;
-targetx = 5;
-targety = 5;
-mat = [9,8,7,6,6; ...
-       8,1,1,1,5; ...
-       7,1,1,1,4; ...
-       6,1,1,1,3; ...
-       6,5,4,3,2];
+function [waypoint_xs, waypoint_ys] = Waypoints(mat, start_x, start_y)
         
 [wrows,wcols] = size(mat);
 
@@ -16,7 +8,7 @@ search_y = start_y;
 waypoint_xs = [start_x];
 waypoint_ys = [start_y]; % vectors
 
-while mat(search_x,search_y) ~= 2
+while mat(search_y,search_x) ~= 2 && mat(search_y,search_x) ~= 3
     curr_num = mat(search_y,search_x);
         fprintf('search_points')
         disp([search_x,search_y])
@@ -99,9 +91,9 @@ while mat(search_x,search_y) ~= 2
                 waypoint_ys = [waypoint_ys, search_y]; 
                 continue
             end
-        end
-        
+        end     
 end
 
 disp(waypoint_xs)
 disp(waypoint_ys)
+end

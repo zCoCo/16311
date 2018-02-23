@@ -7,7 +7,7 @@
   #include "../Planning/Trajectory.h"
 
   // Buffer to Add to Turns
-  static float ANGLE_BUFFER = 1.1;
+  static float ANGLE_BUFFER = 1.0;
 
   // Data Necessary for Successfully Executing a Trapezoidal Velocity Profile
   // for Either Linear or Angular Motion in which the Robot Covers a Distance,

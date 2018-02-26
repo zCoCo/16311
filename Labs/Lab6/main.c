@@ -1,4 +1,5 @@
 #pragma config(Sensor, S3,     lightSensor,         sensorLightActive)
+#pragma config(Sensor, S4,     sonarSensor,         sensorSONAR)
 /**********************************************
  * Lab 3 : Starter code
  * Use Bayesian Localization to Determine Position in a Given Map Composed of 16
@@ -42,7 +43,7 @@ void normalize_prob_map(){
 // ---- MOTION DATA ---- //
 // Amount by Which Line-Following Oscillations cause the Travelled Distance to
 // Exceed the Distance Travelled Around the Circle
-float LINEAR_OVERDRIVE_FACTOR = (3*16.0) / (3*16.0 + 1.0);
+float LINEAR_OVERDRIVE_FACTOR = (3*16.0 + 1.0) / (3*16.0);
 // Radius of the Track (meters)
 #define TRACK_RADIUS (0.3048)
 float BLOCKS_PER_METER = 16.0 * LINEAR_OVERDRIVE_FACTOR / TRACK_RADIUS / 6.28318;
@@ -112,8 +113,12 @@ task main()
 	float LEFT_MAX_SPEED = 60;  // max speed of the robot
 	float RIGHT_BASE_SPEED = 20; // this is the speed at which the motors should spin when the robot is perfectly on the line
 	float LEFT_BASE_SPEED = 20; // this is the speed at which the motors should spin when the robot is perfectly on the line
-
 	static float lastError = 0;
+	//  Ultrasonic Sensor has a range of states between 0 and 255
+	//  Number is representative of the current reading in centimeters
+	//  A reading of 255 means that the current sensor reading is out of range.
+	float sonar = SensorValue[sonarSensor];
+	float distance_in_cm = 10.0;
 
 	init_HAL();
 	startTask(odometry);
@@ -160,6 +165,14 @@ task main()
 
 		motor[RightMotor] = rightMotorSpeed;
 		motor[LeftMotor] = leftMotorSpeed;
+
+		// Sonar value less than distance value mean it seen the box
+		if (sonar < distance_in_cm){
+			bPlaySounds = true;   // ACCEPT new sound requests
+			// play tone according to light sensor readings
+			// first parameter frequency, duration in 10MsecTicks
+			PlayTone(261, 50);
+		}
 
 		update_block_position();
 

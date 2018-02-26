@@ -22,6 +22,15 @@ int bitmap[16] = {1,0,1,1,
 						 	 		0,1,0,1,
 						 	 		1,1,0,1};
 
+// ---- PROBABILITY DATA ---- //
+int probmap[16] = {1,1,1,1,
+							 		 1,1,1,1,
+						 	 		 1,1,1,1,
+						 	 		 1,1,1,1}; // Initial Assumption is of Equal Probablility for All Locations
+void normalize_prob_map(){
+
+} // #normalize_prob_map
+
 // ---- MOTION DATA ---- //
 // Amount by Which Line-Following Oscillations cause the Travelled Distance to
 // Exceed the Distance Travelled Around the Circle

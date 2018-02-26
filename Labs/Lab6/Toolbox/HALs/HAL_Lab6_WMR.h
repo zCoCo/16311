@@ -16,8 +16,8 @@
   #define MOTOR_PID_UPDATE_INTERVAL 2
   #define VELOCITY_UPDATE_INTERVAL 4
 
-  #define WHEEL_DIAMETER 0.0572 // [m]
-  #define WHEEL_CIRCUMFERENCE 0.1797 // [m]
+  #define WHEEL_DIAMETER 0.0816 // [m]
+  #define WHEEL_CIRCUMFERENCE 0.2564 // [m]
   #define WHEEL_TREAD 0.1236 // [m], Distance between Left and Right Wheel Tracks
 
   // Distance per Encoder Tick:

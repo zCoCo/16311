@@ -17,14 +17,14 @@
 // Actual Odometry Data Implementation (calculating V,om,dt)
 // is Carried Out by the HAL.
 
-Construct_TSFifo(Hist_Pos_X, float, 10); // [m,m,rad] Logs TPose in World-Frame
-Construct_TSFifo(Hist_Pos_Y, float, 10); // [m,m,rad] Logs TPose in World-Frame
-Construct_TSFifo(Hist_Pos_TH, float, 10); // [m,m,rad] Logs TPose in World-Frame
-Construct_TSFifo(Hist_Time, long, 4); // [ms] Logs Odometry Update Time Deltas
-Construct_TSFifo(Hist_Dist, float, 4); // [m] Logs Path-Length Distance Travelled
-Construct_TSFifo(Hist_Vel, float, 4); // [m/s]
-Construct_TSFifo(Hist_Omega, float, 4); // [rad/s]
-Construct_TSFifo(Hist_Curv, float, 4); // [1/m]
+Construct_TSFifo(Hist_Pos_X, float, 2); // [m,m,rad] Logs TPose in World-Frame
+Construct_TSFifo(Hist_Pos_Y, float, 2); // [m,m,rad] Logs TPose in World-Frame
+Construct_TSFifo(Hist_Pos_TH, float, 2); // [m,m,rad] Logs TPose in World-Frame
+Construct_TSFifo(Hist_Time, long, 2); // [ms] Logs Odometry Update Time Deltas
+Construct_TSFifo(Hist_Dist, float, 3); // [m] Logs Path-Length Distance Travelled
+Construct_TSFifo(Hist_Vel, float, 3); // [m/s]
+Construct_TSFifo(Hist_Omega, float, 3); // [rad/s]
+Construct_TSFifo(Hist_Curv, float, 2); // [1/m]
 
 #define rob_pos_X (TSF_Last(Hist_Pos_X))
 #define rob_pos_Y (TSF_Last(Hist_Pos_Y))
@@ -32,26 +32,26 @@ Construct_TSFifo(Hist_Curv, float, 4); // [1/m]
 
 // Initialize Odometry Data:
 void init_odometry(){
-  Init_TSFifo(Hist_Pos_X, 10);
+  Init_TSFifo(Hist_Pos_X, 2);
   TSF_add(Hist_Pos_X, INIT_POSE_X);
-  Init_TSFifo(Hist_Pos_Y, 10);
+  Init_TSFifo(Hist_Pos_Y, 2);
   TSF_add(Hist_Pos_Y, INIT_POSE_Y);
-  Init_TSFifo(Hist_Pos_TH, 10);
+  Init_TSFifo(Hist_Pos_TH, 2);
   TSF_add(Hist_Pos_TH, INIT_POSE_TH);
 
-  Init_TSFifo(Hist_Time, 4);
+  Init_TSFifo(Hist_Time, 2);
   TSF_add(Hist_Time, 0);
 
-  Init_TSFifo(Hist_Dist, 4);
+  Init_TSFifo(Hist_Dist, 3);
   TSF_add(Hist_Dist, 0);
 
-  Init_TSFifo(Hist_Vel, 4);
+  Init_TSFifo(Hist_Vel, 3);
   TSF_add(Hist_Vel, 0);
 
-  Init_TSFifo(Hist_Omega, 4);
+  Init_TSFifo(Hist_Omega, 3);
   TSF_add(Hist_Omega, 0);
 
-  Init_TSFifo(Hist_Curv, 4);
+  Init_TSFifo(Hist_Curv, 2);
   TSF_add(Hist_Curv, 0);
 } // #init_odometry
 

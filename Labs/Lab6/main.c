@@ -13,6 +13,7 @@
 #include "Toolbox/Display/DisplayStack.h"
 #include "Toolbox/Util/UtilStack.h"
 #include "Toolbox/Positioning/PositioningStack.h"
+#include "Toolbox/Positioning/Odometry.h"
 #include "Toolbox/HALs/HAL.h"
 
 // ---- WORLD DATA ---- //
@@ -47,22 +48,17 @@ void search__i_a(){
 	if(first_call || SensorValue[lightSensor] < SEARCH_LIGHT_THRESH){
 		clearTimer(SearchTimer);
 		first_call = false;
-		last_th = rob_pos->TH;
+		last_th = rob_pos_TH;
 	}
 	if(time1[SearchTimer] > 350){
 		static int dir = 1;
-		if(rand(10) < 5){ // Randomly change search direction
-			dir = -1;
-		} else{
-			dir = 1;
-		}
 		while(SensorValue[lightSensor] > SEARCH_LIGHT_THRESH){
-			if(adel(rob_pos->TH, last_th) < 120*DEG && !flipped && dir>0
-			|| adel(rob_pos->TH, last_th) > -120*DEG &&!flipped && dir<0){
+			if(adel(rob_pos_TH, last_th) < 120*DEG && !flipped && dir>0
+			|| adel(rob_pos_TH, last_th) > -120*DEG &&!flipped && dir<0){
 				moveAt(0,dir*0.35*MAX_OMEGA);
 			} else {
-				while(adel(rob_pos->TH, last_th) > 0 && dir>0
-					 || adel(rob_pos->TH, last_th) < 0 && dir<0){
+				while(adel(rob_pos_TH, last_th) > 0 && dir>0
+					 || adel(rob_pos_TH, last_th) < 0 && dir<0){
 					moveAt(0,-dir*0.8*MAX_OMEGA);
 					nxtSetPixel(50 + (int)(135.0 * 0.0), 32 + (int)(100.0 * 0.0));
 					nxtDisplayTextLine(0, "L: %d", SensorValue[lightSensor]);

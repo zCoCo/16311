@@ -28,7 +28,7 @@ int bitmap[16] = {1,0,1,1,
 #define LINEAR_OVERDRIVE_FACTOR (1.0)
 // Radius of the Track (meters)
 #define TRACK_RADIUS (0.3048)
-float BLOCKS_PER_METER = LINEAR_OVERDRIVE_FACTOR / TRACK_RADIUS;
+float BLOCKS_PER_METER = 16.0 * LINEAR_OVERDRIVE_FACTOR / TRACK_RADIUS / 6.28318;
 
 // ---- POSITION DATA ---- //
 // Change in Blocks since Initialization based on Odometry Alone.
@@ -107,7 +107,7 @@ task main()
 	static float error, motorPower;
 	static float K, norm_factor;
 
-	while(1){
+	while(DBlock_odo < 16.0){
 		// Might have to adjust the middle dark value
 
 		error = SensorValue[lightSensor] - 24;

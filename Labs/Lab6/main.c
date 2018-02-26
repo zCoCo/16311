@@ -110,7 +110,7 @@ task main()
 	static float error, motorPower;
 	static float K, norm_factor;
 
-	while(DBlock_odo < 16.0){
+	while(DBlock_odo < 3.0*16.0){
 		// Might have to adjust the middle dark value
 
 		error = SensorValue[lightSensor] - 27;

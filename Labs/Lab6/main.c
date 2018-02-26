@@ -83,22 +83,16 @@ void search__i_a(){
 task main()
 {
 	// Team 15 PID Code
-	float Kp = 1.0; // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
+	float Kp = .5; // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
 	float Kd = .2; // experiment to determine this, slowly increase the speeds and adjust this value. ( Note: Kp < Kd)
-	float RIGHT_MAX_SPEED = 100; // max speed of the robot
-	float LEFT_MAX_SPEED = 100;  // max speed of the robot
+	float RIGHT_MAX_SPEED = 80; // max speed of the robot
+	float LEFT_MAX_SPEED = 80;  // max speed of the robot
 	float RIGHT_BASE_SPEED = 40; // this is the speed at which the motors should spin when the robot is perfectly on the line
 	float LEFT_BASE_SPEED = 40; // this is the speed at which the motors should spin when the robot is perfectly on the line
 	float rightMotorSpeed = 0;
 	float leftMotorSpeed = 0;
 
 	static float lastError = 0;
-
-	//int goalStraight = 0;
-	//int goalTurn = 0;
-	//float start_X = 0;
-	//float start_Y = 0;
-	//float distTravelled = 0;
 
 	init_HAL();
 	startTask(odometry);
@@ -110,7 +104,7 @@ task main()
 	while(DBlock_odo < 16.0){
 		// Might have to adjust the middle dark value
 
-		error = SensorValue[lightSensor] - 24;
+		error = SensorValue[lightSensor] - 27;
 
 		motorPower = Kp * error + Kd * (error - lastError);
 
@@ -138,7 +132,7 @@ task main()
 	  if (rightMotorSpeed < 0) rightMotorSpeed = 0; // keep the motor speed positive
 	  if (leftMotorSpeed < 0) leftMotorSpeed = 0; // keep the motor speed positive
 
-		search__i_a();
+		//search__i_a();
 		wait1Msec(2);
 
 		motor[RightMotor] = rightMotorSpeed;

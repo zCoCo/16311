@@ -107,7 +107,6 @@ task main()
 	//  Ultrasonic Sensor has a range of states between 0 and 255
 	//  Number is representative of the current reading in centimeters
 	//  A reading of 255 means that the current sensor reading is out of range.
-	float sonar = SensorValue[sonarSensor];
 	float distance_in_cm = 10.0;
 
 	init_HAL();
@@ -157,18 +156,23 @@ task main()
 		motor[LeftMotor] = leftMotorSpeed;
 
 		// Sonar value less than distance value mean it seen the box
-		if (sonar < distance_in_cm){
+		if (SensorValue[sonarSensor] < distance_in_cm){
 			bPlaySounds = true;   // ACCEPT new sound requests
 			// play tone according to light sensor readings
 			// first parameter frequency, duration in 10MsecTicks
-			PlayTone(261, 50);
+			PlayImmediateTone(261, 100);
+		}
+		else {
+			bPlaySounds = false;
+			ClearSounds();
 		}
 
 		update_block_position();
 
     nxtSetPixel(50 + (int)(100.0 * 0.0), 32 + (int)(100.0 * 0.0));
     nxtDisplayTextLine(0, "L: %d", SensorValue[lightSensor]);
-    nxtDisplayTextLine(1, "DB: %f", DBlock_odo);
+    //nxtDisplayTextLine(1, "DB: %f", DBlock_odo);
+    nxtDisplayTextLine(1, "DB: %f", SensorValue[sonarSensor]);
 		nxtDisplayTextLine(2, "t: %dms", TSF_Last(Hist_Time));
 	} // Line Following Loop
 	motor[RightMotor] = 0;

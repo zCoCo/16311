@@ -23,12 +23,20 @@ int bitmap[16] = {1,0,1,1,
 						 	 		1,1,0,1};
 
 // ---- PROBABILITY DATA ---- //
-int probmap[16] = {1,1,1,1,
+float probmap[16] = {1,1,1,1,
 							 		 1,1,1,1,
 						 	 		 1,1,1,1,
 						 	 		 1,1,1,1}; // Initial Assumption is of Equal Probablility for All Locations
-void normalize_prob_map(){
 
+void normalize_prob_map(){
+	static int len_probmap = ARRAY_SIZE_FLOAT(probmap);
+	float sum = 0.0;
+	for(int i=0; i<len; i++){ // Find Sum
+		sum += probmap[i];
+	}
+	for(int i=0; i<len; i++){ // Normalize
+		probmap[i] = probmap[i] / sum;
+	}
 } // #normalize_prob_map
 
 // ---- MOTION DATA ---- //
@@ -45,6 +53,8 @@ float DBlock_odo = 0.0;
 
 void update_block_position(){
 	DBlock_odo = BLOCKS_PER_METER * TSF_Last(Hist_Dist);
+
+	normalize_prob_map();
 } // #update_block_position
 
 #define SearchTimer T3

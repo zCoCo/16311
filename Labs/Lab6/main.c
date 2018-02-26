@@ -89,17 +89,19 @@ void search__i_a(){
 /*****************************************
  * Main function - Needs changing
  *****************************************/
+
+float rightMotorSpeed = 0;
+float leftMotorSpeed = 0;
+
 task main()
 {
 	// Team 15 PID Code
-	float Kp = .5; // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
+	float Kp = 2; // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
 	float Kd = .2; // experiment to determine this, slowly increase the speeds and adjust this value. ( Note: Kp < Kd)
-	float RIGHT_MAX_SPEED = 80; // max speed of the robot
-	float LEFT_MAX_SPEED = 80;  // max speed of the robot
-	float RIGHT_BASE_SPEED = 40; // this is the speed at which the motors should spin when the robot is perfectly on the line
-	float LEFT_BASE_SPEED = 40; // this is the speed at which the motors should spin when the robot is perfectly on the line
-	float rightMotorSpeed = 0;
-	float leftMotorSpeed = 0;
+	float RIGHT_MAX_SPEED = 60; // max speed of the robot
+	float LEFT_MAX_SPEED = 60;  // max speed of the robot
+	float RIGHT_BASE_SPEED = 20; // this is the speed at which the motors should spin when the robot is perfectly on the line
+	float LEFT_BASE_SPEED = 20; // this is the speed at which the motors should spin when the robot is perfectly on the line
 
 	static float lastError = 0;
 
@@ -113,7 +115,7 @@ task main()
 	while(DBlock_odo < 3.0*16.0){
 		// Might have to adjust the middle dark value
 
-		error = SensorValue[lightSensor] - 27;
+		error = SensorValue[lightSensor] - 35;
 
 		motorPower = Kp * error + Kd * (error - lastError);
 
@@ -126,7 +128,7 @@ task main()
 		for(int i=0; i<Hist_Curv.numElements; i++){
 			K += Hist_Curv.que[i] / (i+1) / norm_factor;
 		}
-
+		/*
 		if(K<0){
 			rightMotorSpeed = RIGHT_BASE_SPEED + motorPower;
 			leftMotorSpeed = LEFT_BASE_SPEED -  motorPower;
@@ -134,14 +136,16 @@ task main()
 			rightMotorSpeed = RIGHT_BASE_SPEED - motorPower;
 			leftMotorSpeed = LEFT_BASE_SPEED +  motorPower;
 		}
-
+		*/
+		rightMotorSpeed = RIGHT_BASE_SPEED + motorPower;
+		leftMotorSpeed  = LEFT_BASE_SPEED  - motorPower;
 		// Ensure Bounds aren't Exceeded. Scale Both Motor Speeds if one is capped.
-	  if (rightMotorSpeed > RIGHT_MAX_SPEED ) leftMotorSpeed = leftMotorSpeed * RIGHT_MAX_SPEED / rightMotorSpeed; rightMotorSpeed = RIGHT_MAX_SPEED; // prevent the motor from going beyond max speed
-	  if (leftMotorSpeed > LEFT_MAX_SPEED ) rightMotorSpeed = rightMotorSpeed * LEFT_MAX_SPEED / leftMotorSpeed; leftMotorSpeed = LEFT_MAX_SPEED; // prevent the motor from going beyond max speed
+	  if (rightMotorSpeed > RIGHT_MAX_SPEED ) { leftMotorSpeed = leftMotorSpeed * RIGHT_MAX_SPEED / rightMotorSpeed; rightMotorSpeed = RIGHT_MAX_SPEED; } // prevent the motor from going beyond max speed
+	  if (leftMotorSpeed > LEFT_MAX_SPEED ) { rightMotorSpeed = rightMotorSpeed * LEFT_MAX_SPEED / leftMotorSpeed; leftMotorSpeed = LEFT_MAX_SPEED; } // prevent the motor from going beyond max speed
 	  if (rightMotorSpeed < 0) rightMotorSpeed = 0; // keep the motor speed positive
 	  if (leftMotorSpeed < 0) leftMotorSpeed = 0; // keep the motor speed positive
 
-		//search__i_a();
+		search__i_a();
 		wait1Msec(2);
 
 		motor[RightMotor] = rightMotorSpeed;

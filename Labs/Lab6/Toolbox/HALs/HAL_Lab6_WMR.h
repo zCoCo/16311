@@ -43,7 +43,7 @@
   #define LeftMotor motorC
   #define RightMotor motorB
 
-  #define OdometryClock T1
+  #define OdometryClock T2
 
 /* ---- CORE: ---- */
 void init_HAL(){

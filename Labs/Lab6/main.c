@@ -154,6 +154,8 @@ task main()
     nxtDisplayTextLine(1, "DB: %f", DBlock_odo);
 		nxtDisplayTextLine(2, "t: %dms", TSF_Last(Hist_Time));
 	} // Line Following Loop
+	motor[RightMotor] = 0;
+	motor[LeftMotor] = 0;
 
 	nNxtButtonTask  = 0;
 	while(nNxtButtonPressed != kExitButton) {}

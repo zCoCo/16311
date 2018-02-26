@@ -34,7 +34,7 @@ void normalize_prob_map(){
 // ---- MOTION DATA ---- //
 // Amount by Which Line-Following Oscillations cause the Travelled Distance to
 // Exceed the Distance Travelled Around the Circle
-#define LINEAR_OVERDRIVE_FACTOR (1.0)
+float LINEAR_OVERDRIVE_FACTOR = (3*16.0) / (3*16.0 + 1.0);
 // Radius of the Track (meters)
 #define TRACK_RADIUS (0.3048)
 float BLOCKS_PER_METER = 16.0 * LINEAR_OVERDRIVE_FACTOR / TRACK_RADIUS / 6.28318;

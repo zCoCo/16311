@@ -19,7 +19,7 @@
 
 // ---- WORLD DATA ---- //
 #define MAP_SIZE 16
-int bitmap[MAP_SIZE] = {0,1,0,0, 1,1,1,0, 0,1,0,0, 0,1,0,1};
+int bitmap[MAP_SIZE] = {0,1,0,1, 1,1,0,0, 0,1,0,0, 1,0,0,1};
 
 void create_bitmap_from_hex(int hex_in){
 	int mask = 1;
@@ -29,7 +29,7 @@ void create_bitmap_from_hex(int hex_in){
 } // #create_bitmap_from_hex
 
 // Target Stop Location:
-#define TARGET_LOCATION (3) // Zero-Indexed
+#define TARGET_LOCATION (6) // Zero-Indexed
 
 // Returns the Value of the Map at the Given Position (adjusting for Wrap-Arounds)
 int get_map_val(long pos){
@@ -270,11 +270,11 @@ task main()
 			}
 		} else{
 			DBlock_odo = BLOCKS_PER_METER * TSF_Last(Hist_Dist); // Update Odo Estimate
-			if(!orientaion_started && (SensorValue[sonarSensor] > SONAR_THRESH)){ // Trips as soon as Block Edge is Reached.
+			if(!orientaion_started && (SensorValue[sonarSensor] > SONAR_THRESH) && DBlock_odo > 0.6){ // Trips as soon as Block Edge is Reached (after has settled in line-following D>0.6)
 				DB_at_orientation_start = DBlock_odo;
 				orientaion_started = 1;
 			} // !orientaion_started?
-			if(orientaion_started && ((DBlock_odo - DB_at_orientation_start) > 0.45)){ // Ends orientation in middle of Block
+			if(orientaion_started && ((DBlock_odo - DB_at_orientation_start) > 0.35)){ // Ends orientation in middle of Block
 				TSF_add(Hist_Dist, 0.0); // Reset Arc Distance Odometry
 				TSF_add(Hist_Dist, 0.0); // (and its delta)
 				orientation_done = 1;

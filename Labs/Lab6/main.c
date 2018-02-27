@@ -19,7 +19,7 @@
 
 // ---- WORLD DATA ---- //
 #define MAP_SIZE 16
-int bitmap[MAP_SIZE] = {0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,1};
+int bitmap[MAP_SIZE] = {0,1,0,0, 1,1,1,0, 0,1,0,0, 0,1,0,1};
 
 void create_bitmap_from_hex(int hex_in){
 	int mask = 1;
@@ -82,28 +82,54 @@ void normalize_prob_map(){
 // Circularly Shift the Probility Map Left (offsetting clockwise motion of robot) by n Spaces.
 void shift_prob_map(int n){
 	int amt = n % MAP_SIZE;
+	float temp[MAP_SIZE];
+	for(int i=0; i<MAP_SIZE; i++){ // Copy into temp
+		temp[i] = probmap[i];
+	}
 	for(int i=0; i<(MAP_SIZE-amt); i++){
-		probmap[i] = probmap[i+amt];
+		probmap[i] = temp[i+amt];
 	}
 	for(int i=0; i<amt; i++){
-		probmap[MAP_SIZE - amt + i] = probmap[i];
+		probmap[MAP_SIZE - amt + i] = temp[i];
 	}
 } // #shift_prob_map
+// Circularly Shift the Probility Map Right (matching clockwise motion of robot) by n Spaces.
+void shift_prob_map_right(int n){
+	int amt = n % MAP_SIZE;
+	float temp[MAP_SIZE];
+	for(int i=0; i<MAP_SIZE; i++){ // Copy into temp
+		temp[i] = probmap[i];
+	}
+	for(int i=0; i<amt; i++){
+		probmap[i] = temp[MAP_SIZE - amt + i];
+	}
+	for(int i=0; i<(MAP_SIZE-amt); i++){
+		probmap[i+amt] = temp[i];
+	}
+} // #shift_prob_map_right
 
 // Perform a Discrete Bayes Filter Update
-#define PROB_INC (2.0) // Factor to Increase Probability by if Map agrees with Measurement
+#define PROB_INC (4.0) // Factor to Increase Probability by if Map agrees with Measurement
 #define PROB_DEC ((1.0) / PROB_INC)
 void update_bayes(){
 	static int last_DBlock_odo = 0;
+	static int not_gone = 1;
 	int Du = ((int) (floor(DBlock_odo))) - last_DBlock_odo; // Distance Travelled in Blocks since Last
 																												 //  Bayes Update was Performed.
 
-	if(Du >=  1 || last_DBlock_odo == 0){
+	if(Du >=  1 || not_gone){
 		last_DBlock_odo = floor(DBlock_odo);
+		not_gone = 0;
 
-		shift_prob_map(Du); // Shift Probability Map by Action Distance
+		shift_prob_map_right(Du); // Shift Probability Map by Action Distance
 
 		int z = at_block(); // Measurement
+
+		if(z){
+			playTone(780, 10);
+		} else{
+			playTone(445, 15);
+		}
 
 		for(int i=0; i<MAP_SIZE; i++){
 			probmap[i] *= (bitmap[i] == z) ? PROB_INC : PROB_DEC;
@@ -187,7 +213,11 @@ void update_display(){
 
 float rightMotorSpeed = 0;
 float leftMotorSpeed = 0;
+int start_block = 0;
 
+int orientaion_started = 0;
+float DB_at_orientation_start = 0.0
+int orientation_done = 0;
 task main()
 {
 	// Team 15 PID Code
@@ -206,8 +236,10 @@ task main()
 
 	//Pre-Allocate:
 	static float error, motorPower;
-
-	while(block_location < (16.0 + TARGET_LOCATION)){// for odometry calibration: (DBlock_odo < 3.0*16.0){
+	while(DBlock_odo < 16.0
+	   || ((block_location < TARGET_LOCATION) && (start_block <= TARGET_LOCATION))
+ 	   || (((start_block + DBlock_odo) < (TARGET_LOCATION + 32.0)) && (start_block > TARGET_LOCATION))
+ 	){// for odometry calibration: (DBlock_odo < 3.0*16.0){
 		// Might have to adjust the middle dark value
 
 		error = SensorValue[lightSensor] - 35;
@@ -230,7 +262,24 @@ task main()
 		motor[RightMotor] = rightMotorSpeed;
 		motor[LeftMotor] = leftMotorSpeed;
 
-		update_block_location();
+		if(orientation_done){
+			update_block_location();
+			start_block = block_location - floor(DBlock_odo);
+			if(start_block < 0){
+				start_block = MAP_SIZE + start_block;
+			}
+		} else{
+			DBlock_odo = BLOCKS_PER_METER * TSF_Last(Hist_Dist); // Update Odo Estimate
+			if(!orientaion_started && (SensorValue[sonarSensor] > SONAR_THRESH)){ // Trips as soon as Block Edge is Reached.
+				DB_at_orientation_start = DBlock_odo;
+				orientaion_started = 1;
+			} // !orientaion_started?
+			if(orientaion_started && ((DBlock_odo - DB_at_orientation_start) > 0.45)){ // Ends orientation in middle of Block
+				TSF_add(Hist_Dist, 0.0); // Reset Arc Distance Odometry
+				TSF_add(Hist_Dist, 0.0); // (and its delta)
+				orientation_done = 1;
+			} // orientaion_started?
+		} // orientation_done?
 
 		update_display();
 	} // Line Following Loop

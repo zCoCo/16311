@@ -17,8 +17,8 @@
 
 //Change these during demo
 TPose Pstart, Pend;
-float inputStraight[2] = {sqrt(2.0) * 12.0 * INCH, 2 * sqrt(2.0) * 12.0 * INCH}; // in mm
-float inputTurn[2] = {45.0*DEG, -90.0*DEG}; // in degrees, negative means clockwise rotation
+float inputStraight[2] = {33.94 * INCH, 26.83 * INCH}; // in mm
+float inputTurn[2] = {-46.0*DEG, 162.57*DEG}; // in degrees, negative means clockwise rotation
 
 task main()
 {

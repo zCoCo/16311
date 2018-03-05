@@ -1,5 +1,5 @@
-#ifndef _HAL_LAB3_WMR_H
-#define _HAL_LAB3_WMR_H
+#ifndef _HAL_LAB5_WMR_H
+#define _HAL_LAB5_WMR_H
 
 /****
   Config Description:
@@ -14,36 +14,37 @@
 
 /* ---- PARAMETERS ---- */
   #define MOTOR_PID_UPDATE_INTERVAL 2
-  #define VELOCITY_UPDATE_INTERVAL 4
+  #define VELOCITY_UPDATE_INTERVAL 2
 
-  #define WHEEL_DIAMETER 0.0572 // [m]
-  #define WHEEL_CIRCUMFERENCE 0.1797 // [m]
-  #define WHEEL_TREAD 0.1236 // [m], Distance between Left and Right Wheel Tracks
+  #define EFFECTIVE_OVERDRIVE 1.4583
+  #define WHEEL_DIAMETER (EFFECTIVE_OVERDRIVE*0.0816) // [m]
+  #define WHEEL_CIRCUMFERENCE (EFFECTIVE_OVERDRIVE*0.2564) // [m]
+  #define WHEEL_TREAD 0.120 // [m], Distance between Left and Right Wheel Tracks
 
   // Distance per Encoder Tick:
   float METERS_PER_TICK = (((float) (WHEEL_CIRCUMFERENCE)) / ((float) (TICKS_PER_REV))); // [m/tick]
 
-  #define MAX_REV_PER_SECOND 2.0 // Make sure this is an attainable value
+  #define MAX_REV_PER_SECOND 1.8 // Make sure this is an attainable value
 
   // [m/s] - Maximum Linear Velocity:
   // Def:L 0.6, 2.0
-  #define MIN_VELOCITY 0.06
+  #define MIN_VEL 0.06
   float MAX_VEL = (METERS_PER_TICK * TICKS_PER_REV * MAX_REV_PER_SECOND);
-  #define MAX_ACCEL 0.4 //[m/s/s] - Maximum Linear Acceleration
+  #define MAX_ACCEL 0.35 //[m/s/s] - Maximum Linear Acceleration
 
   // [rad/s] - Maximum Angular Velocity
   float MAX_OMEGA = (2.0 * MAX_VEL) / WHEEL_TREAD;
-  #define MAX_ALPHA 3.5 // [rad/s/s] - Maximum Angular Acceleration
+  #define MAX_ALPHA 6.0 // [rad/s/s] - Maximum Angular Acceleration
 
   #define COMMAND_DELAY 0.0 //  -Delay, in sec, a Velocity been Commanded and
                             //     it being Implemented.
-  #define COMMAND_READ_DELAY 0.05 //  -Delay, in sec, a Velocity been Commanded and
+  #define COMMAND_READ_DELAY 0.035 //  -Delay, in sec, a Velocity been Commanded and
                             //     it being Implemented and Read Back by Odometry.
 
   #define LeftMotor motorC
   #define RightMotor motorB
 
-  #define OdometryClock T1
+  #define OdometryClock T4
 
 /* ---- CORE: ---- */
 void init_HAL(){
@@ -72,42 +73,42 @@ void reset_HAL(){
 
 /* ---- SENSING ---- */
 task odometry(){
-  // Preallocate Loop Variables:
-  float Ds_left, Ds_right;
-  float dt;
-  float v_l, v_r;
-  float V, om;
+    nSchedulePriority = 200; // High Priority.
+    // Preallocate Loop Variables:
+    float Ds_left, Ds_right;
+    float dt;
+    float v_l, v_r;
+    float V, om;
 
-  // Loop:
-  while(1){
-    // Capture Encoder Values Immediately:
-    Ds_left = nMotorEncoder[LeftMotor];
-    Ds_right = nMotorEncoder[RightMotor];
-    dt = time1[OdometryClock]; // Ensure this is at time of capture.
+    // Loop:
+    while(1){
+      // Capture Encoder Values Immediately:
+      Ds_left = nMotorEncoder[LeftMotor];
+      Ds_right = nMotorEncoder[RightMotor];
+      dt = time1[OdometryClock]; // Ensure this is at time of capture.
 
-    // Reset (after capture) so Value Represents a Delta (and to help prevent overflows):
-    nMotorEncoder[LeftMotor] = 0;
-    nMotorEncoder[RightMotor] = 0;
-    clearTimer(OdometryClock);
+      // Reset (after capture) so Value Represents a Delta (and to help prevent overflows):
+      nMotorEncoder[LeftMotor] = 0;
+      nMotorEncoder[RightMotor] = 0;
+      clearTimer(OdometryClock);
 
-    // Convert to Standard Units:
-    Ds_left = METERS_PER_TICK * Ds_left;
-    Ds_right = METERS_PER_TICK * Ds_right;
-    dt = dt * 0.001; // ms -> s
+      // Convert to Standard Units:
+      Ds_left = METERS_PER_TICK * Ds_left;
+      Ds_right = METERS_PER_TICK * Ds_right;
+      dt = dt * 0.001; // ms -> s
 
-    if(dt){
-      // Compute Velocity Profile:
-      v_l = Ds_left / dt; v_r = Ds_right / dt;
-    }
+      if(dt){
+        // Compute Velocity Profile:
+        v_l = Ds_left / dt; v_r = Ds_right / dt;
+      }
 
-    // Compute Inverse Kinematics:
-    V = (v_r + v_l) / 2.0;
-    om = (v_r - v_l) / WHEEL_TREAD;
+      // Compute Inverse Kinematics:
+      V = (v_r + v_l) / 2.0;
+      om = (v_r - v_l) / WHEEL_TREAD;
 
-    update_odometry(V,om,dt);
-
-    wait1Msec(VELOCITY_UPDATE_INTERVAL);
-  } // loop
+      update_odometry(V,om,dt);
+      wait1Msec(VELOCITY_UPDATE_INTERVAL);
+    } // loop
 } // #odometry
 
 /* ---- MOTION ---- */
@@ -120,6 +121,18 @@ void moveAt(float V, float omega){
   // Compute Forward Kinematics:
   float v_l = V - (WHEEL_TREAD / 2.0) * omega; // [m/s]
   float v_r = V + (WHEEL_TREAD / 2.0) * omega;
+
+  // Ensure Max. Wheel Velocity is not Exceeded:
+  // Scale Velocities Proportionally:
+  if(v_l > MAX_VEL){
+    v_r = v_r * (MAX_VEL / v_l);
+    v_l = MAX_VEL;
+  }
+  if(v_r > MAX_VEL){ // Perform both Scale Checks in SERIES (no if, else)
+    v_l = v_l * (MAX_VEL / v_r);
+    v_r = MAX_VEL;
+  }
+
   // Convert to ticks/s:
   v_l = v_l / METERS_PER_TICK; v_r = v_r / METERS_PER_TICK;
   // Convert to % of Max Speed:
@@ -130,6 +143,4 @@ void moveAt(float V, float omega){
   motor[RightMotor] = v_r;
 }
 
-// #limitWheelVelocity(V,om)
-
-#endif // _HAL_LAB3_WMR_H
+#endif // _HAL_LAB5_WMR_H

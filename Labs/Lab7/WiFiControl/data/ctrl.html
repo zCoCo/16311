@@ -1,0 +1,141 @@
+<html>
+<!-- Uses: ESP8266FS from https://github.com/esp8266/arduino-esp8266fs-plugin/releases/download/0.2.0/ESP8266FS-0.2.0.zip -->
+  <head>
+    <script>
+      var socket;
+      try{
+        socket = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);
+        socket.onopen = function(){ socket.send('Connected ' + new Date()); };
+        socket.onerror = function(e){ console.log('WS Error ', e); };
+        socket.onmessage = function(e){ console.log('WS Server: ', e.data); };
+      } catch(e){ console.log("Socket Error: ", e); socket = { 'send': function(){ console.log("> No Socket. Send Failed."); } }; };
+
+      var bID = function(d) { return document.getElementById( d ); };
+      var vID = function(d) { return bID(d).value; };
+
+      function pad(numstr){ if(numstr.length<2){ numstr = '0' + numstr; } return numstr; }
+      var package = function(){ var str = arguments[0]; for (var i=1; i<arguments.length; i++) str+=arguments[i]; return str; }
+
+      function sendRGB(){
+        var valR = parseInt(bID('inR').checked ? 1 : 0).toString(16);
+        var valG = parseInt(vID('inG')).toString(16);
+          var pG = Math.round(100*vID('inG') / 255); bID('valG').innerHTML = pG + "%";
+        var valB = parseInt(vID('inB')).toString(16);
+          var pB = Math.round(100*vID('inB') / 255); bID('valB').innerHTML = pB + "%";
+
+        valR = pad(valR); valG = pad(valG); valB = pad(valB);
+        var pack = package("#", valR, valG, valB);
+        socket.send(pack);
+        console.log("Sent: " + pack);
+
+        bID('color-sample').style="width: 20px; height: 20px; background: #" + pad(Number(255*Number(valR)).toString(16)) + valG + valB ;
+      }
+
+      function sendServo(){
+        var valPan = parseInt(vID('inPan')).toString(16);
+          bID('valPan').innerHTML = vID('inPan') + "&deg;"
+        var valTilt = parseInt(vID('inTilt')).toString(16);
+          bID('valTilt').innerHTML = vID('inTilt') + "&deg;"
+
+        valPan = pad(valPan); valTilt = pad(valTilt);
+        var pack = package("$", valPan, valTilt, pad("0"));
+        socket.send(pack);
+        console.log("Sent: " + pack);
+      }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+    body {
+        font-family: "Verdana";
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 24px;
+    }
+
+    .toggle-switch input {display:none;}
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: black;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "R";
+      font-size: 10px;
+      text-align: center;
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: red;
+    }
+
+    input:checked + .toggle-slider:before {
+      -webkit-transform: translateX(16px);
+      -ms-transform: translateX(16px);
+      transform: translateX(16px);
+    }
+
+    input[type=range][orient=horizontal]{
+        height: 8px;
+        width: 175px;
+        padding: 0 5px;
+    }
+    input[type=range][orient=vertical]{
+        writing-mode: bt-lr;
+        -webkit-appearance: slider-vertical;
+        width: 8px;
+        height: 175px;
+        padding: 0 5px;
+    }
+  </style>
+  </head>
+
+  <body>
+    <h1> TEAM-15 CONTROL </h1>
+    <br />
+    <div style="width: 100%;">
+      <div style="float:left; width: 20%; padding: 25px;">
+        <b>LED Control</b>
+        <br />
+        <div id="color-sample" style="width: 20px; height: 20px;"></div>
+        <br />
+        &#9;R: <label class="input-cont toggle-switch"><input id="inR" type="checkbox" onchange="sendRGB();" checked/><span class="toggle-slider"></span></label>
+        <br />
+        &#9;G: <label class="input-cont"><input id="inG" type="range" min="0" max = "255" step="1" onchange="sendRGB();" value="255" /><span id="valG">100%</span></label>
+        <br />
+        &#9;B: <label class="input-cont"><input id="inB" type="range" min="0" max = "255" step="1" onchange="sendRGB();" value="200" /><span id="valB">78%</span></label>
+      </div>
+      <div style="float:right; padding: 25px;">
+        <b>Servo Control</b>
+        <br />
+        &#9;Pan: <label class="input-cont"><input id="inPan" type="range" orient="horizontal" min="0" max = "200" step="1" onchange="sendServo();" value="90" /><span id="valPan">90&deg;</span></label>
+        <br /><br /><br /><br /><br />
+        <center>
+        &#9;Tilt: <label class="input-cont"><input id="inTilt" type="range" orient="vertical" min="0" max = "110" step="1" onchange="sendServo();" value="0" /><span id="valTilt">0&deg;</span></label>
+        </center>
+      </div>
+    </div>
+    <div style="clear:both"></div>
+
+  </body>
+
+</html>

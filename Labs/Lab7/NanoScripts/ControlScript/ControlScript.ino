@@ -69,8 +69,6 @@ void setup(){
   servPos(0, 119);
   servPos(1, 0);
 
-  Serial.println("NANO SERIAL READY");
-
   digitalWrite(LASER, HIGH);
 } // #setup
 
@@ -85,7 +83,7 @@ void read_I2C_message(int bytesIn){
   static int curr_msg[3] = {0,0,0};
 
   Wire.read(); // Get rid of Garbage Data
-  curr_msg[msg_byte] = (int) Wire.read();                                       Serial.println(curr_msg[msg_byte]);
+  curr_msg[msg_byte] = (int) Wire.read();
   Wire.read(); // Get rid of Garbage Data
 
   if(msg_byte == 2){

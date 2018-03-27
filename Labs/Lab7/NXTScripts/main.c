@@ -30,6 +30,7 @@ void update_display(){
 	nxtDisplayTextLine(5, "t: %dms", TSF_Last(Hist_Time));
 }
 
+ubyte last_comm = 0;
 // Sends a Byte over I2C
 void sendI2C(ubyte command){
 	ubyte msgSize = 0x04;
@@ -48,6 +49,7 @@ void sendI2C(ubyte command){
 	i2cMsg[6] = 0x00;
 
 	sendI2CMsg(S1, &i2cMsg[0], 0x00);
+  last_comm = command;
 	wait1Msec(25); //Wait for I2C Hardware
 }
 
@@ -119,10 +121,10 @@ task main()
     }
 
     // Update Button Controls:
-    int btnX_temp = joy1_Buttons & 8; // Blue Button
-    int btnY_temp = joy1_Buttons & 4; // Yellow Button
-    int btnA_temp = joy1_Buttons & 0; // Green Button
-    int btnB_temp = joy1_Buttons & 2; // Red Button
+    int btnX_temp = joy1_Buttons & 0x08; // Blue Button
+    int btnY_temp = joy1_Buttons & 0x04; // Yellow Button
+    int btnA_temp = joy1_Buttons & 0x00; // Green Button
+    int btnB_temp = joy1_Buttons & 0x02; // Red Button
 
     if(btnB != btnB_temp){
       if(btnB){ I2CRGB(LED_RED); }

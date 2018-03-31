@@ -1,17 +1,149 @@
 <html>
+<!-- N.B. This code is compact and sparsely commented b/c it has to fit on the SPIFFS memory of an MCU -->
 <!-- Uses: ESP8266FS from https://github.com/esp8266/arduino-esp8266fs-plugin/releases/download/0.2.0/ESP8266FS-0.2.0.zip -->
   <head>
     <script>
+      var bID = function(d) { return document.getElementById(d); };
+      var vID = function(d) { return bID(d).value; };
+
+      function arr_max(arr){ //no apply/reduce b/c arg size
+        var m = arr[0];
+        for(i=1; i<arr.length; i++){ if(arr[i] > m){ m = arr[i]; } }
+        return m;
+      }
+      function arr_min(arr){
+        var m = arr[0];
+        for(i=1; i<arr.length; i++){ if(arr[i] < m){ m = arr[i]; } }
+        return m;
+      }
+
+      var XS = [0,1,2,3,3,2,1]; var YS = [0,1,1,3,2,1]; var THS = [0];
+
+      function draw_axes(scaleX, scaleY){
+        var n_lines = 20; var l_line = 10;
+        var c = bID("odo-plot");
+        var ctx = c.getContext("2d");
+        var w = c.clientWidth; var h = c.clientHeight;
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "grey";
+        ctx.moveTo(w/2, 0); ctx.lineTo(w/2,h);
+        for(i=0; i<n_lines/2; i++){
+          ctx.moveTo(w/2-l_line/2, i*h/(n_lines/2-1));
+          ctx.lineTo(w/2+l_line/2, i*h/(n_lines/2-1));
+
+          ctx.fillStyle = "grey"; ctx.font = "10pt Arial"; ctx.textAlign = "left";
+          if(i>=n_lines/4){ ctx.textBaseline = "bottom"; } else{ ctx.textBaseline = "top"; }
+          var tick = (h/2 - i*h/(n_lines/2-1))/scaleY;
+          ctx.fillText(tick.toFixed(2),w/2+l_line/2,i*h/(n_lines/2-1)); ctx.fill();
+        }
+        ctx.stroke();
+        ctx.moveTo(0, h/2); ctx.lineTo(w, h/2);
+        for(i=0; i<n_lines; i++){
+          ctx.moveTo(i*w/(n_lines-1), h/2-l_line/2);
+          ctx.lineTo(i*w/(n_lines-1), h/2+l_line/2);
+
+          ctx.fillStyle = "grey"; ctx.font = "10pt Arial"; ctx.textBaseline = "top";
+          ctx.textAlign = "left";
+          var tick = (w/2 - i*w/(n_lines-1))/scaleX;
+          ctx.fillText(tick.toFixed(2),i*w/(n_lines-1), h/2+l_line/2); ctx.fill();
+        }
+        ctx.stroke();
+      }
+
+      function update_odometry_plot(){
+        var c = bID("odo-plot");
+        var ctx = c.getContext("2d");
+
+        ctx.clearRect(0, 0, c.width, c.height);
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, c.width, c.height);
+
+        X0 = c.clientWidth / 2; scaleX = X0 / Math.max(Math.abs(arr_min(YS)), Math.abs(arr_max(YS)));
+        Y0 = c.clientHeight / 2; scaleY = Y0 / Math.max(Math.abs(arr_min(XS)), Math.abs(arr_max(XS)));
+
+        draw_axes(scaleX, scaleY);
+
+        ctx.beginPath();
+        ctx.moveTo(X0,Y0);
+
+        var n = Math.min(XS.length, YS.length);
+
+        ctx.lineJoin = "round"; ctx.lineWidth = 2; ctx.strokeStyle = "red";
+        for(i=0; i<n; i++){
+          ctx.lineTo(-scaleX*YS[i]+X0, -scaleY*XS[i]+Y0); // Flipped Axes for Kinematics
+        }
+        ctx.stroke();
+
+        var l = Math.min(X0/6, Y0/6);
+        ctx.beginPath();
+        ctx.lineJoin = "round"; ctx.lineWidth = 3; ctx.strokeStyle = "green";
+        ctx.moveTo(-scaleX*YS[n-1]+X0, -scaleY*XS[n-1]+Y0);
+        ctx.lineTo(-scaleX*YS[n-1]+X0 + l*Math.cos(THS[THS.length-1] + Math.PI/2), -scaleY*XS[n-1]+Y0 -l*Math.sin(THS[THS.length-1] + Math.PI/2));
+        ctx.stroke();
+
+        bID('odo-x').innerHTML = XS[n-1].toFixed(2);
+        bID('odo-y').innerHTML = YS[n-1].toFixed(2);
+        var d = THS[THS.length-1] * 180 / Math.PI;
+        bID('odo-th').innerHTML = d.toFixed(2);
+      }
+
+    /* WEB-INCOMING UART MESSAGING PROTOCOL:
+     - Single Character ID followed by Value
+      'X' -> Add X-Value to Array of X-Positions
+      'x' -> Add Decimal Component to Last X-Position Entry
+      'Y' -> Add Y-Value to Array of Y-Positions
+      'y' -> Add Decimal Component to Last X-Position Entry
+      'T' -> Add TH-Value to Array of Headings
+      't' -> Add Decimal Component to Last Heading Entry
+      */
+      function process_socket_message(msg){
+        switch(msg.charAt(0)){
+          case 'X':
+            XS.push(parseInt(msg.substring(1)));
+            update_odometry_plot();
+          break;
+          case 'x':
+            xf = XS.pop();
+            xf += Math.sign(xf)*parseInt(msg.substring(1)) / 100;
+            XS.push(xf);
+            if(XS[XS.length-1] == XS[XS.length-2]){ XS.pop(); }
+            update_odometry_plot();
+          break;
+          case 'Y':
+            YS.push(parseInt(msg.substring(1)));
+            update_odometry_plot();
+          break;
+          case 'y':
+            yf = YS.pop();
+            yf += Math.sign(yf)*parseInt(msg.substring(1)) / 100;
+            YS.push(yf);
+            if(YS[YS.length-1] == YS[YS.length-2]){ YS.pop(); }
+            update_odometry_plot();
+          break;
+          case 'T':
+            THS.push(parseInt(msg.substring(1)));
+            update_odometry_plot();
+          break;
+          case 't':
+            thf = THS.pop();
+            thf += Math.sign(thf)*parseInt(msg.substring(1)) / 100;
+            THS.push(thf);
+            if(THS[THS.length-1] == THS[THS.length-2]){ THS.pop(); }
+            update_odometry_plot();
+          break;
+          default:
+            // Do Nothing
+        }
+      }
+
       var socket;
       try{
         socket = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);
         socket.onopen = function(){ socket.send('Connected ' + new Date()); };
         socket.onerror = function(e){ console.log('WS Error ', e); };
-        socket.onmessage = function(e){ console.log('WS Server: ', e.data); };
+        socket.onmessage = function(m){ console.log('WS Server: ', m.data); process_socket_message(m.data); };
       } catch(e){ console.log("Socket Error: ", e); socket = { 'send': function(){ console.log("> No Socket. Send Failed."); } }; };
-
-      var bID = function(d) { return document.getElementById( d ); };
-      var vID = function(d) { return bID(d).value; };
 
       function pad(numstr){ if(numstr.length<2){ numstr = '0' + numstr; } return numstr; }
       var package = function(){ var str = arguments[0]; for (var i=1; i<arguments.length; i++) str+=arguments[i]; return str; }
@@ -135,6 +267,15 @@
       </div>
     </div>
     <div style="clear:both"></div>
+
+    <h3 style="display: inline"> Odometry: </h3> <div style="display: inline">(<span id="odo-x">0.00</span>m, <span id="odo-y">0.00</span>m, <span id="odo-th">0.00</span>&deg;)</div>
+    <br />
+    <canvas id="odo-plot" style="position: absolute; margin: 0px; padding: 0px;">Canvas not Supported.</canvas>
+    <script>
+      bID('odo-plot').width = 0.99*window.innerWidth;
+      bID('odo-plot').height = window.innerHeight / 2;
+      update_odometry_plot();
+    </script>
 
   </body>
 

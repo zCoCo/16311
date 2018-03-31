@@ -12,10 +12,15 @@
 
 #define MainClock T1
 
+#define ArmMot motorA
+
+#define ArmMin 0
+#define ArmMax 80
+
 float V = 0; // Body Center Speed (alongtrack) [m/s]
 float om = 0; // Body Center Angular Speed [rad/s]
 
-int DPan = 0; // Amount to Change Pan Angle By [deg]
+int PanSpeed = 0; // Amount to Change Pan Angle By [deg]
 int DTilt = 0; // Amount to Change Tilt Angle By [deg]
 
 int btnX = 0; int btnY = 0; int btnA = 0; int btnB = 0;
@@ -25,7 +30,7 @@ void update_display(){
 	nxtSetPixel(50 + (int)(100.0 * 0.0), 32 + (int)(100.0 * 0.0));
 	nxtDisplayTextLine(1, "V: %fm/s", V);
 	nxtDisplayTextLine(2, "O: %frad/s", om);
-	nxtDisplayTextLine(3, "DP: %ddeg", DPan);
+	nxtDisplayTextLine(3, "PS: %ddeg", PanSpeed);
 	nxtDisplayTextLine(4, "DT: %ddeg", DTilt);
 	nxtDisplayTextLine(5, "t: %dms", TSF_Last(Hist_Time));
 }
@@ -50,7 +55,7 @@ void sendI2C(ubyte command){
 
 	sendI2CMsg(S1, &i2cMsg[0], 0x00);
   last_comm = command;
-	wait1Msec(25); //Wait for I2C Hardware
+	wait1Msec(15); //Wait for I2C Hardware
 }
 
 // Commands the Servo with Index idx to Change by Angle Da
@@ -62,6 +67,21 @@ void I2CServo(int idx, int Da){
   }
 }
 
+// Commands the Servo with Index idx to Take Up Angle pos
+void I2CServoPos(int idx, int pos){
+  sendI2C(10); sendI2C(idx); sendI2C(pos);
+}
+
+// Pass Odometry Data to Web Socket
+void I2CPassOdo(){
+  sendI2C(90); sendI2C(1); sendI2C((int)(rob_pos_X));
+  sendI2C(90); sendI2C(2); sendI2C((int)(100*(rob_pos_X - ((int)(rob_pos_X)))));
+  sendI2C(90); sendI2C(3); sendI2C((int)(rob_pos_Y));
+  sendI2C(90); sendI2C(4); sendI2C((int)(100*(rob_pos_Y - ((int)(rob_pos_Y)))));
+  sendI2C(90); sendI2C(5); sendI2C((int)(rob_pos_TH));
+  sendI2C(90); sendI2C(6); sendI2C((int)(100*(rob_pos_TH - ((int)(rob_pos_TH)))));
+}
+
 // Commands the RGB LEDs to Take up the Color with the Given Index
 #define LED_DARK 0
 #define LED_RED 1
@@ -70,6 +90,16 @@ void I2CServo(int idx, int Da){
 #define LED_WHITE 4
 void I2CRGB(int color_idx){
   sendI2C(2); sendI2C(color_idx); sendI2C(0);
+}
+
+void I2CLaser(int state){
+  sendI2C(20); sendI2C(state); sendI2C(0);
+}
+
+void toggleLaser(){
+  static int laser_state = 1;
+  laser_state = !laser_state;
+  I2CLaser(laser_state);
 }
 
 /*****************************************
@@ -91,11 +121,14 @@ void I2CRGB(int color_idx){
 /*****************************************
  * Main function
  *****************************************/
-
+long last_odo_pass = 0;
 task main()
 {
 	init_HAL();
 	startTask(odometry);
+
+  nMotorPIDSpeedCtrl[ArmMot] = mtrSpeedReg;
+  motor[ArmMot] = 0;
 
   wait1Msec(500);
   I2CRGB(LED_RED);
@@ -106,41 +139,55 @@ task main()
     V = -1.0 * MAX_VEL * filter_joy(joystick.joy1_y1) / 128.0;
     om = -1.0 * MAX_OMEGA * filter_joy(joystick.joy1_x1) / 128.0;
 
-    int DPan_temp = -1.0 * 10.0 * filter_joy(joystick.joy1_x2) / 128.0;
-    int DTilt_temp = -1.0 * 5.0 * filter_joy(joystick.joy1_y2) / 128.0;
+    PanSpeed = -1.0 * 5.0 * filter_joy(joystick.joy1_x2) / 128.0;
+    DTilt = -1.0 * 5.0 * filter_joy(joystick.joy1_y2) / 128.0;
 
     moveAt(V,om);
 
-    if(DPan != DPan_temp){
-      I2CServo(1, DPan);
-      DPan = DPan_temp;
+    if(joystick.joy1_TopHat == 0){
+      motor[ArmMot] = 100;
+      wait1Msec(20);
+      motor[ArmMot] = 0;
     }
-    if(DTilt != DTilt_temp){
-      I2CServo(2, DTilt);
-      DTilt = DTilt_temp;
+    if(joystick.joy1_TopHat == 4){
+      motor[ArmMot] = -100;
+      wait1Msec(20);
+      motor[ArmMot] = 0;
+    }
+
+    I2CServoPos(1, abs(91 + PanSpeed)); // 91 is Neutral Position (no speed)
+    I2CServo(2, DTilt);
+
+    if(joy1Btn(5)){
+      toggleLaser();
     }
 
     // Update Button Controls:
-    int btnX_temp = joy1_Buttons & 0x08; // Blue Button
-    int btnY_temp = joy1_Buttons & 0x04; // Yellow Button
-    int btnA_temp = joy1_Buttons & 0x00; // Green Button
-    int btnB_temp = joy1_Buttons & 0x02; // Red Button
+    int btnX_temp = joy1Btn(3); // Blue Button
+    int btnY_temp = joy1Btn(4); // Yellow Button
+    int btnA_temp = joy1Btn(1); // Green Button
+    int btnB_temp = joy1Btn(2); // Red Button
 
     if(btnB != btnB_temp){
-      if(btnB){ I2CRGB(LED_RED); }
+      if(btnB_temp){ I2CRGB(LED_RED); }
       btnB = btnB_temp;
     }
     if(btnA != btnA_temp){
-      if(btnA){ I2CRGB(LED_GREEN); }
+      if(btnA_temp){ I2CRGB(LED_GREEN); }
       btnA = btnA_temp;
     }
     if(btnX != btnX_temp){
-      if(btnX){ I2CRGB(LED_BLUE); }
+      if(btnX_temp){ I2CRGB(LED_BLUE); }
       btnX = btnX_temp;
     }
     if(btnY != btnY_temp){
-      if(btnY){ I2CRGB(LED_WHITE); }
+      if(btnY_temp){ I2CRGB(LED_WHITE); }
       btnY = btnY_temp;
+    }
+
+    if((TSF_Last(Hist_Time)-last_odo_pass) > 500){
+      I2CPassOdo();
+      last_odo_pass = TSF_Last(Hist_Time);
     }
 
 		update_display();

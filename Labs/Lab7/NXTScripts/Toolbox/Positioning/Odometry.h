@@ -69,9 +69,6 @@ void update_timeLog(float dt){
 ****/
 void update_odometry(float V, float om, float dt){
   // Allocate static space for variables since these will likely be used often
-  //static float new_pose_X = INIT_POSE_X;
-  //static float new_pose_Y = INIT_POSE_Y;
-  static float new_pose_TH = INIT_POSE_TH;
   static float V0, om0, s0;
 
   update_timeLog(dt);
@@ -81,21 +78,21 @@ void update_odometry(float V, float om, float dt){
     V0 = TSF_Last(Hist_Vel);
     om0 = TSF_Last(Hist_Omega);
 
-    //new_pose_X = TSF_Last(Hist_Pos_X);
-    //new_pose_Y = TSF_Last(Hist_Pos_Y);
-    new_pose_TH = TSF_Last(Hist_Pos_TH);
+    float new_pose_X = TSF_Last(Hist_Pos_X);
+    float new_pose_Y = TSF_Last(Hist_Pos_Y);
+    float new_pose_TH = TSF_Last(Hist_Pos_TH);
 
     // Mid-Point Algorithm:
     new_pose_TH = new_pose_TH + om0 * dt/2.0;
-    //new_pose_X = new_pose_X + V0 * cos(new_pose_TH) * dt;
-    //new_pose_Y = new_pose_Y + V0 * sin(new_pose_TH) * dt;
+    new_pose_X = new_pose_X + V0 * cos(new_pose_TH) * dt;
+    new_pose_Y = new_pose_Y + V0 * sin(new_pose_TH) * dt;
     new_pose_TH = new_pose_TH + om0 * dt/2.0;
 
     s0 = TSF_Last(Hist_Dist);
     TSF_add( Hist_Dist, (s0 + V0 * dt) );
 
-    TSF_add(Hist_Pos_TH, 0.0);//TSF_add(Hist_Pos_X, new_pose_X);
-    TSF_add(Hist_Pos_TH, 0.0);//TSF_add(Hist_Pos_Y, new_pose_Y);
+    TSF_add(Hist_Pos_X, new_pose_X);
+    TSF_add(Hist_Pos_Y, new_pose_Y);
     TSF_add(Hist_Pos_TH, new_pose_TH);
   } else{ // Prevent Data-Length Mis-Match:
     TSF_add(Hist_Dist, TSF_Last(Hist_Dist));

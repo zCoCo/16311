@@ -131,10 +131,65 @@ void loop() {
 	socket.loop();
 	server.handleClient();
 
+	read_uart_message();
 	// if(millis()-last_laser > 1000){
 	// 	last_laser = millis();
 	// 	laser_state = !laser_state;
 	// 	Serial.write(20); Serial.write(laser_state); Serial.write(0);
 	// }
 
+}
+
+/* ESP-INCOMING UART MESSAGING PROTOCOL:
+ - 2 Byte Message:
+ -- 1: Command   2: Value
+  Comm 1 -> Pass Odometry X Integer to Socket
+ 	Comm 2 -> Pass Odometry X Decimal to Socket
+ 	Comm 3 -> Pass Odometry Y Integer to Socket
+	Comm 4 -> Pass Odometry Y Decimal to Socket
+ 	Comm 5 -> Pass Odometry TH Integer to Socket
+	Comm 6 -> Pass Odometry TH Decimal to Socket
+  */
+void read_uart_message(){
+  static char msg_byte = 0; // Current Message Byte being Processed
+  static int curr_msg[2] = {0,0};
+
+  if(Serial.available() > 0){
+    curr_msg[msg_byte] = (int) Serial.read();
+
+    if(msg_byte == 1){
+      process_uart_message(curr_msg);
+      msg_byte = 0;
+                                                                                // Serial.print(curr_msg[0]); Serial.print(curr_msg[1]); Serial.println(curr_msg[2]);
+    } else{
+      msg_byte++;
+    }
+  }
+}
+
+void process_uart_message(int* msg){
+  switch(msg[0]){ // Command
+    case 1: //                                - Pass Odometry X Integer to Socket
+    	socket.broadcastTXT("X" + String(msg[1]));
+    break;
+    case 2: //                                - Pass Odometry X Decimal to Socket
+    	socket.broadcastTXT("x" + String(msg[1]));
+    break;
+    case 3: //                                - Pass Odometry Y Integer to Socket
+    	socket.broadcastTXT("Y" + String(msg[1]));
+    break;
+    case 4: //                                - Pass Odometry Y Decimal to Socket
+    	socket.broadcastTXT("y" + String(msg[1]));
+    break;
+    case 5: //                                - Pass Odometry TH Integer to Socket
+    	socket.broadcastTXT("T" + String(msg[1]));
+    break;
+    case 6: //                                - Pass Odometry TH Decimal to Socket
+    	socket.broadcastTXT("t" + String(msg[1]));
+    break;
+
+    default:
+      // Do Nothing.
+    break;
+  }
 }

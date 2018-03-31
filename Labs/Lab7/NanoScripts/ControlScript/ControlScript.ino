@@ -31,7 +31,7 @@ void servPos(int idx, int pos){
 }
 
 #define SERVO_SWEEP_TIMESTEP 10
-#define DEFAULT_PAN 90
+#define DEFAULT_PAN 91
 void panTo(int ang){ // -- DEPRECATED --
   static int last_angle = DEFAULT_PAN;
   for(int i=last_angle; abs(ang-last_angle)>0; i+=sign(ang-last_angle)){ //Perform Change Gradually
@@ -66,8 +66,8 @@ void setup(){
 
   // panTo(DEFAULT_PAN);
   // tiltTo(DEFAULT_TILT);
-  servPos(0, 119);
-  servPos(1, 0);
+  servPos(0, DEFAULT_PAN);
+  servPos(1, DEFAULT_TILT);
 
   digitalWrite(LASER, HIGH);
 } // #setup
@@ -96,7 +96,7 @@ void read_I2C_message(int bytesIn){
 }
 void process_I2C_message(int* msg){ process_uart_message(msg); } // I2C Uses Same Protocol as UART
 
-/* UART MESSAGING PROTOCOL:
+/* NANO-INCOMING UART MESSAGING PROTOCOL:
  - 3 Byte Message:
  -- 1: Command   2: Target   3: Value
   Comm 1 -> Control RGB -> LED(0->R, 1->G, 2->B) -> Value
@@ -112,6 +112,8 @@ void process_I2C_message(int* msg){ process_uart_message(msg); } // I2C Uses Sam
   Comm 12 -> Decrease Servo Position -> Servo Number -> Decrement
 
   Comm 20 -> Toggle Laser -> 0 Off, 1 On -> N/A
+
+  Comm 90 -> Send Msg to UART Client -> Msg Command -> Msg Contents
   */
 void read_uart_message(){
   static char msg_byte = 0; // Current Message Byte being Processed
@@ -150,7 +152,9 @@ void process_uart_message(int* msg){
       // int sid = constrain(msg[1], 1,3)-1;
       // void (*move)(int) = (sid==0) ? &panTo : &tiltTo;
       // move(targ);
-      serv[constrain(msg[1], 1,3)-1].write(constrain(msg[2], 0,200));
+      int idx = constrain(msg[1], 1,3) - 1;
+      int pos = constrain(msg[2], 0,200);
+      servPos(idx, pos);
     }
     break;
 
@@ -170,8 +174,12 @@ void process_uart_message(int* msg){
     }
     break;
 
-    case 20:
+    case 20: //                               - Toggle Laser
       digitalWrite(LASER, msg[1]);
+    break;
+
+    case 90: //                               - Send Message to UART Client
+      Serial.write(msg[1]); Serial.write(msg[2]);
     break;
 
     default:

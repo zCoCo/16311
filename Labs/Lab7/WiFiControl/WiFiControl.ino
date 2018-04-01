@@ -147,8 +147,8 @@ void loop() {
  	Comm 2 -> Pass Odometry X Decimal to Socket
  	Comm 3 -> Pass Odometry Y Integer to Socket
 	Comm 4 -> Pass Odometry Y Decimal to Socket
- 	Comm 5 -> Pass Odometry TH Integer to Socket
-	Comm 6 -> Pass Odometry TH Decimal to Socket
+ 	Comm 5 -> Pass Odometry Scaled TH to Socket
+	Comm 10 -> Pass Scaled Battery Level to Socket
   */
 void read_uart_message(){
   static char msg_byte = 0; // Current Message Byte being Processed
@@ -181,11 +181,11 @@ void process_uart_message(int* msg){
     case 4: //                                - Pass Odometry Y Decimal to Socket
     	socket.broadcastTXT("y" + String(msg[1]));
     break;
-    case 5: //                                - Pass Odometry TH Integer to Socket
+    case 5: //                                - Pass Odometry Scaled TH to Socket
     	socket.broadcastTXT("T" + String(msg[1]));
     break;
-    case 6: //                                - Pass Odometry TH Decimal to Socket
-    	socket.broadcastTXT("t" + String(msg[1]));
+    case 10: //                             	- Pass Scaled Battery Level to Socket
+  		socket.broadcastTXT("B" + String(msg[1]));
     break;
 
     default:

@@ -19,9 +19,9 @@
   #define MOTOR_PID_UPDATE_INTERVAL 2
   #define VELOCITY_UPDATE_INTERVAL 4
 
-  #define WHEEL_DIAMETER (0.028) // [m] (Effective OD, accounting for gearing)
-  #define WHEEL_CIRCUMFERENCE (0.087965) // [m] (Effective C, accounting for gearing)
-  #define WHEEL_TREAD 0.15 // [m], Distance between Left and Right Wheel Tracks
+  #define WHEEL_DIAMETER (0.036667) // [m] (Effective OD, accounting for gearing)
+  #define WHEEL_CIRCUMFERENCE (0.096342) // [m] (Effective C, accounting for gearing)
+  #define WHEEL_TREAD 0.140 // [m], Distance between Left and Right Wheel Tracks
 
   // Distance per Encoder Tick:
   float METERS_PER_TICK = (((float) (WHEEL_CIRCUMFERENCE)) / ((float) (TICKS_PER_REV))); // [m/tick]

@@ -17,7 +17,7 @@
         return m;
       }
 
-      var XS = [0,1,2,3,3,2,1]; var YS = [0,1,1,3,2,1]; var THS = [0];
+      var XS = [0]; var YS = [0]; var THS = [0];
 
       function draw_axes(scaleX, scaleY){
         var n_lines = 20; var l_line = 10;
@@ -81,11 +81,20 @@
         ctx.moveTo(-scaleX*YS[n-1]+X0, -scaleY*XS[n-1]+Y0);
         ctx.lineTo(-scaleX*YS[n-1]+X0 + l*Math.cos(THS[THS.length-1] + Math.PI/2), -scaleY*XS[n-1]+Y0 -l*Math.sin(THS[THS.length-1] + Math.PI/2));
         ctx.stroke();
+        ctx.beginPath();
+        ctx.lineJoin = "round"; ctx.lineWidth = 3; ctx.strokeStyle = "blue";
+        ctx.moveTo(-scaleX*YS[n-1]+X0, -scaleY*XS[n-1]+Y0);
+        ctx.lineTo(-scaleX*YS[n-1]+X0 - (l/2)*Math.cos(THS[THS.length-1] + Math.PI/2), -scaleY*XS[n-1]+Y0 + (l/2)*Math.sin(THS[THS.length-1] + Math.PI/2));
+        ctx.stroke();
 
         bID('odo-x').innerHTML = XS[n-1].toFixed(2);
         bID('odo-y').innerHTML = YS[n-1].toFixed(2);
         var d = THS[THS.length-1] * 180 / Math.PI;
         bID('odo-th').innerHTML = d.toFixed(2);
+      }
+
+      function update_batt(lvl){
+        bID('batt-lvl').innerHTML = lvl.toFixed(2);
       }
 
     /* WEB-INCOMING UART MESSAGING PROTOCOL:
@@ -95,42 +104,38 @@
       'Y' -> Add Y-Value to Array of Y-Positions
       'y' -> Add Decimal Component to Last X-Position Entry
       'T' -> Add TH-Value to Array of Headings
-      't' -> Add Decimal Component to Last Heading Entry
+      'B' -> Update Battery Voltage
       */
       function process_socket_message(msg){
         switch(msg.charAt(0)){
           case 'X':
-            XS.push(parseInt(msg.substring(1)));
+            XS.push(parseInt(msg.substring(1))-127);
             update_odometry_plot();
           break;
           case 'x':
             xf = XS.pop();
-            xf += Math.sign(xf)*parseInt(msg.substring(1)) / 100;
+            xf += (parseInt(msg.substring(1))-127) / 100;
             XS.push(xf);
-            if(XS[XS.length-1] == XS[XS.length-2]){ XS.pop(); }
+            // if(XS[XS.length-1] == XS[XS.length-2] && YS[YS.length-1] == YS[YS.length-2]){ XS.pop(); YS.pop(); }
             update_odometry_plot();
           break;
           case 'Y':
-            YS.push(parseInt(msg.substring(1)));
+            YS.push(parseInt(msg.substring(1))-127);
             update_odometry_plot();
           break;
           case 'y':
             yf = YS.pop();
-            yf += Math.sign(yf)*parseInt(msg.substring(1)) / 100;
+            yf += (parseInt(msg.substring(1))-127) / 100;
             YS.push(yf);
-            if(YS[YS.length-1] == YS[YS.length-2]){ YS.pop(); }
+            // if(YS[YS.length-1] == YS[YS.length-2] && XS[XS.length-1] == XS[XS.length-2]){ YS.pop(); XS.pop(); }
             update_odometry_plot();
           break;
           case 'T':
-            THS.push(parseInt(msg.substring(1)));
+            THS.push((parseInt(msg.substring(1))-127) * 3.14159 / 128.0);
             update_odometry_plot();
           break;
-          case 't':
-            thf = THS.pop();
-            thf += Math.sign(thf)*parseInt(msg.substring(1)) / 100;
-            THS.push(thf);
-            if(THS[THS.length-1] == THS[THS.length-2]){ THS.pop(); }
-            update_odometry_plot();
+          case 'B':
+            update_batt(parseInt(msg.substring(1)) * 13.0 / 255.0);
           break;
           default:
             // Do Nothing
@@ -243,6 +248,8 @@
 
   <body>
     <h1> TEAM-15 CONTROL </h1>
+    <br />
+    <h3 style="display: inline"> Battery: </h3> <div style="display: inline"><span id="batt-lvl">0.00</span>V</div>
     <br />
     <div style="width: 100%;">
       <div style="float:left; width: 20%; padding: 25px;">

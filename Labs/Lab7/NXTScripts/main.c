@@ -72,14 +72,17 @@ void I2CServoPos(int idx, int pos){
   sendI2C(10); sendI2C(idx); sendI2C(pos);
 }
 
-// Pass Odometry Data to Web Socket
+// Pass Odometry Data to Web Socket via I2C
 void I2CPassOdo(){
-  sendI2C(90); sendI2C(1); sendI2C((int)(rob_pos_X));
-  sendI2C(90); sendI2C(2); sendI2C((int)(100*(rob_pos_X - ((int)(rob_pos_X)))));
-  sendI2C(90); sendI2C(3); sendI2C((int)(rob_pos_Y));
-  sendI2C(90); sendI2C(4); sendI2C((int)(100*(rob_pos_Y - ((int)(rob_pos_Y)))));
-  sendI2C(90); sendI2C(5); sendI2C((int)(rob_pos_TH));
-  sendI2C(90); sendI2C(6); sendI2C((int)(100*(rob_pos_TH - ((int)(rob_pos_TH)))));
+  sendI2C(90); sendI2C(1); sendI2C((int)(rob_pos_X) + 127);
+  sendI2C(90); sendI2C(2); sendI2C((int)(100*(rob_pos_X - ((int)(rob_pos_X)))) + 127);
+  sendI2C(90); sendI2C(3); sendI2C((int)(rob_pos_Y) + 127);
+  sendI2C(90); sendI2C(4); sendI2C((int)(100*(rob_pos_Y - ((int)(rob_pos_Y)))) + 127);
+  sendI2C(90); sendI2C(5); sendI2C((int)(rob_pos_TH * 128.0 / 3.14159) + 127);
+}
+// Pass Battery Level to Web Socket via I2C
+void I2CPassBatt(){
+  sendI2C(90); sendI2C(10); sendI2C((((float) nAvgBatteryLevel) / 1000.0) * 255.0 / 13.0);
 }
 
 // Commands the RGB LEDs to Take up the Color with the Given Index

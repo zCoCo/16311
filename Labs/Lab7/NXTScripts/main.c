@@ -1,4 +1,4 @@
-#pragma config(Sensor, S1,     TIR,                 sensorI2CCustom)
+#pragma config(Sensor, S1,     TIR,                  sensorI2CCustom)
 #pragma config(Sensor, S2,     sonarSensor,         sensorSONAR)
 /**********************************************
  * Basic Joystick Control Script for NXT Base
@@ -14,11 +14,17 @@
 
 #define ArmMot motorA
 
+
 #define ArmMin 0
 #define ArmMax 80
 
+#define PAN_NEUTRAL 90
+
 float V = 0; // Body Center Speed (alongtrack) [m/s]
 float om = 0; // Body Center Angular Speed [rad/s]
+
+float V_factor = 1.00; // Default Max Linear Velocity Scaling Factor
+float om_factor = 1.00; // Default Max Rotational Velocity Scaling Factor
 
 int PanSpeed = 0; // Amount to Change Pan Angle By [deg]
 int DTilt = 0; // Amount to Change Tilt Angle By [deg]
@@ -95,6 +101,12 @@ void I2CRGB(int color_idx){
   sendI2C(2); sendI2C(color_idx); sendI2C(0);
 }
 
+void I2CLED_DIM(){ // Set LEDs to Dim Ambient (Combo of Blue and Green)
+  sendI2C(1); sendI2C(0); sendI2C(0);
+  sendI2C(1); sendI2C(1); sendI2C(60);
+  sendI2C(1); sendI2C(2); sendI2C(80);
+}
+
 void I2CLaser(int state){
   sendI2C(20); sendI2C(state); sendI2C(0);
 }
@@ -103,6 +115,20 @@ void toggleLaser(){
   static int laser_state = 1;
   laser_state = !laser_state;
   I2CLaser(laser_state);
+}
+
+// Toggle Camera 180
+#define CAM_FLIP_TIME 700
+void flipCamera(){
+  static int cam_fwd = 1;
+  int dir = cam_fwd ? 1 : -1;
+  I2CServoPos(2, 110); // Tilt Forward
+  I2CServoPos(1, abs(PAN_NEUTRAL + dir*10));
+  wait1Msec(CAM_FLIP_TIME); // Turn-Time
+  I2CServoPos(1, PAN_NEUTRAL);
+  I2CServoPos(2, 90); // Restore Tilt
+
+  cam_fwd = !cam_fwd;
 }
 
 /*****************************************
@@ -136,33 +162,60 @@ task main()
   wait1Msec(500);
   I2CRGB(LED_RED);
 
+  int last_arm_enc = 0;
+
 	while(1){
     getJoystickSettings(joystick);
 
-    V = -1.0 * MAX_VEL * filter_joy(joystick.joy1_y1) / 128.0;
-    om = -1.0 * MAX_OMEGA * filter_joy(joystick.joy1_x1) / 128.0;
+    V = -V_factor * MAX_VEL * filter_joy(joystick.joy1_y1) / 128.0;
+    om = -om_factor * MAX_OMEGA * filter_joy(joystick.joy1_x1) / 128.0;
 
     PanSpeed = -1.0 * 5.0 * filter_joy(joystick.joy1_x2) / 128.0;
     DTilt = -1.0 * 5.0 * filter_joy(joystick.joy1_y2) / 128.0;
 
     moveAt(V,om);
 
-    if(joystick.joy1_TopHat == 0){
-      motor[ArmMot] = 100;
-      wait1Msec(20);
-      motor[ArmMot] = 0;
+
+    switch(joystick.joy1_TopHat){
+      case 0: // Up
+        motor[ArmMot] = 100;
+      break;
+      case 4: // Down
+        motor[ArmMot] = -100;
+      break;
+
+      case 2: // Right
+        V_factor = om_factor = 1.00;
+      break;
+      case 6: // Left
+        V_factor = om_factor = 0.25;
+      break;
+
+      default:
+        motor[ArmMot] = 0;
+        last_arm_enc = nMotorEncoder[ArmMot];
     }
-    if(joystick.joy1_TopHat == 4){
-      motor[ArmMot] = -100;
-      wait1Msec(20);
-      motor[ArmMot] = 0;
+    if(abs(nMotorEncoder[ArmMot]-last_arm_enc) > 210){
+        motor[ArmMot] = 0;
     }
 
-    I2CServoPos(1, abs(91 + PanSpeed)); // 91 is Neutral Position (no speed)
+    I2CServoPos(1, abs(PAN_NEUTRAL + PanSpeed));
     I2CServo(2, DTilt);
 
     if(joy1Btn(5)){
       toggleLaser();
+    }
+
+    if(joy1Btn(6)){
+      flipCamera();
+    }
+
+    if(joy1Btn(9)){
+      I2CRGB(LED_DARK);
+    }
+
+    if(joy1Btn(10)){
+      I2CLED_DIM();
     }
 
     // Update Button Controls:
@@ -190,6 +243,7 @@ task main()
 
     if((TSF_Last(Hist_Time)-last_odo_pass) > 500){
       I2CPassOdo();
+      I2CPassBatt();
       last_odo_pass = TSF_Last(Hist_Time);
     }
 

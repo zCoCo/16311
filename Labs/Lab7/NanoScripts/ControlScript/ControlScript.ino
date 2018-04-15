@@ -31,7 +31,7 @@ void servPos(int idx, int pos){
 }
 
 #define SERVO_SWEEP_TIMESTEP 10
-#define DEFAULT_PAN 91
+#define DEFAULT_PAN 90
 void panTo(int ang){ // -- DEPRECATED --
   static int last_angle = DEFAULT_PAN;
   for(int i=last_angle; abs(ang-last_angle)>0; i+=sign(ang-last_angle)){ //Perform Change Gradually
@@ -66,6 +66,8 @@ void setup(){
 
   // panTo(DEFAULT_PAN);
   // tiltTo(DEFAULT_TILT);
+  PAN.write(DEFAULT_PAN); // Only use here
+  TILT.write(DEFAULT_TILT); // Only use here
   servPos(0, DEFAULT_PAN);
   servPos(1, DEFAULT_TILT);
 

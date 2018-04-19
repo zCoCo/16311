@@ -1,0 +1,25 @@
+TODO:
+- Update (Velcro, No. Zip Ties) and Print BOM **
+- Replace Batteries (Including Camera) - 6 Heavy, 2 Light
+- Check LED Strip for Kinks
+- Check Wiring
+- Check I2C S1 Cable1
+- Check Board Security
+
+- Check Arm Side Cage (slip-offage)
+- Check Gears
+- Check Washers
+- Check Motor Gear
+
+- Look for Any Loose Connections
+
+- Pair Up and Lace Up
+
+Post Drop:
+- Batteries Popped Out? (ALL of them, including Camera)
+- Brick Lifted Up
+- Nuts Slide Out
+- Rear Brace Vanishing Act
+- Servo Undone?
+
+- Ensure Program Sync

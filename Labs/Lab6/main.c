@@ -19,7 +19,7 @@
 
 // ---- WORLD DATA ---- //
 #define MAP_SIZE 16
-int bitmap[MAP_SIZE] = {0,1,0,1, 1,1,0,0, 0,1,0,0, 1,0,0,1};
+int bitmap[MAP_SIZE] = {0,1,0,1, 0,1,1,0, 0,0,1,1, 1,1,0,1};
 
 void create_bitmap_from_hex(int hex_in){
 	int mask = 1;
@@ -29,7 +29,7 @@ void create_bitmap_from_hex(int hex_in){
 } // #create_bitmap_from_hex
 
 // Target Stop Location:
-#define TARGET_LOCATION (6) // Zero-Indexed
+#define TARGET_LOCATION (0) // Zero-Indexed
 
 // Returns the Value of the Map at the Given Position (adjusting for Wrap-Arounds)
 int get_map_val(long pos){

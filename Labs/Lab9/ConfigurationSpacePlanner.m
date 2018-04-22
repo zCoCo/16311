@@ -4,21 +4,21 @@
 function ConfigurationSpacePlanner()
 tic
 % Joint Angles Referenced from Pointing Straight Forward:
-min_th_A = -pi * 19/20; % Minimum /Attainable/ Angle for Joint A in Freespace (no obstacles)
-max_th_A = pi * 19/20; % Max
-min_th_B = -pi / 2; % Minimum /Attainable/ Angle for Joint B in Freespace (no obstacles)
-max_th_B = pi / 2; % Max
-step_th = ( (360/200) ) * (pi / 180); % Minimum meaningful (or attainable) change in th.
+min_th_A = -pi * 10/20; % Minimum /Attainable/ Angle for Joint A in Freespace (no obstacles)
+max_th_A = pi * 10/20; % Max
+min_th_B = -pi; % Minimum /Attainable/ Angle for Joint B in Freespace (no obstacles)
+max_th_B = pi; % Max
+step_th = ( (360/360) ) * (pi / 180); % Minimum meaningful (or attainable) change in th.
 step_th = step_th / 4; % Gear Reduction
-step_th = step_th / 2; % Microstepping
+%step_th = step_th / 8; % Microstepping
 
-len_AB = 150; % Distance from Joint A to Joint B
-len_BF = 135; % Distance from Joint B to End Effector
+len_AB = 3.75*25.4; % Distance from Joint A to Joint B
+len_BF = 2.5*25.4; % Distance from Joint B to End Effector
 
 width_arm = 75; % Width of Arm Segment (Arm Segment is Slot Shaped)
 
 %% Create Workspace (in X-Y Space):
-res_xy =  step_th * (len_AB+len_BF); % mm/cell Smallest Meaningful Size (Arc-length of smallest attainable Delta TH * length of extended arm)
+res_xy =  step_th * (len_AB+len_BF) % mm/cell Smallest Meaningful Size (Arc-length of smallest attainable Delta TH * length of extended arm)
 box_width = 2*(len_AB + len_BF + 2 * width_arm);
 box_width_cells = box_width/res_xy; % Convert to Cells
 box_width_cells = floor(box_width_cells/2)*2 + 1; % Round Up to Nearest Odd Number
@@ -56,13 +56,13 @@ thA = ths_A(a);
     b = 1;
     while b <= numel(ths_B)
     thB = ths_B(b);
-        x = len_AB * cos(thA) + len_BF * cos(thA+thB);
-        y = len_AB * sin(thA) + len_BF * sin(thA+thB);
+        x = len_AB * cos(thA + pi/2) + len_BF * cos(thA+pi/2 + thB);
+        y = len_AB * sin(thA + pi/2) + len_BF * sin(thA+pi/2 + thB);
         
         i = ceil(box_width_cells/2) - round(y/res_xy);
         j = ceil(box_width_cells/2) + round(x/res_xy);
         
-        acc = config_XY(i,j) | intersects_obstacle(thA,thB); % Whether Location is Accessible
+        acc = config_XY(i,j) | intersects_obstacle(thA+pi/2,thB); % Whether Location is Accessible
         config_AB(th2idx(thA), th2idx(thB)) = acc;
         access_XY(i,j) = acc;
     b = b+1;

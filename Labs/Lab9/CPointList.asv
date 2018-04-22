@@ -8,7 +8,7 @@ classdef CPointList
     methods
         % Accepts a List of CPoints
         % Optionally, include a name for printing.
-        function obj = CPointList(coords, name)
+        function obj = CPoint(coords, name)
             obj.list = coords(1,:); % Extract First Dmimension from Errant Two-Dimensional Entries
             if nargin > 1
                 obj.name = name;
@@ -25,12 +25,10 @@ classdef CPointList
             else
                 id = obj.name;
             end
-            
-            str = sprintf("float CPL_%s[%d] = {", id, numel(obj.list));
-            for i = (1:numel(obj.list)-1)
-                str = str + obj.list(i).toC_init(0) + ", ";
-            end
-            str = str + obj.list(end).toC_init(0) + "};";
+            str = sprintf("float CP_%s[%d] = {", id, numel(obj.pos));
+            for i = (1:numel(obj.list))
+                str = str + obj.list(1);    
+                + sprintf("%0.5f, ", obj.pos(1:end-1)) + sprintf("%0.5f};", obj.pos(end));
             if(print)
                 disp(str);
             end

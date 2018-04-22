@@ -9,7 +9,7 @@ max_th_A = pi * 10/20; % Max
 min_th_B = -pi; % Minimum /Attainable/ Angle for Joint B in Freespace (no obstacles)
 max_th_B = pi; % Max
 step_th = ( (360/360) ) * (pi / 180); % Minimum meaningful (or attainable) change in th.
-step_th = step_th / 4; % Gear Reduction
+%step_th = step_th / 4; % Gear Reduction
 %step_th = step_th / 8; % Microstepping
 
 len_AB = 3.75*25.4; % Distance from Joint A to Joint B
@@ -31,8 +31,8 @@ config_XY = WS_XY;
 %% TODO: FIX THIS:
 XY_mid = ceil(box_width_cells/2);
 
-drawRect(-2*25.4, 8*25.4, 2*25.4, 5*25.4);
-% config_XY( XY_mid-ceil(174/res_xy):XY_mid-ceil(35/res_xy), XY_mid-ceil(150/res_xy):XY_mid+ceil(150/res_xy) ) = 1; %% TODO: FIX THIS
+drawRect(-2*25.4, -8*25.4, 2*25.4, -5.5*25.4);
+drawRect(-box_width/2,-box_width/2, -7,box_width/2);
 
 %% Generate A-B Config Space and XY-Accessibility Graph:
 access_XY = ones(size(config_XY)); % All-Locations Inaccessible (walls) by default
@@ -118,22 +118,35 @@ end %intersects_obstacle
 %% Display:
 figure();
 imagesc(config_XY);
-title('XY Configuration Space');
+title({'XY Workspace', '(no arm constraints)'});
+% Generate Ticks:
+dist_spacing = 0.5*25.4; % Tick Increments of Half Inches
+box_rad_r = round(box_width/2/dist_spacing)*dist_spacing; % Box "Radius" (Half-Width) Rounded to Nearest Inc. of dist_spacing
+dist_ticks = (-box_rad_r: dist_spacing : box_rad_r);
+dist_tick_cells = (dist_ticks + box_rad_r) ./ res_xy;
+xticks(dist_tick_cells); yticks(dist_tick_cells);
+xticklabels(num2cell(dist_ticks / 25.4)); yticklabels(num2cell(dist_ticks / 25.4)); % Units Inches
+xlabel('X Position [in]', 'Interpreter', 'latex');
+ylabel('Y-Position [in]', 'Interpreter', 'latex');
+
+figure();
+imagesc(access_XY);
+title({'XY Configuration Space', '(with arm constraints and buffer)'});
+xticks(dist_tick_cells); yticks(dist_tick_cells);
+xticklabels(num2cell(dist_ticks / 25.4)); yticklabels(num2cell(dist_ticks / 25.4)); % Units Inches
+xlabel('X Position [in]', 'Interpreter', 'latex');
+ylabel('Y-Position [in]', 'Interpreter', 'latex');
 
 figure();
 imagesc(config_AB);
 title('Joint Angle Configuration Space');
 
-ts = th2idx((-360:15:360)*pi/180);
+th_ticks = (-360:15:360);
+ts = th2idx(th_ticks*pi/180);
 xticks(ts); yticks(ts);
-xticklabels(num2cell(-360:15:360));
-yticklabels(num2cell(-360:15:360));
-
-
-
-figure();
-imagesc(access_XY);
-title('XY Accessibilty');
+xticklabels(num2cell(th_ticks)); yticklabels(num2cell(th_ticks));
+xlabel('$$\theta_{2}=\theta_{B}  [deg]$$', 'Interpreter', 'latex');
+ylabel('$$\theta_{1}=\theta_{A}  [deg]$$', 'Interpreter', 'latex');
 
 toc
 
@@ -141,6 +154,6 @@ toc
 % upper left corner at (x1,y1) and lower right corner at (x2,y2) where
 % (0,0) is the position of Joint A. Units in mm.
 function drawRect(x1,y1,x2,y2)
-    config_XY( XY_mid+ceil(y2/res_xy):XY_mid+ceil(y1/res_xy), XY_mid+ceil(x1/res_xy):XY_mid+ceil(x2/res_xy) ) = 1;
+    config_XY( XY_mid+ceil(y1/res_xy):XY_mid+ceil(y2/res_xy), XY_mid+ceil(x1/res_xy):XY_mid+ceil(x2/res_xy) ) = 1;
 end
 end % #ConfigurationSpacePlanner

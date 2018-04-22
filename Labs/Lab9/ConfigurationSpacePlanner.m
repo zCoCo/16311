@@ -24,15 +24,17 @@ box_width_cells = box_width/res_xy; % Convert to Cells
 box_width_cells = floor(box_width_cells/2)*2 + 1; % Round Up to Nearest Odd Number
 WS_XY = zeros(box_width_cells);
 
-%% Generate X-Y Config Space (buffer workspace):
-buff = 0.5 * 25.4; % 0.5in
-
-config_XY = WS_XY;
-%% TODO: FIX THIS:
+% Add Obstacles:
 XY_mid = ceil(box_width_cells/2);
 
 drawRect(-2*25.4, -8*25.4, 2*25.4, -5.5*25.4);
-drawRect(-box_width/2,-box_width/2, -7,box_width/2);
+%drawRect(-box_width/2,-box_width/2, -7,box_width/2);
+
+%% Generate X-Y Config Space (buffer workspace):
+buff = 0.5 * 25.4; % 0.5in
+buff_cells = ceil(buff/res_xy)+0.5; % Convert Buffer to Cells and Ensure Twice the value is Odd (width of mask)
+
+config_XY = buffer_mat(WS_XY, buff_cells);
 
 %% Generate A-B Config Space and XY-Accessibility Graph:
 access_XY = ones(size(config_XY)); % All-Locations Inaccessible (walls) by default
@@ -117,25 +119,36 @@ end %intersects_obstacle
 
 %% Display:
 figure();
-imagesc(config_XY);
+imagesc(WS_XY);
 title({'XY Workspace', '(no arm constraints)'});
-% Generate Ticks:
+% Generate Tick Marks:
 dist_spacing = 0.5*25.4; % Tick Increments of Half Inches
 box_rad_r = round(box_width/2/dist_spacing)*dist_spacing; % Box "Radius" (Half-Width) Rounded to Nearest Inc. of dist_spacing
-dist_ticks = (-box_rad_r: dist_spacing : box_rad_r);
-dist_tick_cells = (dist_ticks + box_rad_r) ./ res_xy;
+dist_ticks = (-box_rad_r : dist_spacing : box_rad_r);
+dist_tick_cells = (dist_ticks + box_rad_r + dist_spacing/2) ./ res_xy;
 xticks(dist_tick_cells); yticks(dist_tick_cells);
 xticklabels(num2cell(dist_ticks / 25.4)); yticklabels(num2cell(dist_ticks / 25.4)); % Units Inches
-xlabel('X Position [in]', 'Interpreter', 'latex');
+xlabel('X-Position [in]', 'Interpreter', 'latex');
 ylabel('Y-Position [in]', 'Interpreter', 'latex');
+grid on
+
+figure();
+imagesc(config_XY);
+title({'XY Configuration Space', '(buffered, no arm constraints)'});
+xticks(dist_tick_cells); yticks(dist_tick_cells);
+xticklabels(num2cell(dist_ticks / 25.4)); yticklabels(num2cell(dist_ticks / 25.4)); % Units Inches
+xlabel('X-Position [in]', 'Interpreter', 'latex');
+ylabel('Y-Position [in]', 'Interpreter', 'latex');
+grid on
 
 figure();
 imagesc(access_XY);
 title({'XY Configuration Space', '(with arm constraints and buffer)'});
 xticks(dist_tick_cells); yticks(dist_tick_cells);
 xticklabels(num2cell(dist_ticks / 25.4)); yticklabels(num2cell(dist_ticks / 25.4)); % Units Inches
-xlabel('X Position [in]', 'Interpreter', 'latex');
+xlabel('X-Position [in]', 'Interpreter', 'latex');
 ylabel('Y-Position [in]', 'Interpreter', 'latex');
+grid on
 
 figure();
 imagesc(config_AB);
@@ -146,14 +159,15 @@ ts = th2idx(th_ticks*pi/180);
 xticks(ts); yticks(ts);
 xticklabels(num2cell(th_ticks)); yticklabels(num2cell(th_ticks));
 xlabel('$$\theta_{2}=\theta_{B}  [deg]$$', 'Interpreter', 'latex');
-ylabel('$$\theta_{1}=\theta_{A}  [deg]$$', 'Interpreter', 'latex');
+ylabel('$$\theta_{1}=\theta_{A}  [deg]$$', 'Interpreter', 'latex')
+grid on
 
 toc
 
-% Draws a Rectangular Zone of Exclusion in the Configuration Space with
+% Draws a Rectangular Zone of Exclusion (obstacle) in the Workspace with
 % upper left corner at (x1,y1) and lower right corner at (x2,y2) where
 % (0,0) is the position of Joint A. Units in mm.
 function drawRect(x1,y1,x2,y2)
-    config_XY( XY_mid+ceil(y1/res_xy):XY_mid+ceil(y2/res_xy), XY_mid+ceil(x1/res_xy):XY_mid+ceil(x2/res_xy) ) = 1;
+    WS_XY( XY_mid+round(y1/res_xy):XY_mid+round(y2/res_xy), XY_mid+round(x1/res_xy):XY_mid+round(x2/res_xy) ) = 1;
 end
 end % #ConfigurationSpacePlanner

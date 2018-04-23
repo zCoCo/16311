@@ -4,16 +4,24 @@
 function voronoi_roadmap(cfg)
     config = cfg;
     % Add Thin Boundary Around Configuration Space (prevent overflow):
-    [wrows,wcols] = size(config);
+    [h_cfg,w_cfg] = size(config);
     config(:,1) = 1;
     config(1,:) = 1;
-    config(:,wcols) = 1;
-    config(wrows,:) = 1;
+    config(:,w_cfg) = 1;
+    config(h_cfg,:) = 1;
     
     B = bwboundaries(config); % Get Points along Boundary of Accessible and Inaccessible Space
     Bmat = cell2mat(B);
     
     [vs,cs] = voronoin(Bmat);
+    
+    function reg = region(x,y,r) % Returns the Region in the Configuration Space around the given Coords of half-width r
+        xm = x-r; if(xm<1); xm = 1; end
+        ym = y-r; if(ym<1); ym = 1; end
+        xM = x+r; if(xM>w_cfg); xM = w_cfg; end
+        yM = y+r; if(yM>h_cfg); yM = h_cfg; end
+        reg = config(ym:yM, xm:xM);
+    end
     
     % Collect Voronoi Edges which Don't Intersect an Obstacle -> Roadmap
     % Edges and Create a Connectivity Matrix for Use in A* Later.
@@ -36,7 +44,10 @@ function voronoi_roadmap(cfg)
                 xxb = floor(xb); if(xxb == 0); xxb = 1; end
                 yyb = floor(yb); if(yyb == 0); yyb = 1; end
                 
-                if(cfg(yya,xxa) == 0 && cfg(yyb,xxb) == 0) % If neither vertex is in an obstacle, add to roadmap (<-might present issues at edges of obstacle?... shouldn't be there)
+                acc_A = sum(sum(region(xxa,yya, 3))) == 0; % Whether the 6px Wide Region around Vertex A is Accessible
+                acc_B = sum(sum(region(xxb,yyb, 3))) == 0; % Whether the 6px Wide Region around Vertex A is Accessible
+                
+                if(acc_A && acc_B) % If neither vertex is in an obstacle, add to roadmap (<-might present issues at edges of obstacle?... shouldn't be there)
                     % Check to see if vertex already is in roadmap and, thus,
                     % has index in connectivity matrix:
                     if(~isempty(vrm)) % Ensure List of Roadmap Vertices is Not Empty

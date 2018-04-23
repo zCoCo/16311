@@ -9,8 +9,9 @@
 % implies lying parallel to the axis of linkage AB.
 % Optionally: if do_plot is enabled, all relevant coordinate spaces will be
 % plotted and the run will be timed.
-function config_AB = ConfigurationSpacePlanner(do_plot)
-if do_plot; tic; end
+function config = ConfigurationSpacePlanner(do_plot)
+if
+tic
 % Joint Angles Referenced from Pointing Straight Forward:
 min_th_A = -pi * 10/20; % Minimum /Attainable/ Angle for Joint A in Freespace (no obstacles)
 max_th_A = pi * 10/20; % Max
@@ -140,51 +141,49 @@ function hits = intersects_obstacle(tha, thb, step)
 end %intersects_obstacle
 
 %% Display:
-if(do_plot)
-    figure();
-    imagesc(WS_XY);
-    title({'XY Workspace', '(no arm constraints)'});
-    % Generate Tick Marks:
-    dist_spacing = 0.5*25.4; % Tick Increments of Half Inches
-    box_rad_r = round(box_width/2/dist_spacing)*dist_spacing; % Box "Radius" (Half-Width) Rounded to Nearest Inc. of dist_spacing
-    dist_ticks = (-box_rad_r : dist_spacing : box_rad_r);
-    dist_tick_cells = (dist_ticks + box_rad_r + dist_spacing/2) ./ res_xy;
-    xticks(dist_tick_cells); yticks(dist_tick_cells);
-    xticklabels(num2cell(dist_ticks / 25.4)); yticklabels(num2cell(dist_ticks / 25.4)); % Units Inches
-    xlabel('X-Position [in]', 'Interpreter', 'latex');
-    ylabel('Y-Position [in]', 'Interpreter', 'latex');
-    grid on
+figure();
+imagesc(WS_XY);
+title({'XY Workspace', '(no arm constraints)'});
+% Generate Tick Marks:
+dist_spacing = 0.5*25.4; % Tick Increments of Half Inches
+box_rad_r = round(box_width/2/dist_spacing)*dist_spacing; % Box "Radius" (Half-Width) Rounded to Nearest Inc. of dist_spacing
+dist_ticks = (-box_rad_r : dist_spacing : box_rad_r);
+dist_tick_cells = (dist_ticks + box_rad_r + dist_spacing/2) ./ res_xy;
+xticks(dist_tick_cells); yticks(dist_tick_cells);
+xticklabels(num2cell(dist_ticks / 25.4)); yticklabels(num2cell(dist_ticks / 25.4)); % Units Inches
+xlabel('X-Position [in]', 'Interpreter', 'latex');
+ylabel('Y-Position [in]', 'Interpreter', 'latex');
+grid on
 
-    figure();
-    imagesc(config_XY);
-    title({'XY Configuration Space', '(buffered, no arm constraints)'});
-    xticks(dist_tick_cells); yticks(dist_tick_cells);
-    xticklabels(num2cell(dist_ticks / 25.4)); yticklabels(num2cell(dist_ticks / 25.4)); % Units Inches
-    xlabel('X-Position [in]', 'Interpreter', 'latex');
-    ylabel('Y-Position [in]', 'Interpreter', 'latex');
-    grid on
+figure();
+imagesc(config_XY);
+title({'XY Configuration Space', '(buffered, no arm constraints)'});
+xticks(dist_tick_cells); yticks(dist_tick_cells);
+xticklabels(num2cell(dist_ticks / 25.4)); yticklabels(num2cell(dist_ticks / 25.4)); % Units Inches
+xlabel('X-Position [in]', 'Interpreter', 'latex');
+ylabel('Y-Position [in]', 'Interpreter', 'latex');
+grid on
 
-    figure();
-    imagesc(access_XY);
-    title({'XY Configuration Space', '(with arm constraints and buffer)'});
-    xticks(dist_tick_cells); yticks(dist_tick_cells);
-    xticklabels(num2cell(dist_ticks / 25.4)); yticklabels(num2cell(dist_ticks / 25.4)); % Units Inches
-    xlabel('X-Position [in]', 'Interpreter', 'latex');
-    ylabel('Y-Position [in]', 'Interpreter', 'latex');
-    grid on
+figure();
+imagesc(access_XY);
+title({'XY Configuration Space', '(with arm constraints and buffer)'});
+xticks(dist_tick_cells); yticks(dist_tick_cells);
+xticklabels(num2cell(dist_ticks / 25.4)); yticklabels(num2cell(dist_ticks / 25.4)); % Units Inches
+xlabel('X-Position [in]', 'Interpreter', 'latex');
+ylabel('Y-Position [in]', 'Interpreter', 'latex');
+grid on
 
-    figure();
-    imagesc(config_AB);
-    title('Joint Angle Configuration Space');
+figure();
+imagesc(config_AB);
+title('Joint Angle Configuration Space');
 
-    th_ticks = (-360:15:360);
-    ts = th2idx(th_ticks*pi/180);
-    xticks(ts); yticks(ts);
-    xticklabels(num2cell(th_ticks)); yticklabels(num2cell(th_ticks));
-    xlabel('$$\theta_{2}=\theta_{B}  [deg]$$', 'Interpreter', 'latex');
-    ylabel('$$\theta_{1}=\theta_{A}  [deg]$$', 'Interpreter', 'latex')
-    grid on
+th_ticks = (-360:15:360);
+ts = th2idx(th_ticks*pi/180);
+xticks(ts); yticks(ts);
+xticklabels(num2cell(th_ticks)); yticklabels(num2cell(th_ticks));
+xlabel('$$\theta_{2}=\theta_{B}  [deg]$$', 'Interpreter', 'latex');
+ylabel('$$\theta_{1}=\theta_{A}  [deg]$$', 'Interpreter', 'latex')
+grid on
 
-    toc
-end
+toc
 end % #ConfigurationSpacePlanner

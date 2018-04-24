@@ -89,6 +89,18 @@ function voronoi_roadmap(cfg)
         plot(xs,ys);
     end
     
+    title('Joint-Angle Space Voronoi Roadmap');
+
+    
+    function idx=th2idx(th); idx=round((th+pi) ./ ((360/360) * (pi/180) / 2))+1; end % Convert Angle to Index in Config. Matrix
+    th_ticks = (-360:15:360);
+    ts = th2idx(th_ticks*pi/180);
+    xticks(ts); yticks(ts);
+    xticklabels(num2cell(th_ticks)); yticklabels(num2cell(th_ticks));
+    xlabel('$$\theta_{2}=\theta_{B}  [deg]$$', 'Interpreter', 'latex');
+    ylabel('$$\theta_{1}=\theta_{A}  [deg]$$', 'Interpreter', 'latex')
+    grid on
+    
     %plot(vrm(:,1), vrm(:,2));
     %plot(Bmat(:,2), Bmat(:,1));
     

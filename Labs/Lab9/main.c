@@ -25,26 +25,27 @@ float targs[][] = {
 // Define Vertices and Connectivity of Voronoi Roadmap:
 #define NUM_VERTICES 16
 // Vertices in ThetaA-ThetaB Space, units deg:
+float rad = 180.0 / PI;
 float vrm[][] = {
-{1,1},
-{1,1},
-{1,1},
-{1,1},
-{1,1},
-{1,1},
-{1,1},
-{1,1},
-{1,1},
-{1,1},
-{1,1},
-{1,1},
-{1,1},
-{1,1},
-{1,1},
-{1,1},
+{-1.4792*rad,   -3.0412*rad},
+{-0.6414*rad,   -2.6879*rad},
+{-0.0742*rad,   -2.2209*rad},
+{-0.6746*rad,   -1.1179*rad},
+{-1.1126*rad,   -0.0654*rad},
+{-1.2270*rad,    1.2086*rad},
+{-0.7199*rad,    2.2820*rad},
+{-1.3395*rad,    2.9016*rad},
+{0.0663*rad,    2.2131*rad},
+{0.6065*rad,    2.6651*rad},
+{1.2182*rad,    2.9610*rad},
+{0.6737*rad,    1.1179*rad},
+{1.0900*rad,    0.0620*rad},
+{1.2322*rad,   -1.1650*rad},
+{0.7025*rad,  -2.2779*rad},
+{1.4006*rad, -2.9627*rad}
 };
 // Connectivity (Adjacency) Matrix of Roadmap Vertices (down is from, across is to):
-int MC[][] = {
+float MC[][] = {
   {1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
   {1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
   {0,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0},
@@ -73,8 +74,10 @@ int findNearestVertex(float ta, float tb){
   // Loop through Every Vertex, If Connected to Vertex idx, Check if Closer.
   for(int i=0; i<NUM_VERTICES; i++){
     float d = sqrt(sq(vrm[i][0] - ta) + sq(vrm[i][1] - tb));
-    dist = (d<dist) ? d : dist;
-    closest = i;
+    if(d<dist){
+      dist = d;
+      closest = i;
+    }
   }
 
  return closest;
@@ -100,9 +103,8 @@ int findBestAdjacentVertex(int idx, float ta, float tb){
 
 // Simple (quick) Depth First Search of Roadmap Vertices for Path from the
 // Given Start Vertex with Index, is, to the Given Target Vertex, it.
-int* DFS(int is, int it){
-  int path[NUM_VERTICES]; // <- initialize (path will necessarily not contain
-                         //  more stops than number of vertices.)
+// Stores the result in the given array, path.
+int* DFS(int is, int it, int* path){
   path[0] = is; // Path Starts with Starting Vertex
   int path_length = 1; // Number of Vertices in Path
   int visited[NUM_VERTICES]; // List of Vertices Visited in Search
@@ -156,8 +158,8 @@ int* DFS(int is, int it){
 #define sgn(x) ((x) / abs(x))
 
 // Geometry:
-#define L1 3.75
-#define L2 2.50
+#define L1 3.79
+#define L2 2.52
 
 // Computes the SCARA IK to returns an Array representing the Arm Configuration
 // Necessary for the End-Effector to be Positioned at the Given Position (x,y).
@@ -191,7 +193,7 @@ float JointAngleB(){
 #define Kp 0.01
 // Go To the Given Arm Position / Configuration in ThetaA-ThetaB Space.
 void goTo_ang(float tha, float thb){
-  static float enca, encb, errA, errB, sea0, seb0;
+  static float enca, encb, errA, errB, sea0, seb0, sfa, sfb;
   enca = tha * GEAR_RATIO;
   encb = ((tha-init_pos_TH[0]) + thb) * GEAR_RATIO; // <- requirement of belt-drive (as opposed to direct)
 
@@ -200,6 +202,13 @@ void goTo_ang(float tha, float thb){
   errB = encb - JointAngleB() * GEAR_RATIO;
   seb0 = sgn(errB); // Original Sign of Error
 
+  if(abs(errA) > abs(errB)){ // Compute Speed Factors to Ensure both Joint Complete Motion Simultaneously
+    sfa = 1.0;
+    sfb = abs(errB / errA);
+  } else{
+    sfb = 1.0;
+    sfa = abs(errA / errB);
+  }
 
   while(sgn(errA)*sea0 == 1 || sgn(errB)*seb0 == 1){
     errA = enca - JointAngleA() * GEAR_RATIO;
@@ -207,8 +216,8 @@ void goTo_ang(float tha, float thb){
     float spd = TRANSLATION_SPEED;
 
     float phi = atan2(encb, enca); // Direction of Travel through ThetaA-ThetaB Space
-    motor[JointA] = ((float) spd * sgn(errA));
-    motor[JointB] = ((float) spd * sgn(errB));
+    motor[JointA] = ((float) spd * sfa * sgn(errA));
+    motor[JointB] = ((float) spd * sfb * sgn(errB));
 
     if(sgn(errA)*sea0 != 1){
       motor[JointA] = 0; // stop
@@ -257,6 +266,10 @@ void init(){
 
 float TA, TB;
 
+int idx_start, idx_targ;
+int path[NUM_VERTICES]; // <- initialize (path will necessarily not contain
+                       //  more stops than number of vertices.)
+
 task main(){
 
   init();
@@ -264,29 +277,31 @@ task main(){
   for(int i=0; i<NUM_TARGETS; i++){
     // Get Target:
     float* targ_AB = computeIK(targs[i][0], targs[i][1]); // Target Position in ThA-ThB Space
-    TA = targ_AB[0]; TB = targ_AB[1];
+    TA = targ_AB[0]; TB = targ_AB[1]; // <- For some reason RobotC requires this
 
     // Get Nodes for Path through Roadmap:
-    int is = findNearestVertex(JointAngleA(), JointAngleB());
-    int it = findNearestVertex(targ_AB[0], targ_AB[1]);
+    idx_start = findNearestVertex(JointAngleA(), JointAngleB());
+    idx_targ = findNearestVertex(TA, TB);
 
-    goTo_ang(TA, TB);
-    wait1Msec(1800);
-    /*
+    //goTo_ang(TA, TB);
+    //wait1Msec(1800);
+
     // Find Path Through Roadmap
-    int* path = DFS(is,it);
+    DFS(idx_start,idx_targ, path);
 
     if(path[0] != -1){ // Path was Found
       // Go To Each Position in the Roadmap Path. End on Target.
       int idx = -1; // Index of Current Vertex
-      int = 0;
-      while(idx != it){
-        idx = path[i];
+      int j=0;
+      while(idx != idx_targ){
+        idx = path[j];
         goTo_ang(vrm[idx][0], vrm[idx][1]);
-       i++;
+       j++;
       }
-      goTo_ang(targ_AB[0], targ_AB[1]);
+      goTo_ang(TA, TB);
+      playTone(600,10);
+      wait1Msec(3000);
     } // path[0]?
-    */
+
   } // loop: targets
 } // #main

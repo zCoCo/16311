@@ -44,7 +44,7 @@ function drawRect(x1,y1,x2,y2)
     WS_XY( XY_mid+ceil(ya/res_xy):XY_mid+ceil(yb/res_xy), XY_mid+ceil(xa/res_xy):XY_mid+ceil(xb/res_xy) ) = 1;
 end
 
-drawRect(-2*25.4, -8*25.4, 2*25.4, -5.5*25.4);
+drawRect(-3*25.4, -8*25.4, 3*25.4, -5.5*25.4);
 
 % Add Boundaries:
 drawRect(-box_width/2,-box_width/2, -7*25.4,box_width/2);

@@ -44,7 +44,7 @@ float vrm[][] = {
 {1,1},
 };
 // Connectivity (Adjacency) Matrix of Roadmap Vertices (down is from, across is to):
-bool MC[][] = {
+int MC[][] = {
   {1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
   {1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
   {0,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0},
@@ -61,23 +61,23 @@ bool MC[][] = {
   {0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0},
   {0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,1},
   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1},
-}
+};
 
 #define sq(a) ((a)*(a))
 
 // Returns the Index of the Roadmap Vertex Closest to the Given Position (ta,tb)
 int findNearestVertex(float ta, float tb){
   int closest = 0; // Index of Closest Index
-  float dist = Inf;
+  float dist = 10^80;
 
   // Loop through Every Vertex, If Connected to Vertex idx, Check if Closer.
   for(int i=0; i<NUM_VERTICES; i++){
-    d = sqrt(sq(vrm[i][0] - ta) + sq(vrm[i][1] - tb));
+    float d = sqrt(sq(vrm[i][0] - ta) + sq(vrm[i][1] - tb));
     dist = (d<dist) ? d : dist;
     closest = i;
   }
 
- return i;
+ return closest;
 } // #findNearestVertex
 
 // Returns the Index of the Roadmap Vertex Adjacent to the Given Vertex with
@@ -89,13 +89,13 @@ int findBestAdjacentVertex(int idx, float ta, float tb){
   // Loop through Every Vertex, If Connected to Vertex idx, Check if Closer.
   for(int i=0; i<NUM_VERTICES; i++){
     if(MC[idx][i]){
-      d = sqrt(sq(vrm[i][0] - ta) + sq(vrm[i][1] - tb));
+      float d = sqrt(sq(vrm[i][0] - ta) + sq(vrm[i][1] - tb));
       dist = (d<dist) ? d : dist;
       closest = idx;
     }
   }
 
- return i;
+ return closest;
 } // #findBestAdjacentVertex
 
 // Simple (quick) Depth First Search of Roadmap Vertices for Path from the
@@ -145,31 +145,13 @@ int* DFS(int is, int it){
   } // loop: path
 
   if(no_path){
-    path[0] = -1 // Indicate No Path was Found
+    path[0] = -1; // Indicate No Path was Found
   }
 
   return path;
 } // #DFS
 
 /**** -- KINEMATICS -- ****/
-
-float atan2(float y, float x){ // Result in radians.
-  float th;
-  if(x>0){
-    th = atan(y/x);
-  } else if(x<0 && y>=0){
-    th = atan(y/x) + PI;
-  } else if(x<0 && y<0){
-    th = atan(y/x) - PI;
-  } else if(x==0 && y>0){
-    th = PI/2.0;
-  } else if(x==0 && y<0){
-    th = -PI/2.0;
-  } else{ // x=0, y=0
-    th = 0;
-  }
- return th;
-}
 
 #define sgn(x) ((x) / abs(x))
 
@@ -186,38 +168,67 @@ float* computeIK(float x, float y){
   cfg[0] = atan2(y,x) - asin( (L2 * sin(cfg[1])) / sqrt(sq(x) + sq(y)) ) - PI/2.0;
   cfg[0] = cfg[0] * 180.0 / PI; // Convert to Deg.
   cfg[1] = cfg[1] * 180.0 / PI;
+
+ return cfg;
 } // #computeIK
 
 float init_pos_TH[] = {-90.0, 0.0};
 
+//Ratio of Teeth on Axis of a Joint to that of the Motor.
+#define GEAR_RATIO 5
+
 // Returns the Estimated Angle of Joint A
 float JointAngleA(){
-  nMotorEncoder[JointA] + init_pos_TH[0];
+  return nMotorEncoder[JointA] / GEAR_RATIO + init_pos_TH[0];
 } // #JointAngleA
 // Returns the Estimated Angle of Joint A
 float JointAngleB(){
-  nMotorEncoder[JointB] + init_pos_TH[1];
+  return nMotorEncoder[JointB] / GEAR_RATIO + init_pos_TH[1];
 } // #JointAngleB
 
 // Target Net Translation Speed through ThetaA-ThetaB Space:
-#define TRANSLATION_SPEED 20.0
-#define Kp 1.0
+#define TRANSLATION_SPEED (10.0 * GEAR_RATIO)
+#define Kp 0.01
 // Go To the Given Arm Position / Configuration in ThetaA-ThetaB Space.
 void goTo_ang(float tha, float thb){
-  errA = abs(tha - JointAngleA());
-  errB = abs(thb - JointAngleB());
+  static float enca, encb, errA, errB, sea0, seb0;
+  enca = tha * GEAR_RATIO;
+  encb = ((tha-init_pos_TH[0]) + thb) * GEAR_RATIO; // <- requirement of belt-drive (as opposed to direct)
 
-  eps = 1.25; // Allowable Angle Tolerance (resolution of motor)
-  while(errA > eps && errB > eps){
-    errA = tha - JointAngleA();
-    errB = thb - JointAngleB();
+  errA = enca - JointAngleA() * GEAR_RATIO;
+  sea0 = sgn(errA); // Original Sign of Error
+  errB = encb - JointAngleB() * GEAR_RATIO;
+  seb0 = sgn(errB); // Original Sign of Error
+
+
+  while(sgn(errA)*sea0 == 1 || sgn(errB)*seb0 == 1){
+    errA = enca - JointAngleA() * GEAR_RATIO;
+    errB = encb - JointAngleB() * GEAR_RATIO;
+    float spd = TRANSLATION_SPEED;
+
+    float phi = atan2(encb, enca); // Direction of Travel through ThetaA-ThetaB Space
+    motor[JointA] = ((float) spd * sgn(errA));
+    motor[JointB] = ((float) spd * sgn(errB));
+
+    if(sgn(errA)*sea0 != 1){
+      motor[JointA] = 0; // stop
+    }
+    if(sgn(errB)*seb0 != 1){
+      motor[JointB] = 0;
+    }
+  }
+    /*
+  float eps = 1.25; // Allowable Angle Tolerance (resolution of motor)
+  while(abs(errA) > eps || abs(errB) > eps){
+    errA = enca - JointAngleA();
+    errB = encb - JointAngleB();
     float err = sqrt( sq(errA) + sq(errB) );
     float spd = TRANSLATION_SPEED * Kp * err;
 
-    float phi = atan2(tha, thb); // Direction of Travel through ThetaA-ThetaB Space
-    motor[JointA] = ((float) spd * sin(phi) * sgn(errA));
-    motor[JointB] = ((float) spd * cos(phi) * sgn(errB));
-  }
+    float phi = atan2(enca, encb); // Direction of Travel through ThetaA-ThetaB Space
+    motor[JointA] = ((float) spd * sgn(errA));
+    motor[JointB] = ((float) spd * sgn(errB));
+  }*/
 
   motor[JointA] = 0; // stop
   motor[JointB] = 0;
@@ -234,12 +245,17 @@ void init(){
   nMaxRegulatedSpeedNxt = 700;
   nPidUpdateInterval = 2;
 
+  bMotorReflected[JointA] = false;
+  bMotorReflected[JointB] = false;
+
   motor[JointA] = 0;
   motor[JointB] = 0;
 
   nMotorEncoder[JointA] = 0;
   nMotorEncoder[JointB] = 0;
 } // #init
+
+float TA, TB;
 
 task main(){
 
@@ -248,11 +264,15 @@ task main(){
   for(int i=0; i<NUM_TARGETS; i++){
     // Get Target:
     float* targ_AB = computeIK(targs[i][0], targs[i][1]); // Target Position in ThA-ThB Space
+    TA = targ_AB[0]; TB = targ_AB[1];
 
     // Get Nodes for Path through Roadmap:
     int is = findNearestVertex(JointAngleA(), JointAngleB());
     int it = findNearestVertex(targ_AB[0], targ_AB[1]);
 
+    goTo_ang(TA, TB);
+    wait1Msec(1800);
+    /*
     // Find Path Through Roadmap
     int* path = DFS(is,it);
 
@@ -267,5 +287,6 @@ task main(){
       }
       goTo_ang(targ_AB[0], targ_AB[1]);
     } // path[0]?
+    */
   } // loop: targets
 } // #main

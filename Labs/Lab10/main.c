@@ -121,7 +121,7 @@ task main(){
   bFloatDuringInactiveMotorPWM = false;
   nMotorPIDSpeedCtrl[ShieldMotor] = mtrSpeedReg;
   nMotorEncoder[ShieldMotor] = 0;
-  motor[ShieldMotor] = 100;
+  motor[ShieldMotor] = -100;
 
   while(1){ // main loop
   // Loop as Frequently as Possible and Always Start by Checking for Ring Border.
@@ -242,12 +242,12 @@ task main(){
       } // scanning_for_target?
 
     } // Priority Heirarchy
-
-    if(sgn(currOm) > 0){
-      motor[ShieldMotor] = 100
-    } else{
-      motor[ShieldMotor] = -100;
-    }
+    //
+    // if(sgn(currOm) > 0){
+    //   motor[ShieldMotor] = -100
+    // } else{
+    //   motor[ShieldMotor] = 100;
+    // }
     moveAt(currV,currOm);
     wait1Msec(2); // Task Relief
   } // main loop

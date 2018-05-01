@@ -102,17 +102,25 @@ void init_general_spin(float ang, float spd){ // Setup the Parameters for a Gene
 
 int scanning_for_target = 0; // Whether Target is Currently Being Scanned for
 float heading_at_scan_start = 0.0; // Heading of Robot at Start of Scan
-#define SCAN_SPEED (0.4*MAX_OMEGA) // Rotation Speed of Oppponent Scan
-#define SCAN_RANGE 190.0 // Max Angular Range of a Scan for Opponent, in degrees
+int switching_scan_regions = 0; // Whether currently switching between first and second half of scan.
+#define SCAN_SPEED (-0.75*MAX_OMEGA) // Rotation Speed of Oppponent Scan
+#define SCAN_RANGE 390.0*DEG // Max Angular Range of a Scan for Opponent, in degrees
 #define scan_distance (abs(heading_at_scan_start - rob_pos_TH))
-#define target_acquired (SensorValue[sonarSensor] < (RING_DIAMETER - ROBOT_DEPTH) && SensorValue[sonarSensor] > DISTANCE_SONAR_TO_OUTSIDE)
+#define target_acquired (SensorValue[sonarSensor]*CM < (RING_DIAMETER - ROBOT_DEPTH) && SensorValue[sonarSensor]*CM > DISTANCE_SONAR_TO_OUTSIDE)
 
 // int engaging_target = 0; // Whether Opponent Has been Found and is being Attacked
 
+int currLight = 0; // Current Light Sensor Reading
+int currSONAR = 0; // Current SONAR Sensor Reading
+                                                                                float DUMB_DEBUG = 0;
 task main(){
 	init_HAL();
 	startTask(odometry);
 
+  // Initialize Shield Motor:
+  bFloatDuringInactiveMotorPWM = false;
+  nMotorPIDSpeedCtrl[ShieldMotor] = mtrSpeedReg;
+  nMotorEncoder[ShieldMotor] = 0;
   motor[ShieldMotor] = 100;
 
   while(1){ // main loop
@@ -120,10 +128,14 @@ task main(){
   // ^ This is the top priority of all logic and reason for oddly structured loop.
   // All Other Manuever's are enacted in order of priority to robot's survival then offense
   // **A state of no current activity by higher priority functionalities should be indicated by V=0, om=0;
+    currLight = SensorValue[lightSensor];
+    currSONAR = SensorValue[sonarSensor];
 
     if(SensorValue[lightSensor] > LIGHT_WHITE){
       if(!backingUpFromLine){
         // As soon as the White Border is Contacted, Drive Away from It Quickly.
+        playTone(350,20);
+        playTone(300,10);
         reverseAt(MAX_VEL);
         currOm = 0.0;
         backingUpFromLine = 1;
@@ -145,7 +157,7 @@ task main(){
         heading_at_clearance_rotation = rob_pos_TH;
         post_line_clearance_rotation_started = 1;
         currV = 0.0;
-        currOm = -0.65*MAX_OMEGA; // Post-Line Clearance Rotation Direction is Controlled by this Sign
+        currOm = -0.99*MAX_OMEGA; // Post-Line Clearance Rotation Direction is Controlled by this Sign
       }
 
     } else if(post_line_clearance_rotation_started){
@@ -187,6 +199,9 @@ task main(){
       if(currV == 0.0 && currOm == 0.0){ // No Activity by Higher Priority Functionalities (and not currently engaging target)
 
         if(!scanning_for_target){ // if not scanning for target, start.
+          playTone(550,10);
+          playTone(500,15);
+          playTone(475,10);
           currOm = SCAN_SPEED;
           heading_at_scan_start = rob_pos_TH;
           scanning_for_target = 1;
@@ -197,17 +212,27 @@ task main(){
       if(scanning_for_target){
         if(scan_distance > SCAN_RANGE/2.0){
           if((sgn(currOm) / sgn(SCAN_SPEED)) > 0){ // Currently in first half of scan
-            currOm = -0.8*sgn(SCAN_SPEED)*MAX_OMEGA; // Flip Scan Direction Quickly
-          } else if(!performing_general_spin){ // ** NOTE: Potential bug if direction flips but distance stays >SR/2.0 for more than 1 cycle (would trigger general spin early)
+            currOm = -0.95*sgn(SCAN_SPEED)*MAX_OMEGA; // Flip Scan Direction Quickly
+            switching_scan_regions = 1;
+            playTone(400,10);
+          } else if(!performing_general_spin && !switching_scan_regions){ // ** NOTE: Potential bug if direction flips but distance stays >SR/2.0 for more than 1 cycle (would trigger general spin early) <- probably fixed
           // Second half of scan finished, flip to 180deg away from central angle of scan and start over
-            init_general_spin((180.0 - SCAN_RANGE/2.0), -0.8*MAX_OMEGA);
+            playTone(400,20);
+            playTone(450,15);
+            init_general_spin((180.0*DEG - SCAN_RANGE/2.0), -0.95*MAX_OMEGA);
           }
-        } else if(scan_distance < (0.1*SCAN_RANGE/2.0) && abs(currOm) > abs(SCAN_SPEED)){
+        } else if(scan_distance < (0.1*SCAN_RANGE/2.0) && abs(currOm) > abs(1.1*SCAN_SPEED)){
           // End Rapid Switch Between Scan Direction Near Center of Scan and Start Scaning Second Half at Normal Scan Speed.
+          playTone(700,20);
+          playTone(1000,10);
           currOm = -1.0*SCAN_SPEED;
+          switching_scan_regions = 0;
         }
 
+
+                                                                                  DUMB_DEBUG = SensorValue[sonarSensor];
         if(target_acquired){
+          playTone(700, 40);
           scanning_for_target = 0;
           performing_general_spin = 0; // Mark spin as done in case target was acquired during spin
 

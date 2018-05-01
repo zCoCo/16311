@@ -19,7 +19,7 @@
    }
 
   // Find the Sign of a Number:
-  #define sgn(x) ((x) / abs(x))
+  #define sgn(x) ((x!=0) ? ((x) / abs(x)) : 0)
 
   // Find the Minimum of Two Numbers.
   // * Uses define so it works with any or mixed number types (without casting)

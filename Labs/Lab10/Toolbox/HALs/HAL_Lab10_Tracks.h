@@ -1,8 +1,8 @@
 #ifndef _HAL_LAB10_TRACKS_H
 #define _HAL_LAB10_TRACKS_H
 
-#define LEADING_EDGE -1.0
-// 1.0 -> Wheels first, -1.0 -> Tracks first
+#define LEADING_EDGE 1.0
+// -1.0 -> NXT first, 1.0 -> SONAR first
 
 /****
   Config Description:
@@ -19,9 +19,9 @@
   #define MOTOR_PID_UPDATE_INTERVAL 2
   #define VELOCITY_UPDATE_INTERVAL 4
 
-  #define WHEEL_DIAMETER (0.0255) // [m] (Effective OD, accounting for gearing)
-  #define WHEEL_CIRCUMFERENCE (0.080110613) // [m] (Effective C, accounting for gearing)
-  #define WHEEL_TREAD 0.128 // [m], Distance between Left and Right Wheel Tracks
+  #define WHEEL_DIAMETER (0.017) // [m] (Effective OD, accounting for gearing)
+  #define WHEEL_CIRCUMFERENCE (0.05340708) // [m] (Effective C, accounting for gearing)
+  #define WHEEL_TREAD 0.140 // [m], Distance between Left and Right Wheel Tracks
 
   // Distance per Encoder Tick:
   float METERS_PER_TICK = (((float) (WHEEL_CIRCUMFERENCE)) / ((float) (TICKS_PER_REV))); // [m/tick]
@@ -85,8 +85,8 @@ task odometry(){
   // Loop:
   while(1){
     // Capture Encoder Values Immediately:
-    Ds_left = nMotorEncoder[LeftMotor];
-    Ds_right = nMotorEncoder[RightMotor];
+    Ds_left = LEADING_EDGE*nMotorEncoder[LeftMotor];
+    Ds_right = LEADING_EDGE*nMotorEncoder[RightMotor];
     dt = time1[OdometryClock]; // Ensure this is at time of capture.
 
     // Reset (after capture) so Value Represents a Delta (and to help prevent overflows):
@@ -108,7 +108,7 @@ task odometry(){
     V = (v_r + v_l) / 2.0;
     om = (v_r - v_l) / WHEEL_TREAD;
 
-    update_odometry(LEADING_EDGE*V,om,dt);
+    update_odometry(V,om,dt);
 
     wait1Msec(VELOCITY_UPDATE_INTERVAL);
   } // loop
@@ -122,8 +122,9 @@ task odometry(){
 ****/
 void moveAt(float V, float omega){
   // Compute Forward Kinematics:
-  float v_l = V - (WHEEL_TREAD / 2.0) * omega; // [m/s]
-  float v_r = V + (WHEEL_TREAD / 2.0) * omega;
+  static float v_l, v_r;
+  v_l = V - (WHEEL_TREAD / 2.0) * omega; // [m/s]
+  v_r = V + (WHEEL_TREAD / 2.0) * omega;
   // Convert to ticks/s:
   v_l = v_l / METERS_PER_TICK; v_r = v_r / METERS_PER_TICK;
   // Convert to % of Max Speed:

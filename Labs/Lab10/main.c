@@ -20,11 +20,11 @@
 #define RING_DIAMETER (95.0*CM) // Diameter of Sumo Ring
 
 #define ROBOT_DEPTH (26.0*CM) // Depth of Robot along Direction of SONAR Sensor's Normal Vector
-#define DISTANCE_SONAR_TO_OUTSIDE (14.0*CM) // Distance from SONAR Sensor to regions Outside of the Robot's Bounds
+#define DISTANCE_SONAR_TO_OUTSIDE (6.0*CM) // Distance from SONAR Sensor to regions Outside of the Robot's Bounds
 
-#define LIGHT_DARK 16 // Median Reading of Light Sensor when Over a Dark Surface
-#define LIGHT_BLUE 39 // Median Reading of Light Sensor when Over a Blue Surface
-#define LIGHT_WHITE 40 // Minimum Reading of Light Sensor when Over a White Surface
+#define LIGHT_DARK 19 // Median Reading of Light Sensor when Over a Dark Surface
+#define LIGHT_BLUE 43 // Median Reading of Light Sensor when Over a Blue Surface
+#define LIGHT_WHITE 45 // Minimum Reading of Light Sensor when Over a White Surface
 #define LIGHT_UP 11 // Maximum Reading of Light Sensor when 1 Set of Wheels Lifted Up off the Ground
 
 
@@ -106,7 +106,7 @@ int switching_scan_regions = 0; // Whether currently switching between first and
 #define SCAN_SPEED (-0.75*MAX_OMEGA) // Rotation Speed of Oppponent Scan
 #define SCAN_RANGE 390.0*DEG // Max Angular Range of a Scan for Opponent, in degrees
 #define scan_distance (abs(heading_at_scan_start - rob_pos_TH))
-#define target_acquired (SensorValue[sonarSensor]*CM < (RING_DIAMETER - ROBOT_DEPTH) && SensorValue[sonarSensor]*CM > DISTANCE_SONAR_TO_OUTSIDE)
+#define target_acquired (SensorValue[sonarSensor]*CM < (RING_DIAMETER - ROBOT_DEPTH/3) && SensorValue[sonarSensor]*CM > DISTANCE_SONAR_TO_OUTSIDE)
 
 // int engaging_target = 0; // Whether Opponent Has been Found and is being Attacked
 
@@ -243,6 +243,11 @@ task main(){
 
     } // Priority Heirarchy
 
+    if(sgn(currOm) > 0){
+      motor[ShieldMotor] = 100
+    } else{
+      motor[ShieldMotor] = -100;
+    }
     moveAt(currV,currOm);
     wait1Msec(2); // Task Relief
   } // main loop

@@ -4,8 +4,8 @@
  * Basic Joystick Control Script for NXT Base
  **********************************************/
 
- #include "JoystickDriver.c"
- #pragma DebuggerWindows("joystickSimple")
+#include "JoystickDriver.c"
+#pragma DebuggerWindows("joystickSimple")
 
 #include "Toolbox/Util/UtilStack.h"
 #include "Toolbox/HALs/HAL.h"

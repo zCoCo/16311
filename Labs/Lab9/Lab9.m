@@ -24,6 +24,5 @@ function Lab9()
     ths = ( (gvc - 1) .* ((360./360) .* (pi./180) ./ 2) ) - pi;
     %Switch Columns (so thA is first):
     tmp = ths(:,1); ths(:,1) = ths(:,2); ths(:,2) = tmp;
-    ths
 
 end % #Lab9

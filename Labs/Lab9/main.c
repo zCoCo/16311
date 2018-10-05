@@ -15,9 +15,9 @@
 #define NUM_TARGETS 3
 // List of Targets in X-Y Space, units inches.
 float targs[][] = {
-  {3,3},
-  {4,4},
-  {-3,3}
+  {1,1},
+  {5,2},
+  {-4,4}
 };
 
 /**** -- PATH-PLANNING -- ****/

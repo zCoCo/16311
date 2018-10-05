@@ -1,4 +1,4 @@
-% Function to Create a Viable Configuration Space for the Ottia SCARA Arm
+cos% Function to Create a Viable Configuration Space for the Ottia SCARA Arm
 % Units: mm, rad.
 % Origin is Joint A Axis.
 % Returns: a Binary Matrix Representing the Revolute-Revolute SCARA 
